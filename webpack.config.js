@@ -1,11 +1,14 @@
 const path = require('path')
 const isDev = process.env.NODE_ENV === 'development'
 const HtmlPlugin = require('html-webpack-plugin')
+const CopyPlugin = require('copy-webpack-plugin')
 const htmlTemplate = `
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <title>Fractal examples</title>
   </head>
   <body>
@@ -43,6 +46,9 @@ module.exports = {
             inject: true,
             hash: true,
             cache: true,
+        }),
+        new CopyPlugin({
+            patterns: [{ from: './src/favicons' }],
         }),
     ],
 
