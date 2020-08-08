@@ -11,25 +11,22 @@ enum Route {
 }
 
 export const Main = fractal(async function* _Main() {
-    const [{ Todos }, { Antistress }, { Loadable }, { Factors }] = await Promise.all([
-        import('./todos'),
-        import('./antistress'),
-        import('./loadable'),
-        import('./factors'),
-    ])
-
     while (true) {
         switch (yield* Pathname) {
             case Route.Todos:
+                const { Todos } = await import('./todos')
                 yield Todos
                 continue
             case Route.Antistress:
+                const { Antistress } = await import('./antistress')
                 yield Antistress
                 continue
             case Route.Loadable:
+                const { Loadable } = await import('./loadable')
                 yield Loadable
                 continue
             case Route.Factors:
+                const { Factors } = await import('./factors')
                 yield Factors
                 continue
             default:
