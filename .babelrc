@@ -1,0 +1,15 @@
+{
+    "presets": [
+        [
+            "@babel/env",
+            {
+                "useBuiltIns": "usage",
+                "corejs": 3,
+                "targets": { "browsers": ["last 2 versions"] }
+            }
+        ],
+        "@babel/typescript",
+        "@babel/preset-react"
+    ],
+    "plugins": ["@babel/transform-typescript"]
+}
