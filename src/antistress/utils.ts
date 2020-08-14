@@ -1,4 +1,5 @@
-export function memo<T>(initializer: () => NonNullable<T> | Promise<NonNullable<T>>) {
-    let cache: NonNullable<T> | Promise<NonNullable<T>>
-    return () => cache || (cache = initializer())
+export function memo<T>(initializer: () => T | Promise<T>) {
+    let memoized = false
+    let cache: T | Promise<T>
+    return () => (memoized ? cache : ((memoized = true), (cache = initializer())))
 }
