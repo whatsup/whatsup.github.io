@@ -2,8 +2,9 @@ import React from 'react'
 import styled from 'styled-components'
 import { fractal, fraction, Fractal, Fraction } from '@fract/core'
 import { IS_TOUCH, Color, Palette } from './const'
-import { Handlers, TreeData, AppData } from './typings'
+import { Handlers } from './typings'
 import { CURRENT_COLOR, MODE, Mode } from './factors'
+import { TreeData } from './circle'
 import { memo } from './utils'
 
 type AppGuts = {
@@ -11,10 +12,15 @@ type AppGuts = {
     CurrentColor: Fraction<Color>
 }
 
+export type AppData = {
+    currentColor: Color
+    tree: TreeData
+}
+
 export function newApp(data: AppData) {
     const init = memo(async () => {
         const { newCircle } = await import('./circle')
-        const { currentColor, tree } = data
+        const { currentColor = Color.Default, tree = Color.Default } = data
         const Circle = newCircle(tree)
         const CurrentColor = fraction(currentColor)
 

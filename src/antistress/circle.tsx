@@ -4,9 +4,11 @@ import { fractal, fraction, exec, Fractal, Fraction } from '@fract/core'
 import { IS_TOUCH, Color } from './const'
 import { playSplitSound, playFillSound } from './sounds'
 import { CURRENT_COLOR, MODE, Mode } from './factors'
-import { Handlers, TreeData } from './typings'
+import { Handlers } from './typings'
 
 type Tree = Fraction<TreeData | Fractal<TreeData | JSX.Element>[]>
+
+export type TreeData = Color | TreeData[]
 
 export function newCircle(data: TreeData): Fractal<TreeData | JSX.Element> {
     const Tree: Tree = fraction(Array.isArray(data) ? data.map((c) => newCircle(c)) : data)
