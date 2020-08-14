@@ -3,9 +3,9 @@ import styled, { css } from 'styled-components'
 import { Fractal, fractal } from '@fract/core'
 import { FilterMode } from './const'
 import { FILTER, CHANGE_FILTER } from './factors'
-import { CountersData } from './counters'
+import { TodosCounters } from './todos'
 
-export function newFooter(Counters: Fractal<CountersData>, removeCompleted: () => any) {
+export function newFooter(Counters: Fractal<TodosCounters>, removeCompleted: () => any) {
     return fractal(async function* _Footer() {
         const AllFilter = newFilter('All', FilterMode.All)
         const ActiveFilter = newFilter('Active', FilterMode.Active)

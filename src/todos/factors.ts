@@ -4,10 +4,9 @@ import { FilterMode } from './const'
 export enum Mode {
     Data,
     Jsx,
-    Service,
 }
 
-export const MODE = factor<Mode>()
+export const MODE = factor<Mode>(Mode.Jsx)
 
 export const FILTER = factor<Fractal<FilterMode>>()
 

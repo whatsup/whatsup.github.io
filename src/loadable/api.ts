@@ -38,7 +38,7 @@ function preloadImg(url: string) {
 }
 
 function rndDelay() {
-    return new Promise((r) => setTimeout(r, 700 + Math.random() * 1000))
+    return new Promise((r) => setTimeout(r, 300 + Math.random() * 200))
 }
 
 const STORE = {

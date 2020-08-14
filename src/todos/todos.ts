@@ -1,24 +1,68 @@
-import { fractal, fraction, exec } from '@fract/core'
-import { MODE, Mode } from './factors'
+import { fractal, fraction, exec, Fraction, factor, Fractal } from '@fract/core'
+import { MODE, Mode, FILTER } from './factors'
 import { Todo, TodoData, TodoService } from './todo'
+import { memo, connect } from './utils'
+import { FilterMode } from './const'
 
-export async function newTodos(storeKey: string) {
-    const { newTodo } = await import('./todo')
+type Guts = {
+    Items: Fraction<Todo[]>
+}
 
-    const create = (name: string) => {
-        exec(async function* () {
-            const id = (~~(Math.random() * 1e8)).toString(16)
-            const done = false
-            const Todo = newTodo({ id, name, done }, remove)
-            const todos = [Todo].concat(yield* Items)
+export type Todos = Fractal<TodosData | TodosJsx | TodosCounters>
+export type TodosData = TodoData[]
+export type TodosJsx = JSX.Element[]
+export type TodosCounters = { active: number; completed: number }
 
-            Items.use(todos)
-        })
+export enum TodosMode {
+    Actions,
+    Counters,
+}
+
+export const TODOS_MODE = factor<TodosMode>()
+
+export function newTodos(data: TodoData[]): Todos {
+    const init = memo(async () => {
+        const { newTodo } = await import('./todo')
+        const Items = fraction(data.map((data) => newTodo(data)))
+
+        return { Items }
+    })
+
+    return fractal(async function* _Todos() {
+        const guts = await init()
+
+        switch (yield* TODOS_MODE) {
+            case TodosMode.Actions:
+                yield* workInActionsMode(guts)
+                break
+            case TodosMode.Counters:
+                yield* workInCountersMode(guts)
+                break
+            default:
+                switch (yield* MODE) {
+                    case Mode.Data:
+                        yield* workInDataMode(guts)
+                        break
+                    case Mode.Jsx:
+                        yield* workInJsxMode(guts)
+                        break
+                }
+        }
+    })
+}
+
+async function* workInDataMode({ Items }: Guts) {
+    while (true) {
+        yield yield* connect(Items)
     }
+}
 
-    const remove = (removeId: string) => {
+async function* workInJsxMode({ Items }: Guts) {
+    const { TODO_MODE, TodoMode, REMOVE_TODO } = await import('./todo')
+
+    const removeTodo = (removeId: string) => {
         exec(async function* () {
-            yield* MODE(Mode.Service)
+            yield* TODO_MODE(TodoMode.Service)
 
             const todos = [] as Todo[]
 
@@ -34,9 +78,55 @@ export async function newTodos(storeKey: string) {
         })
     }
 
+    yield* REMOVE_TODO(removeTodo)
+
+    const Filtered = fractal<Todo[]>(async function* _Filtered() {
+        yield* TODO_MODE(TodoMode.Service)
+
+        while (true) {
+            const filter = yield* yield* FILTER
+            const acc = [] as Todo[]
+
+            for (const Todo of yield* Items) {
+                const { Done } = (yield* Todo) as TodoService
+                const done = yield* Done
+
+                if (
+                    filter === FilterMode.All ||
+                    (filter === FilterMode.Active && !done) ||
+                    (filter === FilterMode.Completed && done)
+                ) {
+                    acc.push(Todo)
+                }
+            }
+
+            yield acc
+        }
+    })
+
+    while (true) {
+        yield yield* connect(Filtered)
+    }
+}
+
+async function* workInActionsMode({ Items }: Guts) {
+    const { TODO_MODE, TodoMode } = await import('./todo')
+
+    const create = (name: string) => {
+        exec(async function* () {
+            const { newTodo } = await import('./todo')
+            const id = (~~(Math.random() * 1e8)).toString(16)
+            const done = false
+            const Todo = newTodo({ id, name, done })
+            const todos = [Todo].concat(yield* Items)
+
+            Items.use(todos)
+        })
+    }
+
     const removeCompleted = () => {
         exec(async function* () {
-            yield* MODE(Mode.Service)
+            yield* TODO_MODE(TodoMode.Service)
 
             const todos = [] as Todo[]
 
@@ -52,31 +142,24 @@ export async function newTodos(storeKey: string) {
         })
     }
 
-    const Autosync = fractal(async function* _AutosyncWithLocalStore() {
-        yield* MODE(Mode.Data)
+    while (true) {
+        yield { create, removeCompleted }
+    }
+}
 
-        while (true) {
-            const acc = [] as TodoData[]
+async function* workInCountersMode({ Items }: Guts) {
+    const { TODO_MODE, TodoMode } = await import('./todo')
+    yield* TODO_MODE(TodoMode.Service)
 
-            for (const Todo of yield* Items) {
-                acc.push((yield* Todo) as TodoData)
-            }
+    while (true) {
+        let active = 0
+        let completed = 0
 
-            yield localStorage.setItem(storeKey, JSON.stringify(acc))
+        for (const Todo of yield* Items) {
+            const { Done } = (yield* Todo) as TodoService
+            ;(yield* Done) ? completed++ : active++
         }
-    })
 
-    const items = JSON.parse(localStorage.getItem(storeKey) || '[]') as TodoData[]
-    const Items = fraction(items.map((data) => newTodo(data, remove)))
-
-    return {
-        Todos: fractal(async function* _Items() {
-            while (true) {
-                yield yield* Items
-            }
-        }),
-        Autosync,
-        create,
-        removeCompleted,
+        yield { completed, active } as TodosCounters
     }
 }

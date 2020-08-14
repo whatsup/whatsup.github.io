@@ -1,26 +1,72 @@
 import React from 'react'
 import styled from 'styled-components'
-import { fractal, fraction, exec } from '@fract/core'
-import { STORE_KEY, ENTER_KEY, ESCAPE_KEY, FilterMode } from './const'
-import { FILTER, CHANGE_FILTER } from './factors'
-import { TodoJsx } from './todo'
+import { fractal, fraction, exec, Fraction, Fractal } from '@fract/core'
+import { ENTER_KEY, ESCAPE_KEY, FilterMode } from './const'
+import { FILTER, MODE, Mode, CHANGE_FILTER } from './factors'
+import { TodosData } from './todos'
+import { memo } from './utils'
 
-export const App = fractal<JSX.Element>(async function* _App() {
-    const { newTodos } = await import('./todos')
-    const { newFiltered } = await import('./filtered')
-    const { newCounters } = await import('./counters')
+type AppGuts = {
+    Filter: Fraction<FilterMode>
+    Todos: Fractal<any>
+}
+
+export type App = Fractal<AppData | AppJsx>
+export type AppData = { filter: FilterMode; todos: TodosData }
+export type AppJsx = JSX.Element[]
+
+export function newApp(data: AppData) {
+    const init = memo(async () => {
+        const { newTodos } = await import('./todos')
+        const { filter = FilterMode.All, todos = [] } = data
+
+        const Filter = fraction(filter)
+        const Todos = newTodos(todos)
+
+        return { Filter, Todos }
+    })
+
+    return fractal(async function* _App() {
+        const guts = await init()
+
+        switch (yield* MODE) {
+            case Mode.Data:
+                yield* workInDataMode(guts)
+                break
+            case Mode.Jsx:
+                yield* workInJsxMode(guts)
+                break
+        }
+    })
+}
+
+async function* workInDataMode({ Filter, Todos }: AppGuts) {
+    while (true) {
+        yield {
+            filter: yield* Filter,
+            todos: yield* Todos,
+        }
+    }
+}
+
+async function* workInJsxMode({ Filter, Todos }: AppGuts) {
     const { newFooter } = await import('./footer')
+    const { TODOS_MODE, TodosMode } = await import('./todos')
 
-    const { Todos, Autosync, create, removeCompleted } = await newTodos(STORE_KEY)
-    const Filtered = newFiltered(Todos)
-    const Counters = newCounters(Todos)
-    const Footer = newFooter(Counters, removeCompleted)
-    const Filter = fraction(FilterMode.All)
-    const NewTodoName = fraction('')
-
-    yield* Autosync
     yield* FILTER(Filter)
     yield* CHANGE_FILTER((mode: FilterMode) => Filter.use(mode))
+
+    const Counters = fractal(async function* _Counters() {
+        yield* TODOS_MODE(TodosMode.Counters)
+        return Todos
+    })
+    const { create, removeCompleted } = yield* fractal(async function* _Counters() {
+        yield* TODOS_MODE(TodosMode.Actions)
+        return Todos
+    })
+
+    const Footer = newFooter(Counters, removeCompleted)
+    const NewTodoName = fraction('')
 
     const handleNewTodoNameInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         NewTodoName.use(e.target.value)
@@ -40,14 +86,6 @@ export const App = fractal<JSX.Element>(async function* _App() {
         })
 
     while (true) {
-        const newTodoName = yield* NewTodoName
-
-        const list = [] as TodoJsx[]
-
-        for (const Todo of yield* Filtered) {
-            list.push((yield* Todo) as TodoJsx)
-        }
-
         yield (
             <Container>
                 <Wrapper>
@@ -55,19 +93,19 @@ export const App = fractal<JSX.Element>(async function* _App() {
                     <Main>
                         <NewTodoNameInput
                             type="text"
-                            value={newTodoName}
+                            value={yield* NewTodoName}
                             onChange={handleNewTodoNameInputChange}
                             onKeyDown={handleNewTodoNameInputKeyDown}
                             placeholder="What needs to be done?"
                         />
-                        <List>{list}</List>
+                        <List>{yield* Todos}</List>
                     </Main>
                     {yield* Footer}
                 </Wrapper>
             </Container>
         )
     }
-})
+}
 
 const Container = styled.section`
     display: flex;
