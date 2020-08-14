@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { fractal, tmp } from '@fract/core'
 import { API } from './factors'
-import { flatten } from './utils'
+import { connect } from './utils'
 import { Loader } from './loader'
 
 export const Friends = fractal(async function* _Groups() {
@@ -15,7 +15,7 @@ export const Friends = fractal(async function* _Groups() {
         yield (
             <Container>
                 <FriendsTitle>My friends</FriendsTitle>
-                {yield* flatten(FriendList)}
+                {yield* connect(FriendList)}
             </Container>
         )
     }

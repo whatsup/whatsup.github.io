@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { fractal, tmp } from '@fract/core'
 import { API } from './factors'
-import { flatten } from './utils'
+import { connect } from './utils'
 import { Loader } from './loader'
 
 export const Groups = fractal(async function* _Groups() {
@@ -12,7 +12,7 @@ export const Groups = fractal(async function* _Groups() {
     const GroupList = (await api.loadGroupIds()).map((id) => newGroup(id))
 
     while (true) {
-        yield <Container>{yield* flatten(GroupList)}</Container>
+        yield <Container>{yield* connect(GroupList)}</Container>
     }
 })
 

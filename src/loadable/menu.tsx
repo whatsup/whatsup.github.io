@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { fractal, tmp } from '@fract/core'
 import { API } from './factors'
-import { flatten } from './utils'
+import { connect } from './utils'
 import ContactsIcon from './icons/contacts.svg'
 import CardsIcon from './icons/cards.svg'
 import TrendsIcon from './icons/trends.svg'
@@ -20,7 +20,7 @@ export const Menu = fractal(async function* _Menu() {
     const Items = (await api.loadMenuIds()).map((id) => newMenuItem(id))
 
     while (true) {
-        yield <Container>{yield* flatten(Items)}</Container>
+        yield <Container>{yield* connect(Items)}</Container>
     }
 })
 
