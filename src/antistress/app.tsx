@@ -1,26 +1,51 @@
 import React from 'react'
 import styled from 'styled-components'
-import { fractal, fraction } from '@fract/core'
-import { STORE_KEY, IS_TOUCH, Color, Palette } from './const'
-import { Handlers, TreeData } from './typings'
+import { fractal, fraction, Fractal, Fraction } from '@fract/core'
+import { IS_TOUCH, Color, Palette } from './const'
+import { Handlers, TreeData, AppData } from './typings'
 import { CURRENT_COLOR, MODE, Mode } from './factors'
+import { memo } from './utils'
 
-export const App = fractal(async function* _Antistress() {
-    const { newCircle } = await import('./circle')
+type AppGuts = {
+    Circle: Fractal<Color | TreeData[] | JSX.Element>
+    CurrentColor: Fraction<Color>
+}
 
-    const data = JSON.parse(localStorage.getItem(STORE_KEY) || `"${Color.Default}"`) as TreeData
-    const Circle = newCircle(data)
-    const CurrentColor = fraction(Color.Default)
+export function newApp(data: AppData) {
+    const init = memo(async () => {
+        const { newCircle } = await import('./circle')
+        const { currentColor, tree } = data
+        const Circle = newCircle(tree)
+        const CurrentColor = fraction(currentColor)
 
-    yield* CURRENT_COLOR(CurrentColor)
+        return { Circle, CurrentColor }
+    })
 
-    yield* fractal(async function* _AutoSyncWithLocalStore() {
-        yield* MODE(Mode.Data)
+    return fractal(async function* _App() {
+        const guts = await init()
 
-        while (true) {
-            yield localStorage.setItem(STORE_KEY, JSON.stringify(yield* Circle))
+        switch (yield* MODE) {
+            case Mode.Data:
+                yield* workInDataMode(guts)
+                break
+            case Mode.Jsx:
+                yield* workInJsxMode(guts)
+                break
         }
     })
+}
+
+async function* workInDataMode({ Circle, CurrentColor }: AppGuts) {
+    while (true) {
+        yield {
+            currentColor: yield* CurrentColor,
+            tree: yield* Circle,
+        }
+    }
+}
+
+async function* workInJsxMode({ Circle, CurrentColor }: AppGuts) {
+    yield* CURRENT_COLOR(CurrentColor)
 
     const newColorSelectHandler = (color: Color): Handlers => ({
         [IS_TOUCH ? 'onTouchEnd' : 'onMouseUp']: () => CurrentColor.use(color),
@@ -49,7 +74,7 @@ export const App = fractal(async function* _Antistress() {
             </Container>
         )
     }
-})
+}
 
 const Container = styled.section`
     width: 100%;
