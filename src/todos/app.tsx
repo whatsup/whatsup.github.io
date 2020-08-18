@@ -3,25 +3,25 @@ import styled from 'styled-components'
 import { fractal, fraction, exec, Fraction, Fractal } from '@fract/core'
 import { ENTER_KEY, ESCAPE_KEY, FilterMode } from './const'
 import { FILTER, MODE, Mode, CHANGE_FILTER } from './factors'
-import { TodosData } from './todos'
-import { memo } from './utils'
+import { Todo, TodoData, TodoService } from './todo'
+import { memo, connect } from './utils'
 
 type AppGuts = {
     Filter: Fraction<FilterMode>
-    Todos: Fractal<any>
+    Todos: Fraction<Todo[]>
 }
 
 export type App = Fractal<AppData | AppJsx>
-export type AppData = { filter: FilterMode; todos: TodosData }
+export type AppData = { filter: FilterMode; todos: TodoData[] }
 export type AppJsx = JSX.Element[]
 
 export function newApp(data: AppData) {
     const init = memo(async () => {
-        const { newTodos } = await import('./todos')
+        const { newTodo } = await import('./todo')
         const { filter = FilterMode.All, todos = [] } = data
 
         const Filter = fraction(filter)
-        const Todos = newTodos(todos)
+        const Todos = fraction(todos.map((data) => newTodo(data)))
 
         return { Filter, Todos }
     })
@@ -44,25 +44,105 @@ async function* workInDataMode({ Filter, Todos }: AppGuts) {
     while (true) {
         yield {
             filter: yield* Filter,
-            todos: yield* Todos,
+            todos: yield* connect(Todos),
         }
     }
 }
 
 async function* workInJsxMode({ Filter, Todos }: AppGuts) {
     const { newFooter } = await import('./footer')
-    const { TODOS_MODE, TodosMode } = await import('./todos')
+    const { TODO_MODE, TodoMode, REMOVE_TODO } = await import('./todo')
+
+    const create = (name: string) => {
+        exec(async function* () {
+            const { newTodo } = await import('./todo')
+            const id = (~~(Math.random() * 1e8)).toString(16)
+            const done = false
+            const Todo = newTodo({ id, name, done })
+            const todos = [Todo].concat(yield* Todos)
+
+            Todos.use(todos)
+        })
+    }
+
+    const removeCompleted = () => {
+        exec(async function* () {
+            yield* TODO_MODE(TodoMode.Service)
+
+            const todos = [] as Todo[]
+
+            for (const Todo of yield* Todos) {
+                const { Done } = (yield* Todo) as TodoService
+
+                if (!(yield* Done)) {
+                    todos.push(Todo)
+                }
+            }
+
+            Todos.use(todos)
+        })
+    }
+
+    const removeTodo = (removeId: string) => {
+        exec(async function* () {
+            yield* TODO_MODE(TodoMode.Service)
+
+            const todos = [] as Todo[]
+
+            for (const Todo of yield* Todos) {
+                const { id } = (yield* Todo) as TodoService
+
+                if (id !== removeId) {
+                    todos.push(Todo)
+                }
+            }
+
+            Todos.use(todos)
+        })
+    }
 
     yield* FILTER(Filter)
     yield* CHANGE_FILTER((mode: FilterMode) => Filter.use(mode))
+    yield* REMOVE_TODO(removeTodo)
 
     const Counters = fractal(async function* _Counters() {
-        yield* TODOS_MODE(TodosMode.Counters)
-        return Todos
+        yield* TODO_MODE(TodoMode.Service)
+
+        while (true) {
+            let active = 0
+            let completed = 0
+
+            for (const Todo of yield* Todos) {
+                const { Done } = (yield* Todo) as TodoService
+                ;(yield* Done) ? completed++ : active++
+            }
+
+            yield { completed, active }
+        }
     })
-    const { create, removeCompleted } = yield* fractal(async function* _Counters() {
-        yield* TODOS_MODE(TodosMode.Actions)
-        return Todos
+
+    const Filtered = fractal<Todo[]>(async function* _Filtered() {
+        yield* TODO_MODE(TodoMode.Service)
+
+        while (true) {
+            const filter = yield* yield* FILTER
+            const acc = [] as Todo[]
+
+            for (const Todo of yield* Todos) {
+                const { Done } = (yield* Todo) as TodoService
+                const done = yield* Done
+
+                if (
+                    filter === FilterMode.All ||
+                    (filter === FilterMode.Active && !done) ||
+                    (filter === FilterMode.Completed && done)
+                ) {
+                    acc.push(Todo)
+                }
+            }
+
+            yield acc
+        }
     })
 
     const Footer = newFooter(Counters, removeCompleted)
@@ -98,7 +178,7 @@ async function* workInJsxMode({ Filter, Todos }: AppGuts) {
                             onKeyDown={handleNewTodoNameInputKeyDown}
                             placeholder="What needs to be done?"
                         />
-                        <List>{yield* Todos}</List>
+                        <List>{yield* connect(Filtered)}</List>
                     </Main>
                     {yield* Footer}
                 </Wrapper>
