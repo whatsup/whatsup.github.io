@@ -8,6 +8,7 @@ enum Route {
     Antistress = '/antistress',
     Loadable = '/loadable',
     Factors = '/factors',
+    Editor = '/editor',
 }
 
 export const Main = fractal(async function* _Main() {
@@ -30,6 +31,10 @@ export const Main = fractal(async function* _Main() {
             case Route.Factors:
                 const { Factors } = await import('./factors')
                 yield Factors
+                continue
+            case Route.Editor:
+                const { Editor } = await import('./editor')
+                yield Editor
                 continue
             default:
                 yield (
