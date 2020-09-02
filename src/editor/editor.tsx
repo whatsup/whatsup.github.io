@@ -109,5 +109,5 @@ const _Tree = styled.div`
     padding-top: 2px;
     background-color: #263238;
     overflow: scroll;
-    max-height: 400px;
+    flex: 0 0 400px;
 `
