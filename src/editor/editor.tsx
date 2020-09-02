@@ -24,7 +24,12 @@ export const Editor = fractal(async function* _HtmlEditor() {
         while (true) yield Root
     })
 
-    const Style = fractal(async function* _Edit() {
+    const NameAndTag = fractal(async function* _NameAndTag() {
+        yield* BRANCH(Branch.NameAndTag)
+        while (true) yield (yield* Editable).Target
+    })
+
+    const Style = fractal(async function* _Style() {
         yield* BRANCH(Branch.Style)
         while (true) yield (yield* Editable).Target
     })
@@ -46,10 +51,13 @@ export const Editor = fractal(async function* _HtmlEditor() {
         yield (
             <_Container>
                 <_View>
-                    <_ViewContent>{yield* View}</_ViewContent>{' '}
+                    <_ViewContent>{yield* View}</_ViewContent>
                 </_View>
-                <_Style>{yield* Style}</_Style>
-                <_Tree>{yield* Tree}</_Tree>
+                <_Tools>
+                    <_NameAndTag>{yield* NameAndTag}</_NameAndTag>
+                    <_Style>{yield* Style}</_Style>
+                    <_Tree>{yield* Tree}</_Tree>
+                </_Tools>
             </_Container>
         )
     }
@@ -57,21 +65,22 @@ export const Editor = fractal(async function* _HtmlEditor() {
 
 const _Container = styled.div`
     font: 14px 'SF Mono', Monaco, Menlo, Courier, monospace;
-    display: grid;
+    display: flex;
     height: 100vh;
     background-color: #37474f;
-    column-gap: 1px;
-    row-gap: 1px;
-    grid-template-columns: minmax(400px, 1fr) minmax(250px, 350px);
-    grid-template-rows: 1fr 1fr;
-    grid-template-areas:
-        'view style'
-        'view tree';
+    gap: 1px;
 `
 const _View = styled.div`
-    grid-area: view;
+    flex: 1;
     padding: 20px;
     background-color: #263238;
+`
+const _Tools = styled.div`
+    flex: 1;
+    max-width: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
 `
 const _ViewContent = styled.div`
     overflow: scroll;
@@ -87,14 +96,18 @@ const _ViewContent = styled.div`
     background-color: #37474f;
 `
 const _Style = styled.div`
-    grid-area: style;
+    background-color: #263238;
+    overflow: scroll;
+    flex: 1;
+`
+const _NameAndTag = styled.div`
     background-color: #263238;
     overflow: scroll;
 `
 const _Tree = styled.div`
-    grid-area: tree;
     padding-left: 3px;
     padding-top: 2px;
     background-color: #263238;
     overflow: scroll;
+    max-height: 400px;
 `

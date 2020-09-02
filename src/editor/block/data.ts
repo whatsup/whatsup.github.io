@@ -3,6 +3,7 @@ import { Block } from './block'
 import { flatten } from '../utils'
 
 interface Params {
+    Name: Fractal<string>
     TagName: Fractal<string>
     Width: Fractal<string>
     Height: Fractal<string>
@@ -12,10 +13,11 @@ interface Params {
     Children: Fractal<Block[]>
 }
 
-export async function* Data({ TagName, Width, Height, Border, BorderRadius, Background, Children }: Params) {
+export async function* Data({ Name, TagName, Width, Height, Border, BorderRadius, Background, Children }: Params) {
     while (true) {
         yield {
-            tag: yield* TagName,
+            name: yield* Name,
+            tagName: yield* TagName,
             width: yield* Width,
             height: yield* Height,
             border: yield* Border,

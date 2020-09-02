@@ -15,11 +15,12 @@ const REMOVE = factor<(Target: Block) => void>()
 interface Params {
     key: string
     Self: Block
+    Name: Fraction<string>
     TagName: Fraction<string>
     Children: Fraction<Block[]>
 }
 
-export async function* Tree({ key, Self, TagName, Children }: Params) {
+export async function* Tree({ key, Self, Name, TagName, Children }: Params) {
     const { newBlock } = await import('./block')
     const addSiblingFactor = yield* ADD_SIBLING
     const removeFactor = yield* REMOVE
@@ -84,9 +85,11 @@ export async function* Tree({ key, Self, TagName, Children }: Params) {
 
     while (true) {
         const isEditable = yield* IsEditable
+        const name = yield* Name
         const tagName = yield* TagName
         const collapsed = yield* Collapsed
         const children = yield* flatten(Children)
+        const title = tagName + (name ? `.${name}` : '')
 
         yield (
             <_Tree key={key}>
@@ -94,7 +97,7 @@ export async function* Tree({ key, Self, TagName, Children }: Params) {
                     <_Collapser onClick={toggleCollapsed} collapsed={collapsed} visible={!!children.length}>
                         <_ArrowIcon />
                     </_Collapser>
-                    <_Tag>{tagName}</_Tag>
+                    <_Title>{title}</_Title>
                     <_Button onClick={add} visible>
                         <_CreateIcon />
                     </_Button>
@@ -144,7 +147,7 @@ const _Collapser = styled.div<{ collapsed: boolean; visible: boolean }>`
             transform: rotate(90deg);
         `};
 `
-const _Tag = styled.div`
+const _Title = styled.div`
     flex: 1;
     color: #eceff1;
     margin-left: 5px;

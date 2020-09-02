@@ -32,7 +32,7 @@ async function* propertyEditor(name: string, Property: Fraction<string>) {
     return (
         <_Property>
             <_Name>{name}</_Name>
-            <_Input type="text" defaultValue={value} onChange={changeHandler} />
+            <_Input defaultValue={value} onChange={changeHandler} />
         </_Property>
     )
 }

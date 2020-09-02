@@ -3,12 +3,14 @@ import { Tree } from './tree'
 import { Data } from './data'
 import { Style } from './style'
 import { View } from './view'
+import { NameAndTag } from './name_and_tag'
 import { BRANCH, Branch } from '../factors'
 
 export type Block = Fractal<any>
 
 export interface BlockData {
     // main
+    name: string
     tagName: string
     // styles
     width: string
@@ -22,6 +24,7 @@ export interface BlockData {
 
 export function newBlock(data = {} as BlockData): Block {
     const {
+        name = '',
         tagName = 'div',
         width = 'auto',
         height = 'auto',
@@ -32,6 +35,8 @@ export function newBlock(data = {} as BlockData): Block {
     } = data
 
     const key = (~~(Math.random() * 1e8)).toString(16)
+
+    const Name = fraction(name)
 
     const TagName = fraction(tagName)
 
@@ -51,11 +56,14 @@ export function newBlock(data = {} as BlockData): Block {
             case Branch.Style:
                 yield* Style({ key, Width, Height, Border, BorderRadius, Background })
                 break
+            case Branch.NameAndTag:
+                yield* NameAndTag({ key, Name, TagName })
+                break
             case Branch.Tree:
-                yield* Tree({ key, Self, TagName, Children })
+                yield* Tree({ key, Self, Name, TagName, Children })
                 break
             case Branch.Data:
-                yield* Data({ TagName, Width, Height, Border, BorderRadius, Background, Children })
+                yield* Data({ Name, TagName, Width, Height, Border, BorderRadius, Background, Children })
                 break
         }
     })

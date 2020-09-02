@@ -6,6 +6,7 @@ export enum Branch {
     Style,
     Tree,
     Data,
+    NameAndTag,
 }
 
 export const BRANCH = factor(Branch.View)
