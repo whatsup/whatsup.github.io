@@ -14,10 +14,10 @@ export const Editor = fractal(async function* _HtmlEditor() {
     const data = JSON.parse(localStorage.getItem(STORE_KEY) || DEFAULT) as BlockData
 
     const Root = newBlock(data)
-    const Editable = fraction({ Target: Root })
+    const Editable = fraction(Root, { delegation: false })
 
     yield* EDITABLE(Editable)
-    yield* CHANGE_EDITABLE((Target: Block) => Editable.use({ Target }))
+    yield* CHANGE_EDITABLE((Target: Block) => Editable.use(Target))
 
     const View = fractal(async function* _View() {
         yield* BRANCH(Branch.View)
@@ -26,12 +26,12 @@ export const Editor = fractal(async function* _HtmlEditor() {
 
     const NameAndTag = fractal(async function* _NameAndTag() {
         yield* BRANCH(Branch.NameAndTag)
-        while (true) yield (yield* Editable).Target
+        while (true) yield yield* Editable
     })
 
     const Style = fractal(async function* _Style() {
         yield* BRANCH(Branch.Style)
-        while (true) yield (yield* Editable).Target
+        while (true) yield yield* Editable
     })
 
     const Tree = fractal(async function* _Edit() {
