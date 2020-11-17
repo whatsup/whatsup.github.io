@@ -1,46 +1,54 @@
 import styles from './menu.scss'
-import { fractal, tmp, list } from '@fract/core'
-import { API } from '../../factors'
-// import ContactsIcon from './icons/contacts.svg'
-// import CardsIcon from './icons/cards.svg'
-// import TrendsIcon from './icons/trends.svg'
-// import TagsIcon from './icons/tags.svg'
-// import SettingsIcon from './icons/settings.svg'
-// import FilesIcon from './icons/files.svg'
+import { tmp, list, Emitter, List } from '@fract/core'
 import { Loader } from '../../loader'
+import { Api } from '../../api'
 
 const Icons = [ContactsIcon, CardsIcon, TrendsIcon, TagsIcon, SettingsIcon, FilesIcon]
 
-export const Menu = fractal(async function* _Menu(ctx) {
-    yield tmp(<MenuLoader />)
+export class Menu extends Emitter<JSX.Element> {
+    list!: List<MenuItem>
 
-    const api = ctx.get(API)!
-    const Items = list((await api.loadMenuIds()).map((id) => newMenuItem(id)))
-
-    while (true) {
-        yield <Container>{yield* Items}</Container>
+    async loadMenuItemList() {
+        if (!this.list) {
+            this.list = list((await Api.loadMenuIds()).map((id) => new MenuItem(id)))
+        }
     }
-})
 
-function newMenuItem(id: number) {
-    return fractal(async function* _MenuItem(ctx) {
+    async *collector() {
+        yield tmp(<MenuLoader />)
+
+        await this.loadMenuItemList()
+
+        while (true) {
+            yield <Container>{yield* this.list}</Container>
+        }
+    }
+}
+
+export class MenuItem extends Emitter<JSX.Element> {
+    constructor(readonly id: number) {
+        super()
+    }
+
+    async *collector() {
+        const { id } = this
+
         yield tmp(<MenuItemLoader key={id} />)
 
-        const api = ctx.get(API)!
-        const { name } = await api.loadMenuItem(id)
+        const { name } = await Api.loadMenuItem(id)
         const Icon = Icons[id]
 
         while (true) {
             yield (
-                <MenuItem key={id}>
+                <MenuItemComponent key={id}>
                     <MenuItemIcon>
                         <Icon />
                     </MenuItemIcon>
                     <MenuItemName>{name}</MenuItemName>
-                </MenuItem>
+                </MenuItemComponent>
             )
         }
-    })
+    }
 }
 
 function MenuLoader() {
@@ -58,14 +66,14 @@ function MenuLoader() {
 
 function MenuItemLoader() {
     return (
-        <MenuItem>
+        <MenuItemComponent>
             <MenuItemIcon>
                 <MenuItemIconLoader />
             </MenuItemIcon>
             <MenuItemName>
                 <Loader h={16} w="50%" />
             </MenuItemName>
-        </MenuItem>
+        </MenuItemComponent>
     )
 }
 
@@ -75,20 +83,20 @@ function MenuItemIconLoader() {
     return <Loader w={26} h={26} r="50%" className={styles.menuItemIconLoader} />
 }
 
-function Container(props: Props) {
-    return <div className={styles.container}>{props.children}</div>
+function Container({ children }: Props) {
+    return <div className={styles.container}>{children}</div>
 }
 
-function MenuItem(props: Props) {
-    return <div className={styles.menuItem}>{props.children}</div>
+function MenuItemComponent({ children }: Props) {
+    return <div className={styles.menuItem}>{children}</div>
 }
 
-function MenuItemIcon(props: Props) {
-    return <div className={styles.menuItemIcon}>{props.children}</div>
+function MenuItemIcon({ children }: Props) {
+    return <div className={styles.menuItemIcon}>{children}</div>
 }
 
-function MenuItemName(props: Props) {
-    return <div className={styles.menuItemName}>{props.children}</div>
+function MenuItemName({ children }: Props) {
+    return <div className={styles.menuItemName}>{children}</div>
 }
 
 function ContactsIcon() {

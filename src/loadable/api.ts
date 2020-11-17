@@ -1,4 +1,4 @@
-export class Api {
+export const Api = new (class Api {
     async loadMenuIds() {
         await rndDelay()
         return [...Array(STORE.menu.length).keys()]
@@ -27,7 +27,7 @@ export class Api {
         await preloadImg(data.avatar)
         return data
     }
-}
+})()
 
 function preloadImg(url: string) {
     return new Promise((r) => {

@@ -1,36 +1,49 @@
 import styles from './groups.scss'
-import { fractal, tmp, list } from '@fract/core'
-import { API } from '../../factors'
+import { tmp, list, Emitter, List } from '@fract/core'
 import { Loader } from '../../loader'
+import { Api } from '../../api'
 
-export const Groups = fractal(async function* _Groups(ctx) {
-    yield tmp(<GroupsLoader />)
+export class Groups extends Emitter<JSX.Element> {
+    list!: List<Group>
 
-    const api = ctx.get(API)!
-    const GroupList = list((await api.loadGroupIds()).map((id) => newGroup(id)))
-
-    while (true) {
-        console.log(yield* GroupList)
-        yield <Container>{yield* GroupList}</Container>
+    async loadGroupList() {
+        if (!this.list) {
+            this.list = list((await Api.loadGroupIds()).map((id) => new Group(id)))
+        }
     }
-})
 
-function newGroup(id: number) {
-    return fractal(async function* _Group(ctx) {
+    async *collector() {
+        yield tmp(<GroupsLoader />)
+
+        await this.loadGroupList()
+
+        while (true) {
+            yield <Container>{yield* this.list}</Container>
+        }
+    }
+}
+
+export class Group extends Emitter<JSX.Element> {
+    constructor(readonly id: number) {
+        super()
+    }
+
+    async *collector() {
+        const { id } = this
+
         yield tmp(<GroupLoader key={id} />)
 
-        const api = ctx.get(API)!
-        const { name, image } = await api.loadGroup(id)
+        const { name, image } = await Api.loadGroup(id)
 
         while (true) {
             yield (
-                <Group key={id}>
+                <GroupComponent key={id}>
                     <GroupImg src={image} />
                     <GroupName>{name}</GroupName>
-                </Group>
+                </GroupComponent>
             )
         }
-    })
+    }
 }
 
 function GroupsLoader() {
@@ -48,24 +61,24 @@ function GroupsLoader() {
 
 function GroupLoader() {
     return (
-        <Group>
+        <GroupComponent>
             <GroupImgLoader />
             <GroupName>
                 <Loader />
             </GroupName>
-        </Group>
+        </GroupComponent>
     )
 }
 
 type Props = { children: any }
 type GroupImgProps = { src: string }
 
-function Container(props: Props) {
-    return <div className={styles.container}>{props.children}</div>
+function Container({ children }: Props) {
+    return <div className={styles.container}>{children}</div>
 }
 
-function Group(props: Props) {
-    return <div className={styles.group}>{props.children}</div>
+function GroupComponent({ children }: Props) {
+    return <div className={styles.group}>{children}</div>
 }
 
 function GroupImg(props: GroupImgProps) {
@@ -76,6 +89,6 @@ function GroupImgLoader() {
     return <Loader className={styles.groupImgLoader} w="auto" h="auto" />
 }
 
-function GroupName(props: Props) {
-    return <div className={styles.groupName}>{props.children}</div>
+function GroupName({ children }: Props) {
+    return <div className={styles.groupName}>{children}</div>
 }

@@ -1,28 +1,23 @@
 import styles from './app.scss'
-import { Emitter, Context } from '@fract/core'
-import { Api } from '../api'
-import { API } from '../factors'
+import { Emitter } from '@fract/core'
+import { Friends } from './friends'
+import { Groups } from './groups'
+import { Menu } from './menu'
 
 export class App extends Emitter<JSX.Element> {
-    async *collector(ctx: Context) {
-        const [{ Menu }, { Groups }, { Friends }] = await Promise.all([
-            import('./menu'),
-            import('./groups'),
-            import('./friends'),
-        ])
+    readonly friends = new Friends()
+    readonly groups = new Groups()
+    readonly menu = new Menu()
 
-        ctx.set(API, new Api())
-
-        console.log(yield* Groups)
-
+    async *collector() {
         while (true) {
             yield (
                 <Container>
                     <Logo>Loadable</Logo>
-                    {yield* Menu}
+                    {yield* this.menu}
                     <Title>Fractal sets</Title>
-                    {yield* Groups}
-                    {yield* Friends}
+                    {yield* this.groups}
+                    {yield* this.friends}
                 </Container>
             )
         }
@@ -31,14 +26,14 @@ export class App extends Emitter<JSX.Element> {
 
 type Props = { children: string | JSX.Element | JSX.Element[] }
 
-function Container(props: Props) {
-    return <div className={styles.container}>{props.children}</div>
+function Container({ children }: Props) {
+    return <div className={styles.container}>{children}</div>
 }
 
-function Logo(props: Props) {
-    return <div className={styles.logo}>{props.children}</div>
+function Logo({ children }: Props) {
+    return <div className={styles.logo}>{children}</div>
 }
 
-function Title(props: Props) {
-    return <div className={styles.title}>{props.children}</div>
+function Title({ children }: Props) {
+    return <div className={styles.title}>{children}</div>
 }
