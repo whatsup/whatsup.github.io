@@ -1,6 +1,6 @@
 import styles from './app.scss'
 import { fractal, Emitter } from '@fract/core'
-import { MODE, Mode } from './factors'
+import { MODE, Mode } from '../factors'
 import { User } from './user'
 
 export class App extends Emitter<JSX.Element> {

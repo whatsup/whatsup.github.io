@@ -1,7 +1,7 @@
 import React from 'react'
 import styles from './user.scss'
 import { fraction, Emitter, Context, Fraction } from '@fract/core'
-import { MODE, Mode } from './factors'
+import { MODE, Mode } from '../../factors'
 
 export class User extends Emitter<JSX.Element> {
     readonly name: Fraction<string>
@@ -23,7 +23,7 @@ export class User extends Emitter<JSX.Element> {
                 return userAsEdit.call(this)
         }
 
-        throw 'Unknown MODE'
+        throw 'Unknown MODE' // TODO: MODE 0
     }
 }
 
