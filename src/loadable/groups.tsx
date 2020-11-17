@@ -1,26 +1,25 @@
-import React from 'react'
-import styled from 'styled-components'
-import { fractal, tmp } from '@fract/core'
+import styles from './groups.scss'
+import { fractal, tmp, list } from '@fract/core'
 import { API } from './factors'
-import { connect } from './utils'
 import { Loader } from './loader'
 
-export const Groups = fractal(async function* _Groups() {
+export const Groups = fractal(async function* _Groups(ctx) {
     yield tmp(<GroupsLoader />)
 
-    const api = yield* API
-    const GroupList = (await api.loadGroupIds()).map((id) => newGroup(id))
+    const api = ctx.get(API)!
+    const GroupList = list((await api.loadGroupIds()).map((id) => newGroup(id)))
 
     while (true) {
-        yield <Container>{yield* connect(GroupList)}</Container>
+        console.log(yield* GroupList)
+        yield <Container>{yield* GroupList}</Container>
     }
 })
 
 function newGroup(id: number) {
-    return fractal(async function* _Group() {
+    return fractal(async function* _Group(ctx) {
         yield tmp(<GroupLoader key={id} />)
 
-        const api = yield* API
+        const api = ctx.get(API)!
         const { name, image } = await api.loadGroup(id)
 
         while (true) {
@@ -58,39 +57,25 @@ function GroupLoader() {
     )
 }
 
-const Container = styled.div`
-    grid-column: 3/4;
-    grid-row: 3/4;
-    display: grid;
-    gap: 30px;
-    grid-template-columns: repeat(auto-fill, 200px);
-    grid-template-rows: repeat(auto-fill, 250px);
-    grid-auto-columns: 200px;
-    grid-auto-rows: 250px;
-`
+type Props = { children: string | JSX.Element | JSX.Element[] }
+type GroupImgProps = { src: string }
 
-const Group = styled.div``
+function Container(props: Props) {
+    return <div className={styles.container}>{props}</div>
+}
 
-const GroupImg = styled.img.attrs({ alt: '' })`
-    width: 100%;
-    flex: 1;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
-`
+function Group(props: Props) {
+    return <div className={styles.group}>{props}</div>
+}
 
-const GroupImgLoader = styled(Loader)`
-    width: auto;
-    height: auto;
-    flex: 1;
-    padding-top: 100%;
-    background-color: #a5a5a5;
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
-`
+function GroupImg(props: GroupImgProps) {
+    return <img className={styles.groupImg} src={props.src} />
+}
 
-const GroupName = styled.div`
-    flex: 0 0 50px;
-    font-size: 16px;
-    padding-top: 20px;
-    font-weight: 400;
-    color: #363636;
-`
+function GroupImgLoader() {
+    return <Loader className={styles.groupImgLoader} />
+}
+
+function GroupName(props: Props) {
+    return <div className={styles.groupName}>{props}</div>
+}

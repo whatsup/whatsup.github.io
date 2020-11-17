@@ -1,31 +1,29 @@
-import React from 'react'
-import styled from 'styled-components'
-import { fractal, tmp } from '@fract/core'
+import styles from './friends.scss'
+import { fractal, tmp, list } from '@fract/core'
 import { API } from './factors'
-import { connect } from './utils'
 import { Loader } from './loader'
 
-export const Friends = fractal(async function* _Groups() {
+export const Friends = fractal(async function* _Groups(ctx) {
     yield tmp(<FriendsLoader />)
 
-    const api = yield* API
-    const FriendList = (await api.loadFriendIds()).map((id) => newFriend(id))
+    const api = ctx.get(API)!
+    const FriendList = list((await api.loadFriendIds()).map((id) => newFriend(id)))
 
     while (true) {
         yield (
             <Container>
                 <FriendsTitle>My friends</FriendsTitle>
-                {yield* connect(FriendList)}
+                {yield* FriendList}
             </Container>
         )
     }
 })
 
 function newFriend(id: number) {
-    return fractal(async function* _Friend() {
+    return fractal(async function* _Friend(ctx) {
         yield tmp(<FriendLoader key={id} />)
 
-        const api = yield* API
+        const api = ctx.get(API)!
         const { name, job, avatar } = await api.loadFriend(id)
 
         while (true) {
@@ -70,46 +68,33 @@ function FriendLoader() {
     )
 }
 
-const Container = styled.div`
-    padding-left: 40px;
-    grid-column: 4/5;
-    grid-row: 3/4;
-`
-const FriendsTitle = styled.div`
-    font-size: 23px;
-    font-weight: 500;
-    color: #363636;
-`
-const Friend = styled.div`
-    display: grid;
-    grid-template-columns: 50px 1fr;
-    grid-template-rows: 25px 25px;
-    grid-column-gap: 20px;
-    margin-top: 30px;
-`
-const FriendAvatar = styled.img.attrs({ alt: '' })`
-    width: 100%;
-    grid-column: 1/2;
-    grid-row: 1/3;
-    border-radius: 50%;
-`
-const FriendAvatarLoader = styled(Loader)`
-    width: auto;
-    height: auto;
-    grid-column: 1/2;
-    grid-row: 1/3;
-    background-color: #a5a5a5;
-    border-radius: 50%;
-`
-const FriendName = styled.div`
-    grid-column: 2/3;
-    grid-row: 1/2;
-    font-weight: 500;
-    padding-top: 7px;
-`
-const FriendJob = styled.div`
-    grid-column: 2/3;
-    grid-row: 2/3;
-    font-size: 12px;
-    padding-top: 4px;
-`
+type Props = { children: string | JSX.Element | JSX.Element[] }
+type AvatarProps = { src: string }
+
+function Container(props: Props) {
+    return <div className={styles.container}>{props.children}</div>
+}
+
+function FriendsTitle(props: Props) {
+    return <div className={styles.friendsTitle}>{props.children}</div>
+}
+
+function Friend(props: Props) {
+    return <div className={styles.friend}>{props.children}</div>
+}
+
+function FriendAvatar(props: AvatarProps) {
+    return <img className={styles.friendAvatar} src={props.src} />
+}
+
+function FriendName(props: Props) {
+    return <div className={styles.friendName}>{props.children}</div>
+}
+
+function FriendJob(props: Props) {
+    return <div className={styles.friendJob}>{props.children}</div>
+}
+
+function FriendAvatarLoader() {
+    return <Loader className={styles.friendAvatarLoader} />
+}
