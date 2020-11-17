@@ -10,40 +10,62 @@ export class App extends Emitter<JSX.Element> {
         const User = this.user
 
         const Edit = fractal(async function* (ctx) {
-            ctx!.set(MODE, Mode.Edit)
+            ctx.set(MODE, Mode.Edit)
             return User
         })
 
         const View = fractal(async function* (ctx) {
-            ctx!.set(MODE, Mode.View)
+            ctx.set(MODE, Mode.View)
             return User
         })
 
         const Json = fractal(async function* (ctx) {
-            ctx!.set(MODE, Mode.Json)
+            ctx.set(MODE, Mode.Json)
             return User
         })
 
         while (true) {
             yield (
-                <section className={styles.container}>
-                    <header className={styles.title}>Factors of work</header>
-                    <div className={styles.flex}>
-                        <div className={styles.box}>
-                            <div className={styles.subTitle}>User as Edit</div>
+                <Container>
+                    <Title>Factors of work</Title>
+                    <Flex>
+                        <Box>
+                            <SubTitle>User as Edit</SubTitle>
                             {yield* Edit}
-                        </div>
-                        <div className={styles.box}>
-                            <div className={styles.subTitle}>User as View</div>
+                        </Box>
+                        <Box>
+                            <SubTitle>User as View</SubTitle>
                             {yield* View}
-                        </div>
-                        <div className={styles.box}>
-                            <div className={styles.subTitle}>User as Json</div>
+                        </Box>
+                        <Box>
+                            <SubTitle>User as Json</SubTitle>
                             {yield* Json}
-                        </div>
-                    </div>
-                </section>
+                        </Box>
+                    </Flex>
+                </Container>
             )
         }
     }
+}
+
+type Props = { children: string | JSX.Element | JSX.Element[] }
+
+function Container(props: Props) {
+    return <section className={styles.container}>{props.children}</section>
+}
+
+function Title(props: Props) {
+    return <header className={styles.title}>{props.children}</header>
+}
+
+function Flex(props: Props) {
+    return <div className={styles.flex}>{props.children}</div>
+}
+
+function Box(props: Props) {
+    return <div className={styles.box}>{props.children}</div>
+}
+
+function SubTitle(props: Props) {
+    return <div className={styles.sybTitle}>{props.children}</div>
 }

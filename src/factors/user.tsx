@@ -13,18 +13,17 @@ export class User extends Emitter<JSX.Element> {
         this.age = fraction(age)
     }
 
-    async *collector(ctx: Context) {
+    collector(ctx: Context) {
         switch (ctx.get(MODE)) {
             case Mode.Json:
-                yield* userAsJson.call(this)
-                break
+                return userAsJson.call(this)
             case Mode.View:
-                yield* userAsView.call(this)
-                break
-            case Mode.Edit:
-                yield* userAsEdit.call(this)
-                break
+                return userAsView.call(this)
+            default:
+                return userAsEdit.call(this)
         }
+
+        throw 'Unknown MODE'
     }
 }
 
@@ -35,25 +34,23 @@ async function* userAsJson(this: User) {
             age: yield* this.age,
         }
 
-        console.log(data)
-
-        yield <div className={styles.json}>{JSON.stringify(data, null, 4)}</div>
+        yield <AsJson>{JSON.stringify(data, null, 4)}</AsJson>
     }
 }
 
 async function* userAsView(this: User): AsyncGenerator<JSX.Element> {
     while (true) {
         yield (
-            <div className={styles.userView}>
-                <div className={styles.property}>
-                    <div className={styles.propertyName}>Name</div>
-                    <div className={styles.propertyValue}>{yield* this.name}</div>
-                </div>
-                <div className={styles.property}>
-                    <div className={styles.propertyName}>Age</div>
-                    <div className={styles.propertyValue}>{yield* this.age}</div>
-                </div>
-            </div>
+            <AsView>
+                <Property>
+                    <PropertyName>Name</PropertyName>
+                    <PropertyValue>{yield* this.name}</PropertyValue>
+                </Property>
+                <Property>
+                    <PropertyName>Age</PropertyName>
+                    <PropertyValue>{yield* this.age}</PropertyValue>
+                </Property>
+            </AsView>
         )
     }
 }
@@ -68,30 +65,54 @@ async function* userAsEdit(this: User): AsyncGenerator<JSX.Element> {
 
     while (true) {
         yield (
-            <div className={styles.userEdit}>
-                <div className={styles.property}>
-                    <div className={styles.propertyName}>Name</div>
-                    <div className={styles.propertyValue}>
-                        <input
-                            className={styles.nameInput}
-                            type="text"
-                            onInput={handleNameInput}
-                            defaultValue={yield* this.name}
-                        />
-                    </div>
-                </div>
-                <div className={styles.property}>
-                    <div className={styles.propertyName}>Age</div>
-                    <div className={styles.propertyValue}>
-                        <input
-                            className={styles.ageInput}
-                            type="text"
-                            onInput={handleAgeInput}
-                            defaultValue={yield* this.age}
-                        />
-                    </div>
-                </div>
-            </div>
+            <AsEdit>
+                <Property>
+                    <PropertyName>Name</PropertyName>
+                    <PropertyValue>
+                        <NameInput onInput={handleNameInput} defaultValue={yield* this.name} />
+                    </PropertyValue>
+                </Property>
+                <Property>
+                    <PropertyName>Age</PropertyName>
+                    <PropertyValue>
+                        <AgeInput onInput={handleAgeInput} defaultValue={yield* this.age} />
+                    </PropertyValue>
+                </Property>
+            </AsEdit>
         )
     }
+}
+
+type Props = { children: string | number | JSX.Element | JSX.Element[] }
+
+function AsJson(props: Props) {
+    return <div className={styles.asJson}>{props.children}</div>
+}
+
+function AsEdit(props: Props) {
+    return <div className={styles.asEdit}>{props.children}</div>
+}
+
+function AsView(props: Props) {
+    return <div className={styles.asView}>{props.children}</div>
+}
+
+function Property(props: Props) {
+    return <div className={styles.property}>{props.children}</div>
+}
+
+function PropertyName(props: Props) {
+    return <div className={styles.propertyName}>{props.children}</div>
+}
+
+function PropertyValue(props: Props) {
+    return <div className={styles.propertyValue}>{props.children}</div>
+}
+
+function NameInput(props: { onInput: (e: any) => void; defaultValue: string }) {
+    return <input type="text" className={styles.nameInput} onInput={props.onInput} defaultValue={props.defaultValue} />
+}
+
+function AgeInput(props: { onInput: (e: any) => void; defaultValue: number }) {
+    return <input type="text" className={styles.ageInput} onInput={props.onInput} defaultValue={props.defaultValue} />
 }
