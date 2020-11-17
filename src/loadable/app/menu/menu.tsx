@@ -69,7 +69,7 @@ function MenuItemLoader() {
     )
 }
 
-type Props = { children: string | JSX.Element | JSX.Element[] }
+type Props = { children: any }
 
 function MenuItemIconLoader() {
     return <Loader w={26} h={26} r="50%" className={styles.menuItemIconLoader} />

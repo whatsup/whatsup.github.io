@@ -57,7 +57,7 @@ function GroupLoader() {
     )
 }
 
-type Props = { children: string | JSX.Element | JSX.Element[] }
+type Props = { children: any }
 type GroupImgProps = { src: string }
 
 function Container(props: Props) {
