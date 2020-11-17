@@ -32,7 +32,7 @@ module.exports = {
     mode: process.env.NODE_ENV,
 
     resolve: {
-        modules: [path.resolve('./'), path.resolve('./source'), path.resolve('node_modules')],
+        modules: [path.resolve('./'), path.resolve('./src'), path.resolve('node_modules')],
         extensions: ['.js', '.jsx', '.ts', '.tsx'],
     },
 
