@@ -1,28 +1,12 @@
-import React from 'react'
-import { render } from 'react-dom'
-import { createGlobalStyle } from 'styled-components'
-import { Reset } from 'styled-reset'
-import { Alive } from '@fract/react-alive'
-import { Main } from './main'
+import { fractal } from '@fract/core'
+import { render } from '@fract/jsx'
+import styles from './style.scss'
 
-const Global = createGlobalStyle`
-    body {
-        font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        font-weight: 300;
-        color: #4d4d4d;
-        min-height: 100vh;
+const App = fractal(async function* () {
+    while (true) {
+        console.log(styles)
+        yield <div className={styles.block}>Hello world</div>
     }
+})
 
-    section, header, main, nav, footer, div, span, input, button, a, ul, li {
-        box-sizing: border-box;
-    }
-`
-
-render(
-    <>
-        <Reset />
-        <Global />
-        <Alive target={Main} />
-    </>,
-    document.getElementById('app')
-)
+render(App, document.getElementById('app')!)

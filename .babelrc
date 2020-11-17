@@ -8,8 +8,7 @@
                 "targets": { "browsers": ["last 2 versions"] }
             }
         ],
-        "@babel/typescript",
-        "@babel/preset-react"
+        "@babel/typescript"
     ],
-    "plugins": ["@babel/transform-typescript"]
+    "plugins": ["@babel/transform-typescript", "@fract/transform-jsx"]
 }
