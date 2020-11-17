@@ -1,122 +1,97 @@
 import React from 'react'
-import styled from 'styled-components'
-import { fraction, Fraction, fractal } from '@fract/core'
+import styles from './user.scss'
+import { fraction, Emitter, Context, Fraction } from '@fract/core'
 import { MODE, Mode } from './factors'
 
-interface UserGuts {
-    Name: Fraction<string>
-    Age: Fraction<number>
-}
+export class User extends Emitter<JSX.Element> {
+    readonly name: Fraction<string>
+    readonly age: Fraction<number>
 
-export function newUser() {
-    const Name = fraction('John')
-    const Age = fraction(33)
+    constructor(name: string, age: number) {
+        super()
+        this.name = fraction(name)
+        this.age = fraction(age)
+    }
 
-    const guts: UserGuts = { Name, Age }
-
-    return fractal<JSX.Element>(async function* _User(): AsyncGenerator<JSX.Element> {
-        switch (yield* MODE) {
+    async *collector(ctx: Context) {
+        switch (ctx.get(MODE)) {
             case Mode.Json:
-                yield* userAsJson(guts)
+                yield* userAsJson.call(this)
                 break
             case Mode.View:
-                yield* userAsView(guts)
+                yield* userAsView.call(this)
                 break
             case Mode.Edit:
-                yield* userAsEdit(guts)
+                yield* userAsEdit.call(this)
                 break
         }
-    })
+    }
 }
 
-async function* userAsJson({ Name, Age }: UserGuts): AsyncGenerator<JSX.Element> {
+async function* userAsJson(this: User) {
     while (true) {
         const data = {
-            name: yield* Name,
-            age: yield* Age,
+            name: yield* this.name,
+            age: yield* this.age,
         }
 
-        yield <UserJson>{JSON.stringify(data, null, 4)}</UserJson>
+        console.log(data)
+
+        yield <div className={styles.json}>{JSON.stringify(data, null, 4)}</div>
     }
 }
 
-async function* userAsView({ Name, Age }: UserGuts): AsyncGenerator<JSX.Element> {
+async function* userAsView(this: User): AsyncGenerator<JSX.Element> {
     while (true) {
         yield (
-            <UserView>
-                <Property>
-                    <PropertyName>Name</PropertyName>
-                    <PropertyValue>{yield* Name}</PropertyValue>
-                </Property>
-                <Property>
-                    <PropertyName>Age</PropertyName>
-                    <PropertyValue>{yield* Age}</PropertyValue>
-                </Property>
-            </UserView>
+            <div className={styles.userView}>
+                <div className={styles.property}>
+                    <div className={styles.propertyName}>Name</div>
+                    <div className={styles.propertyValue}>{yield* this.name}</div>
+                </div>
+                <div className={styles.property}>
+                    <div className={styles.propertyName}>Age</div>
+                    <div className={styles.propertyValue}>{yield* this.age}</div>
+                </div>
+            </div>
         )
     }
 }
 
-async function* userAsEdit({ Name, Age }: UserGuts): AsyncGenerator<JSX.Element> {
-    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => Name.use(e.target.value)
-    const handleAgeChange = (e: React.ChangeEvent<HTMLInputElement>) => Age.use(parseInt(e.target.value) || 0)
+async function* userAsEdit(this: User): AsyncGenerator<JSX.Element> {
+    const handleNameInput = (e: any) => {
+        this.name.set(e.target.value)
+    }
+    const handleAgeInput = (e: any) => {
+        this.age.set(parseInt(e.target.value) || 0)
+    }
 
     while (true) {
         yield (
-            <UserEdit>
-                <Property>
-                    <PropertyName>Name</PropertyName>
-                    <PropertyValue>
-                        <NameInput onChange={handleNameChange} defaultValue={yield* Name} />
-                    </PropertyValue>
-                </Property>
-                <Property>
-                    <PropertyName>Age</PropertyName>
-                    <PropertyValue>
-                        <AgeInput onChange={handleAgeChange} defaultValue={yield* Age} />
-                    </PropertyValue>
-                </Property>
-            </UserEdit>
+            <div className={styles.userEdit}>
+                <div className={styles.property}>
+                    <div className={styles.propertyName}>Name</div>
+                    <div className={styles.propertyValue}>
+                        <input
+                            className={styles.nameInput}
+                            type="text"
+                            onInput={handleNameInput}
+                            defaultValue={yield* this.name}
+                        />
+                    </div>
+                </div>
+                <div className={styles.property}>
+                    <div className={styles.propertyName}>Age</div>
+                    <div className={styles.propertyValue}>
+                        <input
+                            className={styles.ageInput}
+                            type="text"
+                            onInput={handleAgeInput}
+                            defaultValue={yield* this.age}
+                        />
+                    </div>
+                </div>
+            </div>
         )
     }
 }
-
-const UserJson = styled.code`
-    white-space: pre;
-    font-weight: 400;
-    font-family: monospace;
-`
-
-const UserView = styled.div`
-    padding-top: 18px;
-`
-
-const Property = styled.div`
-    display: flex;
-    align-items: center;
-    margin-bottom: 1px;
-    min-height: 20px;
-`
-
-const PropertyName = styled.div`
-    font-weight: 400;
-    flex: 0 0 80px;
-`
-
-const PropertyValue = styled.div`
-    flex: 0 0 80px;
-    min-width: 80px;
-`
-
-const UserEdit = styled.div`
-    padding-top: 18px;
-`
-
-const NameInput = styled.input.attrs({ type: 'text' })`
-    font: inherit;
-    width: 100%;
-`
-const AgeInput = styled.input.attrs({ type: 'text' })`
-    font: inherit;
-    width: 100%;
-`
