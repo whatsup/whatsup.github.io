@@ -1,7 +1,7 @@
 import styles from './friends.scss'
 import { fractal, tmp, list } from '@fract/core'
-import { API } from './factors'
-import { Loader } from './loader'
+import { API } from '../../factors'
+import { Loader } from '../../loader'
 
 export const Friends = fractal(async function* _Groups(ctx) {
     yield tmp(<FriendsLoader />)
@@ -96,5 +96,5 @@ function FriendJob(props: Props) {
 }
 
 function FriendAvatarLoader() {
-    return <Loader className={styles.friendAvatarLoader} />
+    return <Loader r="50%" w="auto" h="auto" className={styles.friendAvatarLoader} />
 }

@@ -1,7 +1,7 @@
 import styles from './app.scss'
 import { Emitter, Context } from '@fract/core'
-import { Api } from './api'
-import { API } from './factors'
+import { Api } from '../api'
+import { API } from '../factors'
 
 export class App extends Emitter<JSX.Element> {
     async *collector(ctx: Context) {
@@ -12,6 +12,8 @@ export class App extends Emitter<JSX.Element> {
         ])
 
         ctx.set(API, new Api())
+
+        console.log(yield* Groups)
 
         while (true) {
             yield (

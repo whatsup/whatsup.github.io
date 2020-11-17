@@ -1,13 +1,13 @@
 import styles from './menu.scss'
 import { fractal, tmp, list } from '@fract/core'
-import { API } from './factors'
+import { API } from '../../factors'
 // import ContactsIcon from './icons/contacts.svg'
 // import CardsIcon from './icons/cards.svg'
 // import TrendsIcon from './icons/trends.svg'
 // import TagsIcon from './icons/tags.svg'
 // import SettingsIcon from './icons/settings.svg'
 // import FilesIcon from './icons/files.svg'
-import { Loader } from './loader'
+import { Loader } from '../../loader'
 
 const Icons = [ContactsIcon, CardsIcon, TrendsIcon, TagsIcon, SettingsIcon, FilesIcon]
 
@@ -72,7 +72,7 @@ function MenuItemLoader() {
 type Props = { children: string | JSX.Element | JSX.Element[] }
 
 function MenuItemIconLoader() {
-    return <Loader className={styles.menuItemIconLoader} />
+    return <Loader w={26} h={26} r="50%" className={styles.menuItemIconLoader} />
 }
 
 function Container(props: Props) {

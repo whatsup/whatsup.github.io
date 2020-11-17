@@ -5,7 +5,7 @@
             {
                 "useBuiltIns": "usage",
                 "corejs": 3,
-                "targets": { "browsers": ["last 2 versions"] }
+                "targets": { "browsers": ["chrome>80"] }
             }
         ],
         "@babel/typescript"

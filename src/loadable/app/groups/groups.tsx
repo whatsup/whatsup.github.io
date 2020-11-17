@@ -1,7 +1,7 @@
 import styles from './groups.scss'
 import { fractal, tmp, list } from '@fract/core'
-import { API } from './factors'
-import { Loader } from './loader'
+import { API } from '../../factors'
+import { Loader } from '../../loader'
 
 export const Groups = fractal(async function* _Groups(ctx) {
     yield tmp(<GroupsLoader />)
@@ -61,11 +61,11 @@ type Props = { children: string | JSX.Element | JSX.Element[] }
 type GroupImgProps = { src: string }
 
 function Container(props: Props) {
-    return <div className={styles.container}>{props}</div>
+    return <div className={styles.container}>{props.children}</div>
 }
 
 function Group(props: Props) {
-    return <div className={styles.group}>{props}</div>
+    return <div className={styles.group}>{props.children}</div>
 }
 
 function GroupImg(props: GroupImgProps) {
@@ -73,9 +73,9 @@ function GroupImg(props: GroupImgProps) {
 }
 
 function GroupImgLoader() {
-    return <Loader className={styles.groupImgLoader} />
+    return <Loader className={styles.groupImgLoader} w="auto" h="auto" />
 }
 
 function GroupName(props: Props) {
-    return <div className={styles.groupName}>{props}</div>
+    return <div className={styles.groupName}>{props.children}</div>
 }
