@@ -9,5 +9,3 @@ export enum Mode {
 export const MODE = factor<Mode>(Mode.Jsx)
 
 export const FILTER = factor<Fractal<FilterMode>>()
-
-export const CHANGE_FILTER = factor<(mode: FilterMode) => any>()

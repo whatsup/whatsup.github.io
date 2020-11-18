@@ -4,6 +4,7 @@ import { render } from '@fract/jsx'
 //import styles from './style.scss'
 import { Factors } from './factors'
 import { Loadable } from './loadable'
+import { Todos } from './todos'
 
 // const App = fractal(async function* () {
 //     while (true) {
@@ -12,4 +13,4 @@ import { Loadable } from './loadable'
 //     }
 // })
 
-render(new Factors(), document.getElementById('app')!)
+render(new Todos(), document.getElementById('app')!)
