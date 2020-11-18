@@ -33,7 +33,7 @@ function FriendsLoader() {
     return (
         <Container>
             <FriendsTitle>
-                <Loader h={28} />
+                <Loader h={23} />
             </FriendsTitle>
             <FriendLoader />
             <FriendLoader />
