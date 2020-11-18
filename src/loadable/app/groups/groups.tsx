@@ -1,9 +1,9 @@
 import styles from './groups.scss'
-import { tmp, list, Emitter, List } from '@fract/core'
+import { tmp, list, Fractal, List } from '@fract/core'
 import { Api } from 'loadable/api'
 import { Group, GroupLoader } from './group'
 
-export class Groups extends Emitter<JSX.Element> {
+export class Groups extends Fractal<JSX.Element> {
     list!: List<Group>
 
     async loadGroupList() {

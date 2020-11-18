@@ -1,10 +1,10 @@
 import styles from './ITEM.scss'
-import { tmp, Emitter } from '@fract/core'
+import { tmp, Fractal } from '@fract/core'
 import { Loader } from 'loadable/loader'
 import { Api } from 'loadable/api'
 import { Icons } from './icons'
 
-export class Item extends Emitter<JSX.Element> {
+export class Item extends Fractal<JSX.Element> {
     constructor(readonly id: number) {
         super()
     }

@@ -1,9 +1,9 @@
 import styles from './app.scss'
-import { fractal, Emitter } from '@fract/core'
+import { fractal, Fractal } from '@fract/core'
 import { MODE, Mode } from '../factors'
 import { User } from './user'
 
-export class App extends Emitter<JSX.Element> {
+export class App extends Fractal<JSX.Element> {
     readonly user = new User('John', 33)
 
     async *collector() {
@@ -67,5 +67,5 @@ function Box(props: Props) {
 }
 
 function SubTitle(props: Props) {
-    return <div className={styles.sybTitle}>{props.children}</div>
+    return <div className={styles.subTitle}>{props.children}</div>
 }

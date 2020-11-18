@@ -1,9 +1,9 @@
 import React from 'react'
 import styles from './user.scss'
-import { fraction, Emitter, Context, Fraction } from '@fract/core'
+import { fraction, Fractal, Context, Fraction } from '@fract/core'
 import { MODE, Mode } from '../../factors'
 
-export class User extends Emitter<JSX.Element> {
+export class User extends Fractal<JSX.Element> {
     readonly name: Fraction<string>
     readonly age: Fraction<number>
 
@@ -19,11 +19,11 @@ export class User extends Emitter<JSX.Element> {
                 return userAsJson.call(this)
             case Mode.View:
                 return userAsView.call(this)
-            default:
+            case Mode.Edit:
                 return userAsEdit.call(this)
         }
 
-        throw 'Unknown MODE' // TODO: MODE 0
+        throw 'Unknown MODE'
     }
 }
 
@@ -86,7 +86,7 @@ async function* userAsEdit(this: User): AsyncGenerator<JSX.Element> {
 type Props = { children: string | number | JSX.Element | JSX.Element[] }
 
 function AsJson(props: Props) {
-    return <div className={styles.asJson}>{props.children}</div>
+    return <code className={styles.asJson}>{props.children}</code>
 }
 
 function AsEdit(props: Props) {

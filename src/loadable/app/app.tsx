@@ -1,10 +1,10 @@
 import styles from './app.scss'
-import { Emitter } from '@fract/core'
+import { Fractal } from '@fract/core'
 import { Friends } from './friends'
 import { Groups } from './groups'
 import { Menu } from './menu'
 
-export class App extends Emitter<JSX.Element> {
+export class App extends Fractal<JSX.Element> {
     readonly friends = new Friends()
     readonly groups = new Groups()
     readonly menu = new Menu()

@@ -1,9 +1,9 @@
 import styles from './friend.scss'
-import { tmp, Emitter } from '@fract/core'
+import { tmp, Fractal } from '@fract/core'
 import { Loader } from 'loadable/loader'
 import { Api } from 'loadable/api'
 
-export class Friend extends Emitter<JSX.Element> {
+export class Friend extends Fractal<JSX.Element> {
     constructor(readonly id: number) {
         super()
     }

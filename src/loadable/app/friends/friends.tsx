@@ -1,10 +1,10 @@
 import styles from './friends.scss'
-import { tmp, list, Emitter, List } from '@fract/core'
+import { tmp, list, Fractal, List } from '@fract/core'
 import { Loader } from 'loadable/loader'
 import { Api } from 'loadable/api'
 import { Friend, FriendLoader } from './friend'
 
-export class Friends extends Emitter<JSX.Element> {
+export class Friends extends Fractal<JSX.Element> {
     list!: List<Friend>
 
     async loadFriendList() {

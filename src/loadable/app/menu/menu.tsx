@@ -1,9 +1,9 @@
 import styles from './menu.scss'
-import { tmp, list, Emitter, List } from '@fract/core'
+import { tmp, list, Fractal, List } from '@fract/core'
 import { Api } from 'loadable/api'
 import { Item, ItemLoader } from './item'
 
-export class Menu extends Emitter<JSX.Element> {
+export class Menu extends Fractal<JSX.Element> {
     list!: List<Item>
 
     async loadMenuItemList() {

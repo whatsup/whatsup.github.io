@@ -2,6 +2,7 @@ import './reset.scss'
 //import { fractal } from '@fract/core'
 import { render } from '@fract/jsx'
 //import styles from './style.scss'
+import { Factors } from './factors'
 import { Loadable } from './loadable'
 
 // const App = fractal(async function* () {
@@ -11,4 +12,4 @@ import { Loadable } from './loadable'
 //     }
 // })
 
-render(new Loadable(), document.getElementById('app')!)
+render(new Factors(), document.getElementById('app')!)

@@ -1,9 +1,9 @@
 import styles from './group.scss'
-import { Emitter, tmp } from '@fract/core'
+import { Fractal, tmp } from '@fract/core'
 import { Loader } from 'loadable/loader'
 import { Api } from 'loadable/api'
 
-export class Group extends Emitter<JSX.Element> {
+export class Group extends Fractal<JSX.Element> {
     constructor(readonly id: number) {
         super()
     }
