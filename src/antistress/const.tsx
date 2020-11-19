@@ -1,5 +1,4 @@
 export const STORE_KEY = 'ANTISTRESS_STORE'
-export const IS_TOUCH = 'ontouchstart' in document.documentElement
 
 export enum Color {
     None = 'unset',

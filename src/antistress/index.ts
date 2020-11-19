@@ -1,21 +1,35 @@
-import { fractal } from '@fract/core'
+import { fractal, Fractal } from '@fract/core'
 import { STORE_KEY } from './const'
 import { MODE, Mode } from './factors'
-import { AppData } from './app'
+import { AppData, App } from './app/app'
 
-export const Antistress = fractal(async function* _Antistress() {
-    const { newApp } = await import('./app')
+export class Antistress extends Fractal<JSX.Element> {
+    readonly appJsx: Fractal<JSX.Element>
+    readonly appData: Fractal<AppData>
 
-    const data = JSON.parse(localStorage.getItem(STORE_KEY) || '{}') as AppData
-    const App = newApp(data)
+    constructor() {
+        super()
+        const data = JSON.parse(localStorage.getItem(STORE_KEY) || '{}') as AppData
+        const app = new App(data)
 
-    yield* fractal(async function* _AutoSyncWithLocalStore() {
-        yield* MODE(Mode.Data)
+        this.appData = fractal(async function* (ctx) {
+            ctx.set(MODE, Mode.Data)
+            return app
+        })
 
+        this.appJsx = fractal(async function* (ctx) {
+            ctx.set(MODE, Mode.Jsx)
+            return app
+        })
+    }
+
+    async *collector() {
         while (true) {
-            yield localStorage.setItem(STORE_KEY, JSON.stringify(yield* App))
-        }
-    })
+            const data = yield* this.appData
 
-    return App
-})
+            localStorage.setItem(STORE_KEY, JSON.stringify(data))
+
+            yield yield* this.appJsx
+        }
+    }
+}
