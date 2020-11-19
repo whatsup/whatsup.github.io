@@ -1,8 +1,8 @@
 import styles from './layer.scss'
 import { fraction, Fractal, Fraction, Context } from '@fract/core'
-import { Color } from 'antistress/const'
-import { playSplitSound, playFillSound } from 'antistress/sounds'
-import { CURRENT_COLOR, MODE, Mode } from 'antistress/factors'
+import { Color } from 'root/antistress/const'
+import { playSplitSound, playFillSound } from 'root/antistress/sounds'
+import { CURRENT_COLOR, MODE, Mode } from 'root/antistress/factors'
 
 export type LayerData = Color | LayerData[]
 

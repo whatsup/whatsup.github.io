@@ -6,7 +6,7 @@ type InputProps = {
     type: string
     placeholder: string
     value: any
-    onChange: (e: any) => void
+    onInput: (e: any) => void
     onKeyDown: (e: any) => void
 }
 

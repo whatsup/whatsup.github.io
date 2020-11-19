@@ -44,7 +44,7 @@ export class App extends Fractal<AppView> {
         const id = (~~(Math.random() * 1e8)).toString(16)
         const todo = new Todo({ id, name })
 
-        this.todos.insert(todo)
+        this.todos.insertAt(0, todo)
     }
 
     remove(todo: Todo) {
@@ -130,21 +130,20 @@ async function* workInJsxMode(this: App, ctx: Context) {
     const filtered = new Filtered(this.todos, this.filter)
     const counters = new Counters(this.todos)
     const footer = new Footer(counters)
+    const newTodoName = fraction('')
 
-    const NewTodoName = fraction('')
-
-    const handleNewTodoNameInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        NewTodoName.set(e.target.value)
+    const handleNewTodoNameInputChange = (e: any) => {
+        newTodoName.set(e.target.value)
     }
-    const handleNewTodoNameInputKeyDown = ({ keyCode }: React.KeyboardEvent) => {
-        const name = NewTodoName.get()
+    const handleNewTodoNameInputKeyDown = ({ keyCode }: any) => {
+        const name = newTodoName.get()
 
         if (name) {
             if (keyCode === ENTER_KEY) {
                 ctx.dispath(new CreateEvent(name))
             }
             if (keyCode === ENTER_KEY || keyCode === ESCAPE_KEY) {
-                NewTodoName.set('')
+                newTodoName.set('')
             }
         }
     }
@@ -157,8 +156,8 @@ async function* workInJsxMode(this: App, ctx: Context) {
                     <Main>
                         <NewTodoNameInput
                             type="text"
-                            value={yield* NewTodoName}
-                            onChange={handleNewTodoNameInputChange}
+                            value={yield* newTodoName}
+                            onInput={handleNewTodoNameInputChange}
                             onKeyDown={handleNewTodoNameInputKeyDown}
                             placeholder="What needs to be done?"
                         />

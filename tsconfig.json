@@ -17,7 +17,7 @@
         "rootDir": "./src",
         "baseUrl": "./",
         "paths": {
-            "*": ["src/*", "node_modules/*"]
+            "*": ["src/*", "src/root/*", "node_modules/*"]
         }
     }
 }
