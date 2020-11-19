@@ -6,6 +6,7 @@ import type { Todos } from './todos'
 import type { Antistress } from 'root/antistress'
 import type { Loadable } from './loadable'
 import type { Factors } from './factors'
+import type { Sierpinski } from './sierpinski'
 import { FractalJSX } from '@fract/jsx'
 
 enum Route {
@@ -13,7 +14,7 @@ enum Route {
     Antistress = '/antistress',
     Loadable = '/loadable',
     Factors = '/factors',
-    Editor = '/editor',
+    Sierpinski = '/sierpinski',
 }
 
 export class Root extends Fractal<JSX.Element> {
@@ -22,6 +23,47 @@ export class Root extends Fractal<JSX.Element> {
     private antistress!: Antistress
     private loadable!: Loadable
     private factors!: Factors
+    private sierpinski!: Sierpinski
+
+    async *collector() {
+        const redirect = (route: Route) => this.pathname.redirect(route)
+
+        while (true) {
+            yield tmp(<Loading />)
+
+            switch (yield* this.pathname) {
+                case Route.Todos:
+                    yield this.initTodos()
+                    continue
+                case Route.Antistress:
+                    yield this.initAntistress()
+                    continue
+                case Route.Loadable:
+                    yield this.initLoadable()
+                    continue
+                case Route.Factors:
+                    yield this.initFactors()
+                    continue
+                case Route.Sierpinski:
+                    yield this.initSierpinski()
+                    continue
+                default:
+                    yield (
+                        <Container>
+                            <Title>Fractal examples</Title>
+                            <Flex>
+                                <TodosBtn onClick={() => redirect(Route.Todos)}>Todos</TodosBtn>
+                                <AntistressBtn onClick={() => redirect(Route.Antistress)}>Antistress</AntistressBtn>
+                                <LoadableBtn onClick={() => redirect(Route.Loadable)}>Loadable</LoadableBtn>
+                                <FactorsBtn onClick={() => redirect(Route.Factors)}>Factors</FactorsBtn>
+                                <SierpinskyBtn onClick={() => redirect(Route.Sierpinski)}>Sierpinski</SierpinskyBtn>
+                            </Flex>
+                        </Container>
+                    )
+                    continue
+            }
+        }
+    }
 
     private async initTodos() {
         if (!this.todos) {
@@ -55,40 +97,12 @@ export class Root extends Fractal<JSX.Element> {
         return this.factors
     }
 
-    async *collector() {
-        const redirect = (route: Route) => this.pathname.redirect(route)
-
-        while (true) {
-            yield tmp(<Loading />)
-
-            switch (yield* this.pathname) {
-                case Route.Todos:
-                    yield this.initTodos()
-                    continue
-                case Route.Antistress:
-                    yield this.initAntistress()
-                    continue
-                case Route.Loadable:
-                    yield this.initLoadable()
-                    continue
-                case Route.Factors:
-                    yield this.initFactors()
-                    continue
-                default:
-                    yield (
-                        <Container>
-                            <Title>Fractal examples</Title>
-                            <Flex>
-                                <TodosBtn onClick={() => redirect(Route.Todos)}>Todos</TodosBtn>
-                                <AntistressBtn onClick={() => redirect(Route.Antistress)}>Antistress</AntistressBtn>
-                                <LoadableBtn onClick={() => redirect(Route.Loadable)}>Loadable</LoadableBtn>
-                                <FactorsBtn onClick={() => redirect(Route.Factors)}>Factors</FactorsBtn>
-                            </Flex>
-                        </Container>
-                    )
-                    continue
-            }
+    private async initSierpinski() {
+        if (!this.sierpinski) {
+            const { Sierpinski } = await import('./sierpinski')
+            this.sierpinski = new Sierpinski()
         }
+        return this.sierpinski
     }
 }
 
@@ -146,6 +160,14 @@ function LoadableBtn({ children, onClick }: BtnProps) {
 function FactorsBtn({ children, onClick }: BtnProps) {
     return (
         <button className={styles.factorsBtn} onClick={onClick}>
+            {children}
+        </button>
+    )
+}
+
+function SierpinskyBtn({ children, onClick }: BtnProps) {
+    return (
+        <button className={styles.sierpinskiBtn} onClick={onClick}>
             {children}
         </button>
     )

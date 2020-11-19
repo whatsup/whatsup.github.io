@@ -75,6 +75,11 @@
     background-color: #ff9800;
 }
 
+.sierpinskiBtn {
+    @extend .btn;
+    background-color: #0097a7;
+}
+
 .loader {
     display: inline-block;
     position: absolute;
