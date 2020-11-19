@@ -1,4 +1,3 @@
-import React from 'react'
 import styles from './user.scss'
 import { fraction, Fractal, Context, Fraction } from '@fract/core'
 import { MODE, Mode } from '../../factors'

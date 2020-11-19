@@ -61,10 +61,6 @@ module.exports = {
                 exclude: /node_modules/,
             },
             {
-                test: /\.svg$/,
-                use: ['@svgr/webpack'],
-            },
-            {
                 test: /\.(mp3|ogg|jpg)$/,
                 use: ['file-loader'],
                 exclude: /node_modules/,
