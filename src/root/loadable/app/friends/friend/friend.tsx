@@ -1,8 +1,8 @@
 import styles from './friend.scss'
 import { tmp, Fractal } from '@fract/core'
+import { FractalJSX } from '@fract/jsx'
 import { Loader } from 'loadable/loader'
 import { Api } from 'loadable/api'
-import { FractalJSX } from '@fract/jsx'
 
 export class Friend extends Fractal<JSX.Element> {
     constructor(readonly id: number) {
