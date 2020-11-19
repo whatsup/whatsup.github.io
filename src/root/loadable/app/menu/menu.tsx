@@ -2,6 +2,7 @@ import styles from './menu.scss'
 import { tmp, list, Fractal, List } from '@fract/core'
 import { Api } from 'loadable/api'
 import { Item, ItemLoader } from './item'
+import { FractalJSX } from '@fract/jsx'
 
 export class Menu extends Fractal<JSX.Element> {
     list!: List<Item>
@@ -36,8 +37,6 @@ function MenuLoader() {
     )
 }
 
-type Props = { children: any }
-
-function Container({ children }: Props) {
+function Container({ children }: FractalJSX.Attributes) {
     return <div className={styles.container}>{children}</div>
 }

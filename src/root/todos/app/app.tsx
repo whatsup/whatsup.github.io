@@ -155,7 +155,6 @@ async function* workInJsxMode(this: App, ctx: Context) {
                     <Header>todos</Header>
                     <Main>
                         <NewTodoNameInput
-                            type="text"
                             value={yield* newTodoName}
                             onInput={handleNewTodoNameInputChange}
                             onKeyDown={handleNewTodoNameInputKeyDown}

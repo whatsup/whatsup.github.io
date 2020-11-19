@@ -3,6 +3,7 @@ import { tmp, Fractal } from '@fract/core'
 import { Loader } from 'loadable/loader'
 import { Api } from 'loadable/api'
 import { Icons } from './icons'
+import { FractalJSX } from '@fract/jsx'
 
 export class Item extends Fractal<JSX.Element> {
     constructor(readonly id: number) {
@@ -43,20 +44,18 @@ export function ItemLoader() {
     )
 }
 
-type Props = { children: any }
-
 function IconLoader() {
     return <Loader w={26} h={26} r="50%" className={styles.iconLoader} />
 }
 
-function Container({ children }: Props) {
+function Container({ children }: FractalJSX.Attributes) {
     return <div className={styles.container}>{children}</div>
 }
 
-function IconWrapper({ children }: Props) {
+function IconWrapper({ children }: FractalJSX.Attributes) {
     return <div className={styles.icon}>{children}</div>
 }
 
-function Name({ children }: Props) {
+function Name({ children }: FractalJSX.Attributes) {
     return <div className={styles.name}>{children}</div>
 }

@@ -2,6 +2,7 @@ import styles from './app.scss'
 import { fractal, Fractal } from '@fract/core'
 import { MODE, Mode } from '../factors'
 import { User } from './user'
+import { FractalJSX } from '@fract/jsx'
 
 export class App extends Fractal<JSX.Element> {
     readonly user = new User('John', 33)
@@ -48,24 +49,22 @@ export class App extends Fractal<JSX.Element> {
     }
 }
 
-type Props = { children: string | JSX.Element | JSX.Element[] }
-
-function Container(props: Props) {
-    return <section className={styles.container}>{props.children}</section>
+function Container({ children }: FractalJSX.Attributes) {
+    return <section className={styles.container}>{children}</section>
 }
 
-function Title(props: Props) {
-    return <header className={styles.title}>{props.children}</header>
+function Title({ children }: FractalJSX.Attributes) {
+    return <header className={styles.title}>{children}</header>
 }
 
-function Flex(props: Props) {
-    return <div className={styles.flex}>{props.children}</div>
+function Flex({ children }: FractalJSX.Attributes) {
+    return <div className={styles.flex}>{children}</div>
 }
 
-function Box(props: Props) {
-    return <div className={styles.box}>{props.children}</div>
+function Box({ children }: FractalJSX.Attributes) {
+    return <div className={styles.box}>{children}</div>
 }
 
-function SubTitle(props: Props) {
-    return <div className={styles.subTitle}>{props.children}</div>
+function SubTitle({ children }: FractalJSX.Attributes) {
+    return <div className={styles.subTitle}>{children}</div>
 }

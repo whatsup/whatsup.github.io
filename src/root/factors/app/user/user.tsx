@@ -1,5 +1,6 @@
 import styles from './user.scss'
 import { fraction, Fractal, Context, Fraction } from '@fract/core'
+import { FractalJSX } from '@fract/jsx'
 import { MODE, Mode } from '../../factors'
 
 export class User extends Fractal<JSX.Element> {
@@ -82,36 +83,34 @@ async function* userAsEdit(this: User): AsyncGenerator<JSX.Element> {
     }
 }
 
-type Props = { children: string | number | JSX.Element | JSX.Element[] }
-
-function AsJson(props: Props) {
+function AsJson(props: FractalJSX.Attributes) {
     return <code className={styles.asJson}>{props.children}</code>
 }
 
-function AsEdit(props: Props) {
+function AsEdit(props: FractalJSX.Attributes) {
     return <div className={styles.asEdit}>{props.children}</div>
 }
 
-function AsView(props: Props) {
+function AsView(props: FractalJSX.Attributes) {
     return <div className={styles.asView}>{props.children}</div>
 }
 
-function Property(props: Props) {
+function Property(props: FractalJSX.Attributes) {
     return <div className={styles.property}>{props.children}</div>
 }
 
-function PropertyName(props: Props) {
+function PropertyName(props: FractalJSX.Attributes) {
     return <div className={styles.propertyName}>{props.children}</div>
 }
 
-function PropertyValue(props: Props) {
+function PropertyValue(props: FractalJSX.Attributes) {
     return <div className={styles.propertyValue}>{props.children}</div>
 }
 
-function NameInput(props: { onInput: (e: any) => void; defaultValue: string }) {
+function NameInput(props: { onInput: (event: FractalJSX.FormEvent<HTMLInputElement>) => void; defaultValue: string }) {
     return <input type="text" className={styles.nameInput} onInput={props.onInput} defaultValue={props.defaultValue} />
 }
 
-function AgeInput(props: { onInput: (e: any) => void; defaultValue: number }) {
+function AgeInput(props: { onInput: (event: FractalJSX.FormEvent<HTMLInputElement>) => void; defaultValue: number }) {
     return <input type="text" className={styles.ageInput} onInput={props.onInput} defaultValue={props.defaultValue} />
 }

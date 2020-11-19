@@ -1,20 +1,21 @@
 import styles from './footer.scss'
+import { FractalJSX } from '@fract/jsx'
 
-type Props = { children?: any }
-
-export function Container({ children }: Props) {
+export function Container({ children }: FractalJSX.Attributes) {
     return <footer className={styles.container}>{children}</footer>
 }
 
-export function Flex({ children }: Props) {
+export function Flex({ children }: FractalJSX.Attributes) {
     return <footer className={styles.flex}>{children}</footer>
 }
 
-export function Help({ children }: Props) {
+export function Help({ children }: FractalJSX.Attributes) {
     return <div className={styles.help}>{children}</div>
 }
 
-export function Left({ children, visible }: Props & { visible: boolean }) {
+export type LeftProps = FractalJSX.Attributes & { visible: boolean }
+
+export function Left({ children, visible }: LeftProps) {
     let className = styles.left
 
     if (!visible) {
@@ -24,7 +25,12 @@ export function Left({ children, visible }: Props & { visible: boolean }) {
     return <span className={className}>{children}</span>
 }
 
-export function Clear({ children, visible, onClick }: Props & { visible: boolean; onClick: (e: any) => void }) {
+export type ClearProps = FractalJSX.Attributes & {
+    visible: boolean
+    onClick: (event: FractalJSX.MouseEvent<HTMLAnchorElement>) => void
+}
+
+export function Clear({ children, visible, onClick }: ClearProps) {
     let className = styles.clear
 
     if (!visible) {
@@ -38,11 +44,16 @@ export function Clear({ children, visible, onClick }: Props & { visible: boolean
     )
 }
 
-export function Filters({ children }: Props) {
+export function Filters({ children }: FractalJSX.Attributes) {
     return <ul className={styles.filters}>{children}</ul>
 }
 
-export function FilterBtn({ children, active, onClick }: Props & { active: boolean; onClick: (e: any) => void }) {
+export type FilterBtnProps = FractalJSX.Attributes & {
+    active: boolean
+    onClick: (event: FractalJSX.MouseEvent<HTMLLIElement>) => void
+}
+
+export function FilterBtn({ children, active, onClick }: FilterBtnProps) {
     let className = styles.filterBtn
 
     if (active) {

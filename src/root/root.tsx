@@ -6,6 +6,7 @@ import type { Todos } from './todos'
 import type { Antistress } from 'root/antistress'
 import type { Loadable } from './loadable'
 import type { Factors } from './factors'
+import { FractalJSX } from '@fract/jsx'
 
 enum Route {
     Todos = '/todos',
@@ -102,21 +103,23 @@ function Loading() {
     )
 }
 
-type Props = { children?: any }
-
-function Container({ children }: Props) {
+function Container({ children }: FractalJSX.Attributes) {
     return <section className={styles.container}>{children}</section>
 }
 
-function Title({ children }: Props) {
+function Title({ children }: FractalJSX.Attributes) {
     return <header className={styles.title}>{children}</header>
 }
 
-function Flex({ children }: Props) {
+function Flex({ children }: FractalJSX.Attributes) {
     return <div className={styles.flex}>{children}</div>
 }
 
-function TodosBtn({ children, onClick }: Props & { onClick: () => void }) {
+type BtnProps = FractalJSX.Attributes & {
+    onClick: (event: FractalJSX.MouseEvent<HTMLButtonElement>) => void
+}
+
+function TodosBtn({ children, onClick }: BtnProps) {
     return (
         <button className={styles.todosBtn} onClick={onClick}>
             {children}
@@ -124,7 +127,7 @@ function TodosBtn({ children, onClick }: Props & { onClick: () => void }) {
     )
 }
 
-function AntistressBtn({ children, onClick }: Props & { onClick: () => void }) {
+function AntistressBtn({ children, onClick }: BtnProps) {
     return (
         <button className={styles.antistressBtn} onClick={onClick}>
             {children}
@@ -132,7 +135,7 @@ function AntistressBtn({ children, onClick }: Props & { onClick: () => void }) {
     )
 }
 
-function LoadableBtn({ children, onClick }: Props & { onClick: () => void }) {
+function LoadableBtn({ children, onClick }: BtnProps) {
     return (
         <button className={styles.loadableBtn} onClick={onClick}>
             {children}
@@ -140,7 +143,7 @@ function LoadableBtn({ children, onClick }: Props & { onClick: () => void }) {
     )
 }
 
-function FactorsBtn({ children, onClick }: Props & { onClick: () => void }) {
+function FactorsBtn({ children, onClick }: BtnProps) {
     return (
         <button className={styles.factorsBtn} onClick={onClick}>
             {children}

@@ -2,6 +2,7 @@ import styles from './friend.scss'
 import { tmp, Fractal } from '@fract/core'
 import { Loader } from 'loadable/loader'
 import { Api } from 'loadable/api'
+import { FractalJSX } from '@fract/jsx'
 
 export class Friend extends Fractal<JSX.Element> {
     constructor(readonly id: number) {
@@ -41,22 +42,21 @@ export function FriendLoader() {
     )
 }
 
-type Props = { children: any }
-type AvatarProps = { src: string }
-
-function Container({ children }: Props) {
+function Container({ children }: FractalJSX.Attributes) {
     return <div className={styles.container}>{children}</div>
 }
 
-function FriendAvatar(props: AvatarProps) {
-    return <img className={styles.avatar} src={props.src} />
+type AvatarProps = FractalJSX.Attributes & { src: string }
+
+function FriendAvatar({ src }: AvatarProps) {
+    return <img className={styles.avatar} src={src} />
 }
 
-function FriendName({ children }: Props) {
+function FriendName({ children }: FractalJSX.Attributes) {
     return <div className={styles.name}>{children}</div>
 }
 
-function FriendJob({ children }: Props) {
+function FriendJob({ children }: FractalJSX.Attributes) {
     return <div className={styles.job}>{children}</div>
 }
 

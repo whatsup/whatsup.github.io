@@ -2,6 +2,7 @@ import styles from './groups.scss'
 import { tmp, list, Fractal, List } from '@fract/core'
 import { Api } from 'loadable/api'
 import { Group, GroupLoader } from './group'
+import { FractalJSX } from '@fract/jsx'
 
 export class Groups extends Fractal<JSX.Element> {
     list!: List<Group>
@@ -36,8 +37,6 @@ function GroupsLoader() {
     )
 }
 
-type Props = { children: any }
-
-function Container({ children }: Props) {
+function Container({ children }: FractalJSX.Attributes) {
     return <div className={styles.container}>{children}</div>
 }

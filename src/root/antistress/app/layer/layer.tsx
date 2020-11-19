@@ -3,6 +3,7 @@ import { fraction, Fractal, Fraction, Context } from '@fract/core'
 import { Color } from 'root/antistress/const'
 import { playSplitSound, playFillSound } from 'root/antistress/sounds'
 import { CURRENT_COLOR, MODE, Mode } from 'root/antistress/factors'
+import { FractalJSX } from '@fract/jsx'
 
 export type LayerData = Color | LayerData[]
 
@@ -96,9 +97,13 @@ async function* workInJsxMode(this: Layer, ctx: Context): AsyncGenerator<JSX.Ele
     }
 }
 
-type Props = { children?: any; onMouseDown: (e: any) => void; onMouseUp: (e: any) => void }
+type ContainerProps = FractalJSX.Attributes & {
+    color: string
+    onMouseDown: (event: FractalJSX.MouseEvent<HTMLDivElement>) => void
+    onMouseUp: (event: FractalJSX.MouseEvent<HTMLDivElement>) => void
+}
 
-function Container({ children, color, onMouseDown, onMouseUp }: Props & { color: string }) {
+function Container({ children, color, onMouseDown, onMouseUp }: ContainerProps) {
     const style = {
         backgroundColor: color,
     }

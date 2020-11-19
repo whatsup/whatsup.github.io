@@ -1,5 +1,6 @@
 import styles from './friends.scss'
 import { tmp, list, Fractal, List } from '@fract/core'
+import { FractalJSX } from '@fract/jsx'
 import { Loader } from 'loadable/loader'
 import { Api } from 'loadable/api'
 import { Friend, FriendLoader } from './friend'
@@ -45,12 +46,10 @@ function FriendsLoader() {
     )
 }
 
-type Props = { children: any }
-
-function Container({ children }: Props) {
+function Container({ children }: FractalJSX.Attributes) {
     return <div className={styles.container}>{children}</div>
 }
 
-function FriendsTitle({ children }: Props) {
+function FriendsTitle({ children }: FractalJSX.Attributes) {
     return <div className={styles.title}>{children}</div>
 }

@@ -1,5 +1,6 @@
 import styles from './app.scss'
 import { fraction, Fractal, Fraction, Context } from '@fract/core'
+import { FractalJSX } from '@fract/jsx'
 import { Color, Palette } from '../const'
 import { CURRENT_COLOR, MODE, Mode } from '../factors'
 import { LayerData, Layer } from './layer'
@@ -69,37 +70,37 @@ async function* workInJsxMode(this: App, ctx: Context) {
     }
 }
 
-type Props = { children?: any }
-
-function Container({ children }: Props) {
+function Container({ children }: FractalJSX.Attributes) {
     return <section className={styles.container}>{children}</section>
 }
 
-function Main({ children }: Props) {
+function Main({ children }: FractalJSX.Attributes) {
     return <main className={styles.main}>{children}</main>
 }
 
-function Help({ children }: Props) {
+function Help({ children }: FractalJSX.Attributes) {
     return <div className={styles.help}>{children}</div>
 }
 
-function Title({ children }: Props) {
+function Title({ children }: FractalJSX.Attributes) {
     return <div className={styles.title}>{children}</div>
 }
 
-function Tools({ children }: Props) {
+function Tools({ children }: FractalJSX.Attributes) {
     return <div className={styles.tools}>{children}</div>
 }
 
-function Canvas({ children }: Props) {
+function Canvas({ children }: FractalJSX.Attributes) {
     return <div className={styles.canvas}>{children}</div>
 }
 
-function ColorBtn({
-    color,
-    selected,
-    onClick,
-}: Props & { color: string; selected: boolean; onClick: (e: any) => void }) {
+export type ColorBtnProps = FractalJSX.Attributes & {
+    color: string
+    selected: boolean
+    onClick: (event: FractalJSX.MouseEvent<HTMLDivElement>) => void
+}
+
+function ColorBtn({ color, selected, onClick }: ColorBtnProps) {
     const style = {
         backgroundColor: color,
         boxShadow: selected ? `inset 0 0 0px 3px ${color}, inset 0 0 0px 6px white` : 'none',
