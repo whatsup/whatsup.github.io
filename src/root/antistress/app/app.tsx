@@ -101,10 +101,11 @@ export type ColorBtnProps = FractalJSX.Attributes & {
 }
 
 function ColorBtn({ color, selected, onClick }: ColorBtnProps) {
-    const style = {
-        backgroundColor: color,
-        boxShadow: selected ? `inset 0 0 0px 3px ${color}, inset 0 0 0px 6px white` : 'none',
+    let className = `${styles.colorBtn} ${styles[color]}`
+
+    if (selected) {
+        className += ` ${styles.selected}`
     }
 
-    return <div className={styles.colorBtn} style={style} onClick={onClick} />
+    return <div className={className} onClick={onClick} />
 }

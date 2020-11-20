@@ -1,3 +1,5 @@
+@use "./colors";
+
 .container {
     width: 100%;
     min-height: 100vh;
@@ -57,12 +59,18 @@
     height: 80vmin;
     position: relative;
 }
+
 .colorBtn {
     width: 8vmin;
     height: 8vmin;
     border-radius: 50%;
-    // background-color: ${(props) => props.color};
-    // box-shadow: ${(props) => (props.selected ? `inset 0 0 0px 3px ${props.color}, inset 0 0 0px 6px white;` : 'none')};
+    background-color: currentColor;
     margin: 1vmin;
     cursor: pointer;
+
+    @include colors.palette;
+
+    &.selected {
+        box-shadow: inset 0 0 0px 3px currentColor, inset 0 0 0px 6px white;
+    }
 }

@@ -1,0 +1,29 @@
+@mixin palette {
+    &.none {
+        color: white;
+    }
+    &.default {
+        color: #00bcd4;
+    }
+    &.red {
+        color: #e91e63;
+    }
+    &.pink {
+        color: #9c27b0;
+    }
+    &.blue {
+        color: #2196f3;
+    }
+    &.cyan {
+        color: #00bcd4;
+    }
+    &.green {
+        color: #4caf50;
+    }
+    &.lime {
+        color: #cddc39;
+    }
+    &.amber {
+        color: #ffc107;
+    }
+}

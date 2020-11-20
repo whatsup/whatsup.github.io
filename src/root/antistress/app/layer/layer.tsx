@@ -104,12 +104,10 @@ type ContainerProps = FractalJSX.Attributes & {
 }
 
 function Container({ children, color, onMouseDown, onMouseUp }: ContainerProps) {
-    const style = {
-        backgroundColor: color,
-    }
+    const className = `${styles.container} ${styles[color]}`
 
     return (
-        <div className={styles.container} style={style} onMouseDown={onMouseDown} onMouseUp={onMouseUp}>
+        <div className={className} onMouseDown={onMouseDown} onMouseUp={onMouseUp}>
             {children}
         </div>
     )
