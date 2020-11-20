@@ -69,7 +69,7 @@ async function* workInJsxMode(this: Layer, ctx: Context): AsyncGenerator<JSX.Ele
         let splitTimerId = 0
 
         const mouseDownHandler = (e: any) => {
-            splitTimerId = setTimeout(() => {
+            splitTimerId = window.setTimeout(() => {
                 this.nested.set(
                     children.length ? Color.Default : [new Layer(color), new Layer(color), new Layer(color)]
                 )
