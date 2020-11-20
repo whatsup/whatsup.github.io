@@ -1,4 +1,4 @@
-import { fraction, Fractal, Fraction, Context } from '@fract/core'
+import { fraction, Fractal, Fraction, Context, Event } from '@fract/core'
 import { MODE, Mode } from 'todos/factors'
 import { RemoveEvent } from '../events'
 import {
@@ -6,11 +6,12 @@ import {
     Status,
     CheckboxMarkedIcon,
     CheckboxBlankIcon,
-    EditName,
+    EditNameInput,
     TodoName,
     Remove,
     RemoveIcon,
 } from './todo.comp'
+import { createRef } from '@fract/jsx'
 
 export type TodoView = Fractal<TodoData | TodoJsx>
 export type TodoData = { id: string; name: string; done?: boolean }
@@ -31,6 +32,9 @@ export class Todo extends Fractal<TodoView> {
     }
 
     collector(ctx: Context) {
+        ctx.on(NeedDisableEditEvent, () => this.edit.set(false))
+        ctx.on(NameChangeEvent, (e) => this.name.set(e.value))
+
         switch (ctx.get(MODE)) {
             case Mode.Data:
                 return workInDataMode.call(this)
@@ -54,25 +58,7 @@ async function* workInDataMode(this: Todo) {
 
 async function* workInJsxMode(this: Todo, ctx: Context) {
     const { id } = this
-
-    const editNameRef = (input: HTMLInputElement) => {
-        if (input) {
-            const outsideClickHandler = (e: any) => {
-                if (!input.contains(e.target)) {
-                    this.edit.set(false)
-                    document.removeEventListener('click', outsideClickHandler)
-                }
-            }
-            document.addEventListener('click', outsideClickHandler)
-        }
-    }
-
-    const handleEditInputChange = (e: any) => {
-        this.name.set(e.target.value)
-    }
-    const handleEditInputKeyDown = (e: any) => {
-        if (e.key === 'Enter') this.edit.set(false)
-    }
+    const nameEdit = new EditName(this.name)
 
     while (true) {
         const name = yield* this.name
@@ -85,12 +71,7 @@ async function* workInJsxMode(this: Todo, ctx: Context) {
                     {done ? <CheckboxMarkedIcon /> : <CheckboxBlankIcon />}
                 </Status>
                 {edit ? (
-                    <EditName
-                        ref={editNameRef}
-                        defaultValue={name}
-                        onChange={handleEditInputChange}
-                        onKeyDown={handleEditInputKeyDown}
-                    />
+                    yield* nameEdit
                 ) : (
                     <TodoName done={done} onDblClick={() => this.edit.set(true)}>
                         {name}
@@ -101,5 +82,66 @@ async function* workInJsxMode(this: Todo, ctx: Context) {
                 </Remove>
             </Container>
         )
+    }
+}
+
+class NeedDisableEditEvent extends Event {}
+class NameChangeEvent extends Event {
+    constructor(readonly value: string) {
+        super()
+    }
+}
+
+class EditName extends Fractal<JSX.Element> {
+    readonly value: Fraction<string>
+
+    constructor(value: Fraction<string>) {
+        super()
+        this.value = value
+    }
+
+    async *collector(ctx: Context) {
+        const ref = createRef()
+
+        const outsideClickHandler = (e: any) => {
+            if (!ref.current.contains(e.target)) {
+                ctx.dispath(new NeedDisableEditEvent())
+            }
+        }
+        const handleEditInputChange = (e: any) => {
+            ctx.dispath(new NameChangeEvent(e.target.value))
+        }
+        const handleEditInputKeyDown = (e: any) => {
+            if (e.key === 'Enter') {
+                ctx.dispath(new NeedDisableEditEvent())
+            }
+        }
+
+        setTimeout(() => {
+            // Move cursor to end & focus
+            const { current } = ref
+
+            if (current) {
+                current.selectionStart = current.selectionEnd = this.value.get().length
+                current.focus()
+            }
+        })
+
+        document.addEventListener('click', outsideClickHandler)
+
+        try {
+            while (true) {
+                yield (
+                    <EditNameInput
+                        ref={ref}
+                        defaultValue={yield* this.value}
+                        onInput={handleEditInputChange}
+                        onKeyDown={handleEditInputKeyDown}
+                    />
+                )
+            }
+        } finally {
+            document.removeEventListener('click', outsideClickHandler)
+        }
     }
 }

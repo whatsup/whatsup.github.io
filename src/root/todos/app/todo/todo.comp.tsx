@@ -48,17 +48,16 @@ export function Remove({ children, onClick }: RemoveProps) {
     )
 }
 type EditNameProps = FractalJSX.Attributes & {
-    ref: any
     defaultValue: string
-    onChange: (event: FractalJSX.ChangeEvent<HTMLInputElement>) => void
+    onInput: (event: FractalJSX.ChangeEvent<HTMLInputElement>) => void
     onKeyDown: (event: FractalJSX.KeyboardEvent<HTMLInputElement>) => void
 }
-export function EditName({ defaultValue, onChange, onKeyDown }: EditNameProps) {
+export function EditNameInput({ defaultValue, onInput, onKeyDown }: EditNameProps) {
     return (
         <input
             type="text"
             className={styles.editName}
-            onChange={onChange}
+            onInput={onInput}
             onKeyDown={onKeyDown}
             defaultValue={defaultValue}
             autoFocus

@@ -96,9 +96,9 @@ export class App extends Fractal<JSX.Element> {
             const transform = `scaleX(${yield* this.scaler})`
 
             yield (
-                <div className={styles.container} style={{ transform }}>
+                <section className={styles.container} style={{ transform }}>
                     {yield* this.triangle}
-                </div>
+                </section>
             )
         }
     }

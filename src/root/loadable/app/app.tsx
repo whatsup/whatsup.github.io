@@ -26,7 +26,7 @@ export class App extends Fractal<JSX.Element> {
 }
 
 function Container({ children }: FractalJSX.Attributes) {
-    return <div className={styles.container}>{children}</div>
+    return <section className={styles.container}>{children}</section>
 }
 
 function Logo({ children }: FractalJSX.Attributes) {
