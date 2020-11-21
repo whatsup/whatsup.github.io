@@ -1,4 +1,6 @@
+import './root/reset.scss'
 import { render } from '@fract/jsx'
-import { Root } from './root'
+//import { Todos } from './root/todos'
+import { Sierpinski } from './root/sierpinski'
 
-render(new Root(), document.body!)
+render(new Sierpinski() as any, document.body!)

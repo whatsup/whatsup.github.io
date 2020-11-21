@@ -69,7 +69,7 @@ export class Counters extends Fractal<any> {
         this.todos = todos
     }
 
-    async *collector() {
+    *collector() {
         while (true) {
             let active = 0
             let completed = 0
@@ -93,7 +93,7 @@ export class Filtered extends Fractal<Todo[]> {
         this.filter = filter
     }
 
-    async *collector() {
+    *collector() {
         while (true) {
             const filter = yield* this.filter
             const acc = [] as Todo[]
@@ -115,7 +115,7 @@ export class Filtered extends Fractal<Todo[]> {
     }
 }
 
-async function* workInDataMode(this: App) {
+function* workInDataMode(this: App) {
     while (true) {
         yield {
             filter: yield* this.filter,
@@ -124,7 +124,7 @@ async function* workInDataMode(this: App) {
     }
 }
 
-async function* workInJsxMode(this: App, ctx: Context) {
+function* workInJsxMode(this: App, ctx: Context) {
     ctx.set(FILTER, this.filter)
 
     const filtered = new Filtered(this.todos, this.filter)

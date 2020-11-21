@@ -1,5 +1,5 @@
 import styles from './app.scss'
-import { Fractal, tmp, Context, factor, fraction } from '@fract/core'
+import { Fractal, Context, factor, fraction } from '@fract/core'
 
 const TIMER = factor<Fractal<number>>()
 
@@ -7,37 +7,76 @@ function layer(depth: number) {
     return depth === 0 ? new Dot() : new Triangle(--depth)
 }
 
-function delay(timeout: number) {
-    return new Promise((r) => setTimeout(r, timeout))
-}
+export class Timer extends Fractal<number> {
+    private active = false
+    private contexts = new Set<Context>()
+    private delay: number
+    private data = 0
 
-class Timer extends Fractal<number> {
-    private pause?: Promise<unknown>
+    constructor(timeout: number = 1000) {
+        super()
+        this.delay = timeout
+    }
 
-    async *collector() {
-        let i = -1
+    *collector(context: Context) {
+        this.contexts.add(context)
 
-        while (true) {
-            yield tmp(i === 9 ? (i = 0) : ++i)
-            await (this.pause || (this.pause = delay(1000).then(() => (this.pause = undefined))))
+        let iBoss = false
+        let timeoutId: number
+
+        if (!this.active) {
+            this.active = true
+            iBoss = true
+        }
+
+        try {
+            while (true) {
+                const { data, delay } = this
+
+                if (iBoss) {
+                    timeoutId = window.setTimeout(() => this.update(data + 1), delay)
+                }
+
+                yield data
+            }
+        } finally {
+            if (timeoutId!) {
+                clearTimeout(timeoutId!)
+            }
+
+            this.active = false
+            this.contexts.delete(context)
+        }
+    }
+
+    private update(data: number) {
+        this.data = data === 10 ? 0 : data
+
+        for (const context of this.contexts) {
+            context.update()
         }
     }
 }
 
 class Scaler extends Fractal<number> {
-    async *collector() {
+    *collector(ctx: Context) {
         let elapsed = 0
+        let rafId: number
 
-        while (true) {
-            const e = (elapsed / 1000) % 10
-            yield tmp(1 + (e > 5 ? 10 - e : e) / 10)
-            elapsed = await new Promise(requestAnimationFrame)
+        try {
+            while (true) {
+                rafId = requestAnimationFrame((e) => ((elapsed = e), ctx.update()))
+                const e = (elapsed / 1000) % 10
+                yield 1 + (e > 5 ? 10 - e : e) / 10
+            }
+        } finally {
+            cancelAnimationFrame(rafId!)
         }
     }
 }
 
 class Dot extends Fractal<JSX.Element> {
-    async *collector(ctx: Context) {
+    *collector(ctx: Context) {
         const Timer = ctx.get(TIMER)!
         const Hovered = fraction(false)
 
@@ -71,7 +110,7 @@ class Triangle extends Fractal<JSX.Element> {
         this.thr = layer(depth)
     }
 
-    async *collector() {
+    *collector() {
         while (true) {
             yield (
                 <div className={styles.triangle}>
@@ -87,9 +126,9 @@ class Triangle extends Fractal<JSX.Element> {
 export class App extends Fractal<JSX.Element> {
     readonly timer = new Timer()
     readonly scaler = new Scaler()
-    readonly triangle = new Triangle(5)
+    readonly triangle = new Triangle(5);
 
-    async *collector(ctx: Context) {
+    *collector(ctx: Context) {
         ctx.set(TIMER, this.timer)
 
         while (true) {

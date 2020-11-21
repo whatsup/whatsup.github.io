@@ -1,6 +1,6 @@
 import { Fractal } from '@fract/core'
 
-export async function* connect<T>(target: Fractal<T>[] | Fractal<Fractal<T>[]>) {
+export function* connect<T>(target: any[] | Fractal<any[]>) {
     const items = target instanceof Fractal ? yield* target : target
     const acc = [] as T[]
 

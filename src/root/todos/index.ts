@@ -13,18 +13,18 @@ export class Todos extends Fractal<any> {
         const data = JSON.parse(localStorage.getItem(STORE_KEY) || '{}') as AppData
         const app = new App(data)
 
-        this.appData = fractal(async function* (ctx) {
+        this.appData = fractal(function* (ctx) {
             ctx.set(MODE, Mode.Data)
             return app
         })
 
-        this.appJsx = fractal(async function* (ctx) {
+        this.appJsx = fractal(function* (ctx) {
             ctx.set(MODE, Mode.Jsx)
             return app
         })
     }
 
-    async *collector() {
+    *collector() {
         while (true) {
             const data = yield* this.appData
 

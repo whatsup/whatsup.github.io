@@ -46,7 +46,7 @@ export class Todo extends Fractal<TodoView> {
     }
 }
 
-async function* workInDataMode(this: Todo) {
+function* workInDataMode(this: Todo) {
     while (true) {
         yield {
             id: this.id,
@@ -56,7 +56,7 @@ async function* workInDataMode(this: Todo) {
     }
 }
 
-async function* workInJsxMode(this: Todo, ctx: Context) {
+function* workInJsxMode(this: Todo, ctx: Context) {
     const { id } = this
     const nameEdit = new EditName(this.name)
 
@@ -100,7 +100,7 @@ class EditName extends Fractal<JSX.Element> {
         this.value = value
     }
 
-    async *collector(ctx: Context) {
+    *collector(ctx: Context) {
         const ref = createRef()
 
         const outsideClickHandler = (e: any) => {

@@ -13,7 +13,7 @@ export class Footer extends Fractal<JSX.Element> {
         this.counters = counters
     }
 
-    async *collector(ctx: Context) {
+    *collector(ctx: Context) {
         const allFilter = new Filter('All', FilterMode.All)
         const activeFilter = new Filter('Active', FilterMode.Active)
         const completedFilter = new Filter('Completed', FilterMode.Completed)
@@ -51,7 +51,7 @@ class Filter extends Fractal<JSX.Element> {
         this.mode = mode
     }
 
-    async *collector(ctx: Context) {
+    *collector(ctx: Context) {
         const { mode, name } = this
 
         while (true) {
