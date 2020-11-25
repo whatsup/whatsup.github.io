@@ -1,5 +1,4 @@
-import { factor, Fractal } from '@fract/core'
-import { FilterMode } from './const'
+import { factor } from '@fract/core'
 
 export enum Mode {
     Data,
@@ -7,5 +6,3 @@ export enum Mode {
 }
 
 export const MODE = factor<Mode>(Mode.Jsx)
-
-export const FILTER = factor<Fractal<FilterMode>>()

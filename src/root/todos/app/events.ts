@@ -1,6 +1,5 @@
 import { Event } from '@fract/core'
 import { Todo } from './todo'
-import { FilterMode } from '../const'
 
 export class CreateEvent extends Event {
     constructor(readonly name: string) {
@@ -15,9 +14,3 @@ export class RemoveEvent extends Event {
 }
 
 export class RemoveCompletedEvent extends Event {}
-
-export class ChangeFilterEvent extends Event {
-    constructor(readonly mode: FilterMode) {
-        super()
-    }
-}

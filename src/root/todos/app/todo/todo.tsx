@@ -1,4 +1,4 @@
-import { fraction, Fractal, Fraction, Context, Event } from '@fract/core'
+import { Fractal, Observable, Context, Event, observable } from '@fract/core'
 import { MODE, Mode } from 'todos/factors'
 import { RemoveEvent } from '../events'
 import {
@@ -19,19 +19,19 @@ export type TodoJsx = JSX.Element
 
 export class Todo extends Fractal<TodoView> {
     readonly id: string
-    readonly name: Fraction<string>
-    readonly done: Fraction<boolean>
-    readonly edit: Fraction<boolean>
+    readonly name: Observable<string>
+    readonly done: Observable<boolean>
+    readonly edit: Observable<boolean>
 
     constructor({ id, name, done = false }: TodoData) {
         super()
         this.id = id
-        this.name = fraction(name)
-        this.done = fraction(done)
-        this.edit = fraction(false)
+        this.name = observable(name)
+        this.done = observable(done)
+        this.edit = observable(false)
     }
 
-    collector(ctx: Context) {
+    stream(ctx: Context) {
         ctx.on(NeedDisableEditEvent, () => this.edit.set(false))
         ctx.on(NameChangeEvent, (e) => this.name.set(e.value))
 
@@ -93,14 +93,14 @@ class NameChangeEvent extends Event {
 }
 
 class EditName extends Fractal<JSX.Element> {
-    readonly value: Fraction<string>
+    readonly value: Observable<string>
 
-    constructor(value: Fraction<string>) {
+    constructor(value: Observable<string>) {
         super()
         this.value = value
     }
 
-    *collector(ctx: Context) {
+    *stream(ctx: Context) {
         const ref = createRef()
 
         const outsideClickHandler = (e: any) => {

@@ -45,38 +45,3 @@
         visibility: hidden;
     }
 }
-
-.filters {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    @media (max-width: 500px) {
-        order: 1;
-        flex: 0 0 100%;
-        margin-top: 10px;
-    }
-}
-
-.filterBtn {
-    cursor: pointer;
-    font-size: 16px;
-    padding: 2px 7px;
-    border-radius: 3px;
-    border-width: 1px;
-    border-style: solid;
-    border-color: transparent;
-
-    &:hover {
-        border-color: #4fc3f7;
-    }
-
-    &:not(:last-child) {
-        margin-right: 20px;
-    }
-
-    &.active {
-        border-color: #29b6f6;
-    }
-}

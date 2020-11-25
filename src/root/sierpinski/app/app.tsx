@@ -1,65 +1,44 @@
 import styles from './app.scss'
-import { Fractal, Context, factor, fraction } from '@fract/core'
+import { Fractal, RootContext, factor, Computed, observable, Context } from '@fract/core'
 
-const TIMER = factor<Fractal<number>>()
+const TIMER = factor<Timer>()
 
 function layer(depth: number) {
     return depth === 0 ? new Dot() : new Triangle(--depth)
 }
 
-export class Timer extends Fractal<number> {
-    private active = false
-    private contexts = new Set<Context>()
+export class Timer extends Computed<number> {
     private delay: number
-    private data = 0
+    private value = 0
 
-    constructor(timeout: number = 1000) {
+    constructor(delay: number = 1000) {
         super()
-        this.delay = timeout
+        this.delay = delay
     }
 
-    *collector(context: Context) {
-        this.contexts.add(context)
-
-        let iBoss = false
+    *stream(ctx: RootContext) {
         let timeoutId: number
-
-        if (!this.active) {
-            this.active = true
-            iBoss = true
-        }
 
         try {
             while (true) {
-                const { data, delay } = this
+                const { value } = this
 
-                if (iBoss) {
-                    timeoutId = window.setTimeout(() => this.update(data + 1), delay)
-                }
+                timeoutId = window.setTimeout(() => ctx.update(), this.delay)
 
-                yield data
+                yield value
+
+                this.value = value === 9 ? 0 : value + 1
             }
         } finally {
             if (timeoutId!) {
                 clearTimeout(timeoutId!)
             }
-
-            this.active = false
-            this.contexts.delete(context)
-        }
-    }
-
-    private update(data: number) {
-        this.data = data === 10 ? 0 : data
-
-        for (const context of this.contexts) {
-            context.update()
         }
     }
 }
 
-class Scaler extends Fractal<number> {
-    *collector(ctx: Context) {
+class Scaler extends Computed<number> {
+    *stream(ctx: RootContext) {
         let elapsed = 0
         let rafId: number
 
@@ -76,9 +55,9 @@ class Scaler extends Fractal<number> {
 }
 
 class Dot extends Fractal<JSX.Element> {
-    *collector(ctx: Context) {
+    *stream(ctx: Context) {
         const Timer = ctx.get(TIMER)!
-        const Hovered = fraction(false)
+        const Hovered = observable(false)
 
         const onMouseOver = () => Hovered.set(true)
         const onMouseOut = () => Hovered.set(false)
@@ -110,7 +89,7 @@ class Triangle extends Fractal<JSX.Element> {
         this.thr = layer(depth)
     }
 
-    *collector() {
+    *stream() {
         while (true) {
             yield (
                 <div className={styles.triangle}>
@@ -128,7 +107,7 @@ export class App extends Fractal<JSX.Element> {
     readonly scaler = new Scaler()
     readonly triangle = new Triangle(5);
 
-    *collector(ctx: Context) {
+    *stream(ctx: Context) {
         ctx.set(TIMER, this.timer)
 
         while (true) {

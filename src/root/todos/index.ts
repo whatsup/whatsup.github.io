@@ -24,7 +24,7 @@ export class Todos extends Fractal<any> {
         })
     }
 
-    *collector() {
+    *stream() {
         while (true) {
             const data = yield* this.appData
 

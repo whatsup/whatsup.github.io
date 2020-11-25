@@ -1,7 +1,7 @@
-import { Fractal } from '@fract/core'
+import { Stream } from '@fract/core'
 
-export function* connect<T>(target: any[] | Fractal<any[]>) {
-    const items = target instanceof Fractal ? yield* target : target
+export function* connect<T>(target: any[] | Stream<any[]>) {
+    const items = target instanceof Stream ? yield* target : target
     const acc = [] as T[]
 
     for (const Item of items) {

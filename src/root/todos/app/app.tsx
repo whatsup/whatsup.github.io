@@ -1,34 +1,32 @@
-import { fraction, Fraction, Fractal, list, List, Context } from '@fract/core'
-import { ENTER_KEY, ESCAPE_KEY, FilterMode } from '../const'
-import { FILTER, MODE, Mode } from '../factors'
+import { fraction, Fractal, list, List, Context, Computed } from '@fract/core'
+import { ENTER_KEY, ESCAPE_KEY } from '../const'
+import { MODE, Mode } from '../factors'
+import { FILTER } from './app.factors'
 import { Todo, TodoData } from './todo'
 import { connect } from '../utils'
 import { Footer } from './footer'
-import { CreateEvent, RemoveEvent, RemoveCompletedEvent, ChangeFilterEvent } from './events'
+import { Filter, FilterValue } from './filter'
+import { CreateEvent, RemoveEvent, RemoveCompletedEvent } from './events'
 import { Container, Wrapper, Header, Main, NewTodoNameInput, FilteredList } from './app.comp'
 
 export type AppView = Fractal<AppData | AppJsx>
-export type AppData = { filter: FilterMode; todos: TodoData[] }
+export type AppData = { filter: FilterValue; todos: TodoData[] }
 export type AppJsx = JSX.Element
 
 export class App extends Fractal<AppView> {
-    readonly filter: Fraction<FilterMode>
+    readonly filter: Filter
     readonly todos: List<Todo>
 
-    constructor({ filter = FilterMode.All, todos = [] }: AppData) {
+    constructor({ filter = FilterValue.All, todos = [] }: AppData) {
         super()
-        this.filter = fraction(filter)
-        this.todos = list(
-            todos.map((data) => new Todo(data)),
-            { delegation: false }
-        )
+        this.filter = new Filter(filter)
+        this.todos = list(todos.map((data) => new Todo(data)))
     }
 
-    collector(ctx: Context) {
+    stream(ctx: Context) {
         ctx.on(CreateEvent, (e) => this.create(e.name))
         ctx.on(RemoveEvent, (e) => this.remove(e.todo))
         ctx.on(RemoveCompletedEvent, () => this.removeCompleted())
-        ctx.on(ChangeFilterEvent, (e) => this.changeFilter(e.mode))
 
         switch (ctx.get(MODE)) {
             case Mode.Data:
@@ -55,13 +53,9 @@ export class App extends Fractal<AppView> {
         const newTodos = this.todos.get().filter((todo) => !todo.done.get())
         this.todos.set(newTodos)
     }
-
-    changeFilter(mode: FilterMode) {
-        this.filter.set(mode)
-    }
 }
 
-export class Counters extends Fractal<any> {
+export class Counters extends Computed<any> {
     readonly todos: List<Todo>
 
     constructor(todos: List<Todo>) {
@@ -69,7 +63,7 @@ export class Counters extends Fractal<any> {
         this.todos = todos
     }
 
-    *collector() {
+    *stream() {
         while (true) {
             let active = 0
             let completed = 0
@@ -83,17 +77,17 @@ export class Counters extends Fractal<any> {
     }
 }
 
-export class Filtered extends Fractal<Todo[]> {
+export class Filtered extends Computed<Todo[]> {
     readonly todos: List<Todo>
-    readonly filter: Fraction<FilterMode>
+    readonly filter: Filter
 
-    constructor(todos: List<Todo>, filter: Fraction<FilterMode>) {
+    constructor(todos: List<Todo>, filter: Filter) {
         super()
         this.todos = todos
         this.filter = filter
     }
 
-    *collector() {
+    *stream() {
         while (true) {
             const filter = yield* this.filter
             const acc = [] as Todo[]
@@ -102,9 +96,9 @@ export class Filtered extends Fractal<Todo[]> {
                 const done = yield* todo.done
 
                 if (
-                    filter === FilterMode.All ||
-                    (filter === FilterMode.Active && !done) ||
-                    (filter === FilterMode.Completed && done)
+                    filter === FilterValue.All ||
+                    (filter === FilterValue.Active && !done) ||
+                    (filter === FilterValue.Completed && done)
                 ) {
                     acc.push(todo)
                 }
@@ -119,7 +113,7 @@ function* workInDataMode(this: App) {
     while (true) {
         yield {
             filter: yield* this.filter,
-            todos: yield* connect(this.todos),
+            todos: yield* this.todos.spread(),
         }
     }
 }

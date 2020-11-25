@@ -43,26 +43,3 @@ export function Clear({ children, visible, onClick }: ClearProps) {
         </a>
     )
 }
-
-export function Filters({ children }: FractalJSX.Attributes) {
-    return <ul className={styles.filters}>{children}</ul>
-}
-
-export type FilterBtnProps = FractalJSX.Attributes & {
-    active: boolean
-    onClick: (event: FractalJSX.MouseEvent<HTMLLIElement>) => void
-}
-
-export function FilterBtn({ children, active, onClick }: FilterBtnProps) {
-    let className = styles.filterBtn
-
-    if (active) {
-        className += ` ${styles.active}`
-    }
-
-    return (
-        <li className={className} onClick={onClick}>
-            {children}
-        </li>
-    )
-}
