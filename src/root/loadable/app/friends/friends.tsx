@@ -1,5 +1,5 @@
 import styles from './friends.scss'
-import { tmp, list, Fractal, List } from '@fract/core'
+import { list, Fractal, List, Context } from '@fract/core'
 import { FractalJSX } from '@fract/jsx'
 import { Loader } from 'loadable/loader'
 import { Api } from 'loadable/api'
@@ -14,16 +14,16 @@ export class Friends extends Fractal<JSX.Element> {
         }
     }
 
-    async *collector() {
-        yield tmp(<FriendsLoader />)
+    *stream(ctx: Context) {
+        this.loadFriendList().then(() => ctx.update())
 
-        await this.loadFriendList()
+        yield <FriendsLoader />
 
         while (true) {
             yield (
                 <Container>
                     <FriendsTitle>My friends</FriendsTitle>
-                    {yield* this.list}
+                    {yield* this.list.spread()}
                 </Container>
             )
         }

@@ -1,5 +1,5 @@
 import styles from './menu.scss'
-import { tmp, list, Fractal, List } from '@fract/core'
+import { list, Fractal, List, Context } from '@fract/core'
 import { Api } from 'loadable/api'
 import { Item, ItemLoader } from './item'
 import { FractalJSX } from '@fract/jsx'
@@ -13,13 +13,13 @@ export class Menu extends Fractal<JSX.Element> {
         }
     }
 
-    async *collector() {
-        yield tmp(<MenuLoader />)
+    *stream(ctx: Context) {
+        this.loadMenuItemList().then(() => ctx.update())
 
-        await this.loadMenuItemList()
+        yield <MenuLoader />
 
         while (true) {
-            yield <Container>{yield* this.list}</Container>
+            yield <Container>{yield* this.list.spread()}</Container>
         }
     }
 }

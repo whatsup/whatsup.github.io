@@ -1,5 +1,5 @@
 import styles from './groups.scss'
-import { tmp, list, Fractal, List } from '@fract/core'
+import { list, Fractal, List, Context } from '@fract/core'
 import { Api } from 'loadable/api'
 import { Group, GroupLoader } from './group'
 import { FractalJSX } from '@fract/jsx'
@@ -13,13 +13,13 @@ export class Groups extends Fractal<JSX.Element> {
         }
     }
 
-    async *collector() {
-        yield tmp(<GroupsLoader />)
+    *stream(ctx: Context) {
+        this.loadGroupList().then(() => ctx.update())
 
-        await this.loadGroupList()
+        yield <GroupsLoader />
 
         while (true) {
-            yield <Container>{yield* this.list}</Container>
+            yield <Container>{yield* this.list.spread()}</Container>
         }
     }
 }

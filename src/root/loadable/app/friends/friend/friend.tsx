@@ -1,5 +1,5 @@
 import styles from './friend.scss'
-import { tmp, Fractal } from '@fract/core'
+import { Fractal, Context } from '@fract/core'
 import { FractalJSX } from '@fract/jsx'
 import { Loader } from 'loadable/loader'
 import { Api } from 'loadable/api'
@@ -9,19 +9,27 @@ export class Friend extends Fractal<JSX.Element> {
         super()
     }
 
-    async *collector() {
+    *stream(ctx: Context) {
         const { id } = this
+        let friendAvatar: string
+        let friendName: string
+        let friendJob: string
 
-        yield tmp(<FriendLoader key={id} />)
+        Api.loadFriend(id).then((friend) => {
+            friendAvatar = friend.avatar
+            friendName = friend.name
+            friendJob = friend.job
+            ctx.update()
+        })
 
-        const { name, job, avatar } = await Api.loadFriend(id)
+        yield <FriendLoader key={id} />
 
         while (true) {
             yield (
                 <Container key={id}>
-                    <FriendAvatar src={avatar} />
-                    <FriendName>{name}</FriendName>
-                    <FriendJob>{job}</FriendJob>
+                    <FriendAvatar src={friendAvatar!} />
+                    <FriendName>{friendName!}</FriendName>
+                    <FriendJob>{friendJob!}</FriendJob>
                 </Container>
             )
         }

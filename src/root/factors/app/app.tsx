@@ -1,46 +1,28 @@
 import styles from './app.scss'
-import { fractal, Fractal } from '@fract/core'
-import { MODE, Mode } from '../factors'
+import { Fractal } from '@fract/core'
 import { User } from './user'
 import { FractalJSX } from '@fract/jsx'
 
 export class App extends Fractal<JSX.Element> {
-    readonly user = new User('John', 33)
+    readonly user = new User({ name: 'John', age: 33 });
 
-    async *collector() {
-        const User = this.user
-
-        const Edit = fractal(async function* (ctx) {
-            ctx.set(MODE, Mode.Edit)
-            return User
-        })
-
-        const View = fractal(async function* (ctx) {
-            ctx.set(MODE, Mode.View)
-            return User
-        })
-
-        const Json = fractal(async function* (ctx) {
-            ctx.set(MODE, Mode.Json)
-            return User
-        })
-
+    *stream() {
         while (true) {
             yield (
                 <Container>
-                    <Title>Factors of work</Title>
+                    <Title>Different views of one model</Title>
                     <Flex>
                         <Box>
                             <SubTitle>User as Edit</SubTitle>
-                            {yield* Edit}
+                            {yield* this.user.edit}
                         </Box>
                         <Box>
                             <SubTitle>User as View</SubTitle>
-                            {yield* View}
+                            {yield* this.user.view}
                         </Box>
                         <Box>
                             <SubTitle>User as Json</SubTitle>
-                            {yield* Json}
+                            {yield* this.user.json}
                         </Box>
                     </Flex>
                 </Container>

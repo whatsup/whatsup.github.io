@@ -8,9 +8,9 @@ import { Menu } from './menu'
 export class App extends Fractal<JSX.Element> {
     readonly friends = new Friends()
     readonly groups = new Groups()
-    readonly menu = new Menu()
+    readonly menu = new Menu();
 
-    async *collector() {
+    *stream() {
         while (true) {
             yield (
                 <Container>

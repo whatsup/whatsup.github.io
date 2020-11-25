@@ -20,7 +20,7 @@ export class App extends Fractal<any> {
         this.layer = new Layer(layer)
     }
 
-    collector(ctx: Context) {
+    stream(ctx: Context) {
         switch (ctx.get(MODE)) {
             case Mode.Data:
                 return workInDataMode.call(this)
@@ -33,7 +33,7 @@ export class App extends Fractal<any> {
     }
 }
 
-async function* workInDataMode(this: App) {
+function* workInDataMode(this: App) {
     while (true) {
         yield {
             currentColor: yield* this.currentColor,
@@ -42,7 +42,7 @@ async function* workInDataMode(this: App) {
     }
 }
 
-async function* workInJsxMode(this: App, ctx: Context) {
+function* workInJsxMode(this: App, ctx: Context) {
     ctx.set(CURRENT_COLOR, this.currentColor)
 
     while (true) {
