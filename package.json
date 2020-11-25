@@ -18,8 +18,8 @@
     },
     "dependencies": {
         "@fract/browser-pathname": "^0.2.0-sync.1",
-        "@fract/core": "^0.2.0-sync.14",
-        "@fract/jsx": "^0.2.0-sync.6"
+        "@fract/core": "^0.2.0-sync.16",
+        "@fract/jsx": "^0.2.0-sync.7"
     },
     "devDependencies": {
         "@babel/cli": "^7.10.4",
