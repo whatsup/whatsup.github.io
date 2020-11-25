@@ -1,13 +1,13 @@
 import './reset.scss'
 import styles from './root.scss'
-import { tmp, Fractal } from '@fract/core'
+import { Computed } from '@fract/core'
 import { Pathname } from '@fract/browser-pathname'
-import type { Todos } from './todos'
-import type { Antistress } from 'root/antistress'
-import type { Loadable } from './loadable'
-import type { Factors } from './factors'
-import type { Sierpinski } from './sierpinski'
 import { FractalJSX } from '@fract/jsx'
+import { Todos } from './todos'
+import { Factors } from './factors'
+import { Sierpinski } from './sierpinski'
+import { Antistress } from './antistress'
+import { Loadable } from './loadable'
 
 enum Route {
     Todos = '/todos',
@@ -17,35 +17,33 @@ enum Route {
     Sierpinski = '/sierpinski',
 }
 
-export class Root extends Fractal<JSX.Element> {
+export class Root extends Computed<JSX.Element> {
     private readonly pathname = new Pathname()
-    private todos!: Todos
-    private antistress!: Antistress
-    private loadable!: Loadable
-    private factors!: Factors
-    private sierpinski!: Sierpinski
+    private todos = new Todos()
+    private antistress = new Antistress()
+    private loadable = new Loadable()
+    private factors = new Factors()
+    private sierpinski = new Sierpinski();
 
-    async *collector() {
+    *stream() {
         const redirect = (route: Route) => this.pathname.redirect(route)
 
         while (true) {
-            yield tmp(<Loading />)
-
             switch (yield* this.pathname) {
                 case Route.Todos:
-                    yield this.initTodos()
+                    yield this.todos
                     continue
                 case Route.Antistress:
-                    yield this.initAntistress()
+                    yield this.antistress
                     continue
                 case Route.Loadable:
-                    yield this.initLoadable()
+                    yield this.loadable
                     continue
                 case Route.Factors:
-                    yield this.initFactors()
+                    yield this.factors
                     continue
                 case Route.Sierpinski:
-                    yield this.initSierpinski()
+                    yield this.sierpinski
                     continue
                 default:
                     yield (
@@ -64,57 +62,6 @@ export class Root extends Fractal<JSX.Element> {
             }
         }
     }
-
-    private async initTodos() {
-        if (!this.todos) {
-            const { Todos } = await import('./todos')
-            this.todos = new Todos()
-        }
-        return this.todos
-    }
-
-    private async initAntistress() {
-        if (!this.antistress) {
-            const { Antistress } = await import('./antistress')
-            this.antistress = new Antistress()
-        }
-        return this.antistress
-    }
-
-    private async initLoadable() {
-        if (!this.loadable) {
-            const { Loadable } = await import('./loadable')
-            this.loadable = new Loadable()
-        }
-        return this.loadable
-    }
-
-    private async initFactors() {
-        if (!this.factors) {
-            const { Factors } = await import('./factors')
-            this.factors = new Factors()
-        }
-        return this.factors
-    }
-
-    private async initSierpinski() {
-        if (!this.sierpinski) {
-            const { Sierpinski } = await import('./sierpinski')
-            this.sierpinski = new Sierpinski()
-        }
-        return this.sierpinski
-    }
-}
-
-function Loading() {
-    return (
-        <div className={styles.loader}>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-        </div>
-    )
 }
 
 function Container({ children }: FractalJSX.Attributes) {

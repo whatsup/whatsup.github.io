@@ -1,44 +1,47 @@
 import styles from './user.scss'
-import { fraction, Fractal, Context, Fraction } from '@fract/core'
+import { Observable, observable, Computed, computed } from '@fract/core'
 import { FractalJSX } from '@fract/jsx'
-import { MODE, Mode } from '../../factors'
 
-export class User extends Fractal<JSX.Element> {
-    readonly name: Fraction<string>
-    readonly age: Fraction<number>
+interface UserData {
+    name: string
+    age: number
+}
 
-    constructor(name: string, age: number) {
+export class User extends Computed<UserData> {
+    readonly name: Observable<string>
+    readonly age: Observable<number>
+    readonly json = computed(json, { thisArg: this })
+    readonly view = computed(view, { thisArg: this })
+    readonly edit = computed(edit, { thisArg: this })
+
+    constructor({ name, age }: UserData) {
         super()
-        this.name = fraction(name)
-        this.age = fraction(age)
+        this.name = observable(name)
+        this.age = observable(age)
     }
 
-    collector(ctx: Context) {
-        switch (ctx.get(MODE)) {
-            case Mode.Json:
-                return userAsJson.call(this)
-            case Mode.View:
-                return userAsView.call(this)
-            case Mode.Edit:
-                return userAsEdit.call(this)
-        }
+    set({ name, age }: UserData) {
+        this.name.set(name)
+        this.age.set(age)
+    }
 
-        throw 'Unknown MODE'
+    *stream() {
+        while (true) {
+            yield {
+                name: yield* this.name,
+                age: yield* this.age,
+            }
+        }
     }
 }
 
-async function* userAsJson(this: User) {
+function* json(this: User): Generator<JSX.Element> {
     while (true) {
-        const data = {
-            name: yield* this.name,
-            age: yield* this.age,
-        }
-
-        yield <AsJson>{JSON.stringify(data, null, 4)}</AsJson>
+        yield <AsJson>{JSON.stringify(yield* this, null, 4)}</AsJson>
     }
 }
 
-async function* userAsView(this: User): AsyncGenerator<JSX.Element> {
+function* view(this: User): Generator<JSX.Element> {
     while (true) {
         yield (
             <AsView>
@@ -55,7 +58,7 @@ async function* userAsView(this: User): AsyncGenerator<JSX.Element> {
     }
 }
 
-async function* userAsEdit(this: User): AsyncGenerator<JSX.Element> {
+function* edit(this: User): Generator<JSX.Element> {
     const handleNameInput = (e: any) => {
         this.name.set(e.target.value)
     }

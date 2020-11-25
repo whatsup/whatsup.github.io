@@ -15,7 +15,7 @@ export class Layer extends Fractal<any> {
         this.nested = fraction(Array.isArray(data) ? data.map((d) => new Layer(d)) : data)
     }
 
-    collector(ctx: Context) {
+    stream(ctx: Context) {
         switch (ctx.get(MODE)) {
             case Mode.Data:
                 return workInDataMode.call(this)
@@ -25,7 +25,7 @@ export class Layer extends Fractal<any> {
         throw 'Unknown MODE'
     }
 
-    async *convertNestedToColorAndChildren(): AsyncGenerator<any, { color: Color; children: JSX.Element[] }> {
+    *convertNestedToColorAndChildren(): Generator<any, { color: Color; children: JSX.Element[] }> {
         const nested = yield* this.nested
 
         if (Array.isArray(nested)) {
@@ -41,7 +41,7 @@ export class Layer extends Fractal<any> {
     }
 }
 
-async function* workInDataMode(this: Layer): AsyncGenerator<LayerData> {
+function* workInDataMode(this: Layer): Generator<LayerData> {
     while (true) {
         const nested = yield* this.nested
 
@@ -59,7 +59,7 @@ async function* workInDataMode(this: Layer): AsyncGenerator<LayerData> {
     }
 }
 
-async function* workInJsxMode(this: Layer, ctx: Context): AsyncGenerator<JSX.Element> {
+function* workInJsxMode(this: Layer, ctx: Context): Generator<JSX.Element> {
     const key = (~~(Math.random() * 1e8)).toString(16)
     const currentColor = ctx.get(CURRENT_COLOR)!
 

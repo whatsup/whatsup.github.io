@@ -1,5 +1,5 @@
 import styles from './ITEM.scss'
-import { tmp, Fractal } from '@fract/core'
+import { Fractal, Context } from '@fract/core'
 import { Loader } from 'loadable/loader'
 import { Api } from 'loadable/api'
 import { Icons } from './icons'
@@ -10,12 +10,17 @@ export class Item extends Fractal<JSX.Element> {
         super()
     }
 
-    async *collector() {
+    *stream(ctx: Context) {
         const { id } = this
+        let itemName: string
 
-        yield tmp(<ItemLoader key={id} />)
+        Api.loadMenuItem(id).then((item) => {
+            itemName = item.name
+            ctx.update()
+        })
 
-        const { name } = await Api.loadMenuItem(id)
+        yield <ItemLoader key={id} />
+
         const Icon = Icons[id]
 
         while (true) {
@@ -24,7 +29,7 @@ export class Item extends Fractal<JSX.Element> {
                     <IconWrapper>
                         <Icon />
                     </IconWrapper>
-                    <Name>{name}</Name>
+                    <Name>{itemName!}</Name>
                 </Container>
             )
         }

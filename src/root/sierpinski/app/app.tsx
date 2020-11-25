@@ -9,7 +9,6 @@ function layer(depth: number) {
 
 export class Timer extends Computed<number> {
     private delay: number
-    private value = 0
 
     constructor(delay: number = 1000) {
         super()
@@ -18,16 +17,12 @@ export class Timer extends Computed<number> {
 
     *stream(ctx: RootContext) {
         let timeoutId: number
+        let value = 0
 
         try {
             while (true) {
-                const { value } = this
-
                 timeoutId = window.setTimeout(() => ctx.update(), this.delay)
-
-                yield value
-
-                this.value = value === 9 ? 0 : value + 1
+                yield value === 10 ? (value = 0) : value++
             }
         } finally {
             if (timeoutId!) {

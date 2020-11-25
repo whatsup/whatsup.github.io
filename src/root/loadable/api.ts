@@ -51,12 +51,12 @@ const STORE = {
         { name: 'Files' },
     ],
     groups: [
-        { name: 'Mandelbrot', image: require('./images/groups/1.jpg').default },
-        { name: 'Flower', image: require('./images/groups/2.jpg').default },
-        { name: 'Spiral', image: require('./images/groups/3.jpg').default },
-        { name: 'Tonnel', image: require('./images/groups/4.jpg').default },
-        { name: 'Turbulence', image: require('./images/groups/5.jpg').default },
-        { name: 'Other', image: require('./images/groups/6.jpg').default },
+        { name: 'Mandelbrot', image: require('./images/groups/1.jpg').default as string },
+        { name: 'Flower', image: require('./images/groups/2.jpg').default as string },
+        { name: 'Spiral', image: require('./images/groups/3.jpg').default as string },
+        { name: 'Tonnel', image: require('./images/groups/4.jpg').default as string },
+        { name: 'Turbulence', image: require('./images/groups/5.jpg').default as string },
+        { name: 'Other', image: require('./images/groups/6.jpg').default as string },
     ],
     friends: [
         { name: 'Mary Miller', job: 'Designer', avatar: require('./images/avatars/1.jpg').default },

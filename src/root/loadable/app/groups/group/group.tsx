@@ -1,5 +1,5 @@
 import styles from './group.scss'
-import { Fractal, tmp } from '@fract/core'
+import { Fractal, Context } from '@fract/core'
 import { Loader } from 'loadable/loader'
 import { Api } from 'loadable/api'
 import { FractalJSX } from '@fract/jsx'
@@ -9,18 +9,24 @@ export class Group extends Fractal<JSX.Element> {
         super()
     }
 
-    async *collector() {
+    *stream(ctx: Context) {
         const { id } = this
+        let groupName: string
+        let groupImage: string
 
-        yield tmp(<GroupLoader key={id} />)
+        Api.loadGroup(id).then((group) => {
+            groupName = group.name
+            groupImage = group.image
+            ctx.update()
+        })
 
-        const { name, image } = await Api.loadGroup(id)
+        yield <GroupLoader key={id} />
 
         while (true) {
             yield (
                 <Container key={id}>
-                    <GroupImg src={image} />
-                    <GroupName>{name}</GroupName>
+                    <GroupImg src={groupImage!} />
+                    <GroupName>{groupName!}</GroupName>
                 </Container>
             )
         }
