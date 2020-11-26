@@ -1,5 +1,5 @@
 import { Container, Button } from './filter.comp'
-import { Observable, computed } from '@fract/core'
+import { Observable, Fractal, observable } from '@fract/core'
 
 export enum Value {
     All,
@@ -7,26 +7,31 @@ export enum Value {
     Completed,
 }
 
-export class Filter extends Observable<Value> {
-    readonly jsx = computed<JSX.Element>(jsx, { thisArg: this })
-}
+export class Filter extends Fractal<JSX.Element> {
+    readonly value: Observable<Value>
 
-function* jsx(this: Filter) {
-    while (true) {
-        const value = yield* this
+    constructor(value: Value) {
+        super()
+        this.value = observable(value)
+    }
 
-        yield (
-            <Container>
-                <Button active={value === Value.All} onClick={() => this.set(Value.All)}>
-                    All
-                </Button>
-                <Button active={value === Value.Active} onClick={() => this.set(Value.Active)}>
-                    Active
-                </Button>
-                <Button active={value === Value.Completed} onClick={() => this.set(Value.Completed)}>
-                    Completed
-                </Button>
-            </Container>
-        )
+    *stream() {
+        while (true) {
+            const value = yield* this.value
+
+            yield (
+                <Container>
+                    <Button active={value === Value.All} onClick={() => this.value.set(Value.All)}>
+                        All
+                    </Button>
+                    <Button active={value === Value.Active} onClick={() => this.value.set(Value.Active)}>
+                        Active
+                    </Button>
+                    <Button active={value === Value.Completed} onClick={() => this.value.set(Value.Completed)}>
+                        Completed
+                    </Button>
+                </Container>
+            )
+        }
     }
 }

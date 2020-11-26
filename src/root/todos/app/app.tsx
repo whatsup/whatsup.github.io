@@ -1,6 +1,5 @@
-import { fraction, Fractal, list, List, Context, Computed } from '@fract/core'
+import { fraction, Fractal, list, List, Context, Computed, computed } from '@fract/core'
 import { ENTER_KEY, ESCAPE_KEY } from '../const'
-import { MODE, Mode } from '../factors'
 import { FILTER } from './app.factors'
 import { Todo, TodoData } from './todo'
 import { connect } from '../utils'
@@ -9,13 +8,12 @@ import { Filter, FilterValue } from './filter'
 import { CreateEvent, RemoveEvent, RemoveCompletedEvent } from './events'
 import { Container, Wrapper, Header, Main, NewTodoNameInput, FilteredList } from './app.comp'
 
-export type AppView = Fractal<AppData | AppJsx>
 export type AppData = { filter: FilterValue; todos: TodoData[] }
-export type AppJsx = JSX.Element
 
-export class App extends Fractal<AppView> {
+export class App extends Fractal<JSX.Element> {
     readonly filter: Filter
     readonly todos: List<Todo>
+    readonly data = computed<TodoData>(makeAppData, { thisArg: this })
 
     constructor({ filter = FilterValue.All, todos = [] }: AppData) {
         super()
@@ -39,19 +37,53 @@ export class App extends Fractal<AppView> {
         this.todos.set(newTodos)
     }
 
-    stream(ctx: Context) {
+    *stream(ctx: Context) {
         ctx.on(CreateEvent, (e) => this.create(e.name))
         ctx.on(RemoveEvent, (e) => this.remove(e.todo))
         ctx.on(RemoveCompletedEvent, () => this.removeCompleted())
 
-        switch (ctx.get(MODE)) {
-            case Mode.Data:
-                return workInDataMode.call(this)
-            case Mode.Jsx:
-                return workInJsxMode.call(this, ctx)
+        ctx.set(FILTER, this.filter)
+
+        const filtered = new Filtered(this.todos, this.filter)
+        const counters = new Counters(this.todos)
+        const footer = new Footer(counters)
+        const newTodoName = fraction('')
+
+        const handleNewTodoNameInputChange = (e: any) => {
+            newTodoName.set(e.target.value)
+        }
+        const handleNewTodoNameInputKeyDown = ({ keyCode }: any) => {
+            const name = newTodoName.get()
+
+            if (name) {
+                if (keyCode === ENTER_KEY) {
+                    ctx.dispath(new CreateEvent(name))
+                }
+                if (keyCode === ENTER_KEY || keyCode === ESCAPE_KEY) {
+                    newTodoName.set('')
+                }
+            }
         }
 
-        throw 'Unknown MODE'
+        while (true) {
+            yield (
+                <Container>
+                    <Wrapper>
+                        <Header>todos</Header>
+                        <Main>
+                            <NewTodoNameInput
+                                value={yield* newTodoName}
+                                onInput={handleNewTodoNameInputChange}
+                                onKeyDown={handleNewTodoNameInputKeyDown}
+                                placeholder="What needs to be done?"
+                            />
+                            <FilteredList>{yield* connect(filtered)}</FilteredList>
+                        </Main>
+                        {yield* footer}
+                    </Wrapper>
+                </Container>
+            )
+        }
     }
 }
 
@@ -89,7 +121,7 @@ export class Filtered extends Computed<Todo[]> {
 
     *stream() {
         while (true) {
-            const filter = yield* this.filter
+            const filter = yield* this.filter.value
             const acc = [] as Todo[]
 
             for (const todo of yield* this.todos) {
@@ -109,56 +141,15 @@ export class Filtered extends Computed<Todo[]> {
     }
 }
 
-function* workInDataMode(this: App) {
+function* makeAppData(this: App) {
     while (true) {
-        yield {
-            filter: yield* this.filter,
-            todos: yield* this.todos.spread(),
+        const filter = yield* this.filter.value
+        const todos = [] as TodoData[]
+
+        for (const todo of yield* this.todos) {
+            todos.push(yield* todo.data)
         }
-    }
-}
 
-function* workInJsxMode(this: App, ctx: Context) {
-    ctx.set(FILTER, this.filter)
-
-    const filtered = new Filtered(this.todos, this.filter)
-    const counters = new Counters(this.todos)
-    const footer = new Footer(counters)
-    const newTodoName = fraction('')
-
-    const handleNewTodoNameInputChange = (e: any) => {
-        newTodoName.set(e.target.value)
-    }
-    const handleNewTodoNameInputKeyDown = ({ keyCode }: any) => {
-        const name = newTodoName.get()
-
-        if (name) {
-            if (keyCode === ENTER_KEY) {
-                ctx.dispath(new CreateEvent(name))
-            }
-            if (keyCode === ENTER_KEY || keyCode === ESCAPE_KEY) {
-                newTodoName.set('')
-            }
-        }
-    }
-
-    while (true) {
-        yield (
-            <Container>
-                <Wrapper>
-                    <Header>todos</Header>
-                    <Main>
-                        <NewTodoNameInput
-                            value={yield* newTodoName}
-                            onInput={handleNewTodoNameInputChange}
-                            onKeyDown={handleNewTodoNameInputKeyDown}
-                            placeholder="What needs to be done?"
-                        />
-                        <FilteredList>{yield* connect(filtered)}</FilteredList>
-                    </Main>
-                    {yield* footer}
-                </Wrapper>
-            </Container>
-        )
+        yield { filter, todos }
     }
 }

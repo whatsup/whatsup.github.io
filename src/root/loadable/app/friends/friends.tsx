@@ -4,6 +4,7 @@ import { FractalJSX } from '@fract/jsx'
 import { Loader } from 'loadable/loader'
 import { Api } from 'loadable/api'
 import { Friend, FriendLoader } from './friend'
+import { connect } from 'loadable/utils'
 
 export class Friends extends Fractal<JSX.Element> {
     list!: List<Friend>
@@ -23,7 +24,7 @@ export class Friends extends Fractal<JSX.Element> {
             yield (
                 <Container>
                     <FriendsTitle>My friends</FriendsTitle>
-                    {yield* this.list.spread()}
+                    {yield* connect(this.list)}
                 </Container>
             )
         }

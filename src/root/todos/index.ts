@@ -1,13 +1,10 @@
-import { Computed, RootContext, computed } from '@fract/core'
+import { Computed } from '@fract/core'
 import { STORE_KEY } from './const'
-import { MODE, Mode } from './factors'
 import { AppData } from './app/app'
 import { App } from './app/app'
 
 export class Todos extends Computed<any> {
     readonly app: App
-    readonly jsx = computed(todosJsx, { thisArg: this })
-    readonly data = computed(todosData, { thisArg: this })
 
     constructor() {
         super()
@@ -17,21 +14,11 @@ export class Todos extends Computed<any> {
 
     *stream() {
         while (true) {
-            const data = yield* this.data
+            const data = yield* this.app.data
 
             localStorage.setItem(STORE_KEY, JSON.stringify(data))
 
-            yield yield* this.jsx
+            yield yield* this.app
         }
     }
-}
-
-function* todosData(this: Todos, ctx: RootContext) {
-    ctx.set(MODE, Mode.Data)
-    while (true) yield yield* this.app
-}
-
-function* todosJsx(this: Todos, ctx: RootContext) {
-    ctx.set(MODE, Mode.Jsx)
-    while (true) yield yield* this.app
 }

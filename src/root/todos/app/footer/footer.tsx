@@ -22,7 +22,7 @@ export class Footer extends Fractal<JSX.Element> {
                 <Container>
                     <Flex>
                         <Left visible={!!active}>{active} items left</Left>
-                        {yield* filter.jsx}
+                        {yield* filter}
                         <Clear onClick={() => ctx.dispath(new RemoveCompletedEvent())} visible={!!completed}>
                             Clear completed
                         </Clear>

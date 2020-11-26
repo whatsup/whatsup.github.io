@@ -3,6 +3,7 @@ import { list, Fractal, List, Context } from '@fract/core'
 import { Api } from 'loadable/api'
 import { Item, ItemLoader } from './item'
 import { FractalJSX } from '@fract/jsx'
+import { connect } from 'loadable/utils'
 
 export class Menu extends Fractal<JSX.Element> {
     list!: List<Item>
@@ -19,7 +20,7 @@ export class Menu extends Fractal<JSX.Element> {
         yield <MenuLoader />
 
         while (true) {
-            yield <Container>{yield* this.list.spread()}</Container>
+            yield <Container>{yield* connect(this.list)}</Container>
         }
     }
 }

@@ -3,6 +3,7 @@ import { list, Fractal, List, Context } from '@fract/core'
 import { Api } from 'loadable/api'
 import { Group, GroupLoader } from './group'
 import { FractalJSX } from '@fract/jsx'
+import { connect } from 'loadable/utils'
 
 export class Groups extends Fractal<JSX.Element> {
     list!: List<Group>
@@ -19,7 +20,7 @@ export class Groups extends Fractal<JSX.Element> {
         yield <GroupsLoader />
 
         while (true) {
-            yield <Container>{yield* this.list.spread()}</Container>
+            yield <Container>{yield* connect(this.list)}</Container>
         }
     }
 }

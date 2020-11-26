@@ -1,5 +1,4 @@
-import { Fractal, Observable, Context, Event, observable } from '@fract/core'
-import { MODE, Mode } from 'todos/factors'
+import { Fractal, Observable, Context, Event, observable, computed } from '@fract/core'
 import { RemoveEvent } from '../events'
 import {
     Container,
@@ -13,15 +12,14 @@ import {
 } from './todo.comp'
 import { createRef } from '@fract/jsx'
 
-export type TodoView = Fractal<TodoData | TodoJsx>
 export type TodoData = { id: string; name: string; done?: boolean }
-export type TodoJsx = JSX.Element
 
-export class Todo extends Fractal<TodoView> {
+export class Todo extends Fractal<JSX.Element> {
     readonly id: string
     readonly name: Observable<string>
     readonly done: Observable<boolean>
     readonly edit: Observable<boolean>
+    readonly data = computed<TodoData>(makeTodoData, { thisArg: this })
 
     constructor({ id, name, done = false }: TodoData) {
         super()
@@ -31,57 +29,46 @@ export class Todo extends Fractal<TodoView> {
         this.edit = observable(false)
     }
 
-    stream(ctx: Context) {
+    *stream(ctx: Context) {
         ctx.on(NeedDisableEditEvent, () => this.edit.set(false))
         ctx.on(NameChangeEvent, (e) => this.name.set(e.value))
 
-        switch (ctx.get(MODE)) {
-            case Mode.Data:
-                return workInDataMode.call(this)
-            case Mode.Jsx:
-                return workInJsxMode.call(this, ctx)
-        }
+        const { id } = this
+        const nameEditor = new NameEditor(this.name)
 
-        throw 'Unknown MODE'
+        while (true) {
+            const name = yield* this.name
+            const done = yield* this.done
+            const edit = yield* this.edit
+
+            yield (
+                <Container key={id}>
+                    <Status done={done} onClick={() => this.done.set(!done)}>
+                        {done ? <CheckboxMarkedIcon /> : <CheckboxBlankIcon />}
+                    </Status>
+                    {edit ? (
+                        yield* nameEditor
+                    ) : (
+                        <TodoName done={done} onDblClick={() => this.edit.set(true)}>
+                            {name}
+                        </TodoName>
+                    )}
+                    <Remove onClick={() => ctx.dispath(new RemoveEvent(this))}>
+                        <RemoveIcon />
+                    </Remove>
+                </Container>
+            )
+        }
     }
 }
 
-function* workInDataMode(this: Todo) {
+function* makeTodoData(this: Todo) {
     while (true) {
         yield {
             id: this.id,
             done: yield* this.done,
             name: yield* this.name,
         } as TodoData
-    }
-}
-
-function* workInJsxMode(this: Todo, ctx: Context) {
-    const { id } = this
-    const nameEditor = new NameEditor(this.name)
-
-    while (true) {
-        const name = yield* this.name
-        const done = yield* this.done
-        const edit = yield* this.edit
-
-        yield (
-            <Container key={id}>
-                <Status done={done} onClick={() => this.done.set(!done)}>
-                    {done ? <CheckboxMarkedIcon /> : <CheckboxBlankIcon />}
-                </Status>
-                {edit ? (
-                    yield* nameEditor
-                ) : (
-                    <TodoName done={done} onDblClick={() => this.edit.set(true)}>
-                        {name}
-                    </TodoName>
-                )}
-                <Remove onClick={() => ctx.dispath(new RemoveEvent(this))}>
-                    <RemoveIcon />
-                </Remove>
-            </Container>
-        )
     }
 }
 
