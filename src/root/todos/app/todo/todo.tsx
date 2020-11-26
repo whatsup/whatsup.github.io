@@ -58,7 +58,7 @@ function* workInDataMode(this: Todo) {
 
 function* workInJsxMode(this: Todo, ctx: Context) {
     const { id } = this
-    const nameEdit = new EditName(this.name)
+    const nameEditor = new NameEditor(this.name)
 
     while (true) {
         const name = yield* this.name
@@ -71,7 +71,7 @@ function* workInJsxMode(this: Todo, ctx: Context) {
                     {done ? <CheckboxMarkedIcon /> : <CheckboxBlankIcon />}
                 </Status>
                 {edit ? (
-                    yield* nameEdit
+                    yield* nameEditor
                 ) : (
                     <TodoName done={done} onDblClick={() => this.edit.set(true)}>
                         {name}
@@ -92,7 +92,7 @@ class NameChangeEvent extends Event {
     }
 }
 
-class EditName extends Fractal<JSX.Element> {
+class NameEditor extends Fractal<JSX.Element> {
     readonly value: Observable<string>
 
     constructor(value: Observable<string>) {

@@ -23,21 +23,6 @@ export class App extends Fractal<AppView> {
         this.todos = list(todos.map((data) => new Todo(data)))
     }
 
-    stream(ctx: Context) {
-        ctx.on(CreateEvent, (e) => this.create(e.name))
-        ctx.on(RemoveEvent, (e) => this.remove(e.todo))
-        ctx.on(RemoveCompletedEvent, () => this.removeCompleted())
-
-        switch (ctx.get(MODE)) {
-            case Mode.Data:
-                return workInDataMode.call(this)
-            case Mode.Jsx:
-                return workInJsxMode.call(this, ctx)
-        }
-
-        throw 'Unknown MODE'
-    }
-
     create(name: string) {
         const id = (~~(Math.random() * 1e8)).toString(16)
         const todo = new Todo({ id, name })
@@ -52,6 +37,21 @@ export class App extends Fractal<AppView> {
     removeCompleted() {
         const newTodos = this.todos.get().filter((todo) => !todo.done.get())
         this.todos.set(newTodos)
+    }
+
+    stream(ctx: Context) {
+        ctx.on(CreateEvent, (e) => this.create(e.name))
+        ctx.on(RemoveEvent, (e) => this.remove(e.todo))
+        ctx.on(RemoveCompletedEvent, () => this.removeCompleted())
+
+        switch (ctx.get(MODE)) {
+            case Mode.Data:
+                return workInDataMode.call(this)
+            case Mode.Jsx:
+                return workInJsxMode.call(this, ctx)
+        }
+
+        throw 'Unknown MODE'
     }
 }
 

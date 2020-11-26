@@ -1,5 +1,5 @@
 import styles from './user.scss'
-import { Observable, observable, Computed, computed } from '@fract/core'
+import { Observable, observable, fractal, Fractal } from '@fract/core'
 import { FractalJSX } from '@fract/jsx'
 
 interface UserData {
@@ -7,12 +7,12 @@ interface UserData {
     age: number
 }
 
-export class User extends Computed<UserData> {
+export class User extends Fractal<UserData> {
     readonly name: Observable<string>
     readonly age: Observable<number>
-    readonly json = computed(json, { thisArg: this })
-    readonly view = computed(view, { thisArg: this })
-    readonly edit = computed(edit, { thisArg: this })
+    readonly json = fractal(json, { thisArg: this })
+    readonly view = fractal(view, { thisArg: this })
+    readonly edit = fractal(edit, { thisArg: this })
 
     constructor({ name, age }: UserData) {
         super()

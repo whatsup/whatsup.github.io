@@ -1,4 +1,4 @@
-import { factor, Fraction } from '@fract/core'
+import { factor, Observable } from '@fract/core'
 import { Color } from './const'
 
 export enum Mode {
@@ -7,4 +7,4 @@ export enum Mode {
 }
 
 export const MODE = factor(Mode.Jsx)
-export const CURRENT_COLOR = factor<Fraction<Color>>()
+export const CURRENT_COLOR = factor<Observable<Color>>()

@@ -1,5 +1,5 @@
 import styles from './app.scss'
-import { fraction, Fractal, Fraction, Context } from '@fract/core'
+import { Fractal, Context, Observable, observable } from '@fract/core'
 import { FractalJSX } from '@fract/jsx'
 import { Color, Palette } from '../const'
 import { CURRENT_COLOR, MODE, Mode } from '../factors'
@@ -11,12 +11,12 @@ export type AppData = {
 }
 
 export class App extends Fractal<any> {
-    readonly currentColor: Fraction<Color>
+    readonly currentColor: Observable<Color>
     readonly layer: Layer
 
     constructor({ currentColor = Color.Default, layer = Color.Default }: AppData) {
         super()
-        this.currentColor = fraction(currentColor)
+        this.currentColor = observable(currentColor)
         this.layer = new Layer(layer)
     }
 
