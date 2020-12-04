@@ -1,43 +1,43 @@
 import styles from './user.scss'
-import { Observable, observable, fractal, Fractal } from '@fract/core'
+import { Observable, observable, fractal, Fractal, Context } from '@fract/core'
 import { FractalJSX } from '@fract/jsx'
+import { MODE, Mode } from '../factors'
 
-interface UserData {
-    name: string
-    age: number
-}
-
-export class User extends Fractal<UserData> {
+export class User extends Fractal<JSX.Element> {
     readonly name: Observable<string>
     readonly age: Observable<number>
     readonly json = fractal(json, { thisArg: this })
     readonly view = fractal(view, { thisArg: this })
     readonly edit = fractal(edit, { thisArg: this })
 
-    constructor({ name, age }: UserData) {
+    constructor(name: string, age: number) {
         super()
         this.name = observable(name)
         this.age = observable(age)
     }
 
-    set({ name, age }: UserData) {
-        this.name.set(name)
-        this.age.set(age)
-    }
-
-    *stream() {
-        while (true) {
-            yield {
-                name: yield* this.name,
-                age: yield* this.age,
-            }
+    stream(ctx: Context) {
+        switch (ctx.get(MODE)) {
+            case Mode.View:
+                return view.call(this)
+            case Mode.Edit:
+                return edit.call(this)
+            case Mode.Json:
+                return json.call(this)
         }
+        throw 'Unknown Mode'
     }
 }
 
 function* json(this: User): Generator<JSX.Element> {
     while (true) {
-        yield <AsJson>{JSON.stringify(yield* this, null, 4)}</AsJson>
+        const data = {
+            name: yield* this.name,
+            age: yield* this.age,
+        }
+        const json = JSON.stringify(data, null, 4)
+
+        yield <AsJson>{json}</AsJson>
     }
 }
 
