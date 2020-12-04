@@ -1,0 +1,32 @@
+@use "../colors";
+
+.container {
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+    background-color: currentColor;
+    top: 4%;
+
+    @include colors.palette;
+
+    & > div {
+        width: 46%;
+        height: 46%;
+        margin: 2%;
+
+        &:nth-child(1) {
+            margin-left: 26%;
+            margin-right: 26%;
+            top: -3.85%;
+        }
+        &:nth-child(2),
+        &:nth-child(3) {
+            top: -10.55%;
+        }
+    }
+}

@@ -13,11 +13,11 @@
         "noFallthroughCasesInSwitch": true,
         "allowSyntheticDefaultImports": true,
         "lib": ["esnext", "dom"],
-        "jsx": "react",
+        "jsx": "preserve",
         "rootDir": "./src",
         "baseUrl": "./",
         "paths": {
-            "*": ["src/*", "node_modules/*"]
+            "*": ["src/*", "src/root/*", "node_modules/*"]
         }
     }
 }

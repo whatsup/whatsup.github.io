@@ -32,7 +32,7 @@ module.exports = {
     mode: process.env.NODE_ENV,
 
     resolve: {
-        modules: [path.resolve('./'), path.resolve('./source'), path.resolve('node_modules')],
+        modules: [path.resolve('./'), path.resolve('./src'), path.resolve('./src/root'), path.resolve('node_modules')],
         extensions: ['.js', '.jsx', '.ts', '.tsx'],
     },
 
@@ -61,13 +61,24 @@ module.exports = {
                 exclude: /node_modules/,
             },
             {
-                test: /\.svg$/,
-                use: ['@svgr/webpack'],
-            },
-            {
                 test: /\.(mp3|ogg|jpg)$/,
                 use: ['file-loader'],
                 exclude: /node_modules/,
+            },
+            {
+                test: /\.scss$/i,
+                use: [
+                    'style-loader',
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            modules: { localIdentName: '[name]_[local]-[hash:base64:5]' },
+                            importLoaders: 1,
+                            sourceMap: true,
+                        },
+                    },
+                    'sass-loader',
+                ],
             },
         ],
     },

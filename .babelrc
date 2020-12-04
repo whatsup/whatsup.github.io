@@ -5,11 +5,10 @@
             {
                 "useBuiltIns": "usage",
                 "corejs": 3,
-                "targets": { "browsers": ["last 2 versions"] }
+                "targets": { "browsers": ["chrome>80"] }
             }
         ],
-        "@babel/typescript",
-        "@babel/preset-react"
+        "@babel/typescript"
     ],
-    "plugins": ["@babel/transform-typescript"]
+    "plugins": ["@babel/transform-typescript", "@babel/proposal-class-properties", "@fract/transform-jsx"]
 }

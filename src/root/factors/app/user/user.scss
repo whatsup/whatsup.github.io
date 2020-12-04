@@ -1,0 +1,39 @@
+.asJson {
+    white-space: pre;
+    font-weight: 400;
+    font-family: monospace;
+}
+
+.asView {
+    padding-top: 18px;
+}
+
+.asEdit {
+    padding-top: 18px;
+}
+
+.property {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1px;
+    min-height: 20px;
+}
+
+.propertyName {
+    font-weight: 400;
+    flex: 0 0 80px;
+}
+
+.propertyValue {
+    flex: 0 0 80px;
+    min-width: 80px;
+}
+
+.nameInput {
+    font: inherit;
+    width: 100%;
+}
+.ageInput {
+    font: inherit;
+    width: 100%;
+}

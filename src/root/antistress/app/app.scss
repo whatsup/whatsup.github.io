@@ -1,0 +1,76 @@
+@use "./colors";
+
+.container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+.main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @media screen and (orientation: portrait) {
+        flex-direction: column;
+    }
+}
+.help {
+    font-size: 14px;
+    font-weight: 300;
+    color: #c0c0c0;
+    text-align: center;
+    padding: 10px 0;
+}
+.title {
+    font-size: 12vmin;
+    color: #29b6f6;
+    user-select: none;
+    flex: 1 0 0;
+    font-weight: 100;
+
+    @media screen and (orientation: portrait) {
+        margin-top: 10px;
+    }
+    @media screen and (orientation: landscape) {
+        writing-mode: vertical-lr;
+        align-self: flex-end;
+        margin: 20px 0;
+    }
+}
+.tools {
+    user-select: none;
+    flex: 1 0 0;
+    display: flex;
+
+    @media screen and (orientation: portrait) {
+        align-items: flex-end;
+        padding-bottom: 20px;
+    }
+    @media screen and (orientation: landscape) {
+        flex-direction: column;
+        align-items: flex-end;
+        padding-right: 20px;
+    }
+}
+.canvas {
+    width: 80vmin;
+    height: 80vmin;
+    position: relative;
+}
+
+.colorBtn {
+    width: 8vmin;
+    height: 8vmin;
+    border-radius: 50%;
+    background-color: currentColor;
+    margin: 1vmin;
+    cursor: pointer;
+
+    @include colors.palette;
+
+    &.selected {
+        box-shadow: inset 0 0 0px 3px currentColor, inset 0 0 0px 6px white;
+    }
+}

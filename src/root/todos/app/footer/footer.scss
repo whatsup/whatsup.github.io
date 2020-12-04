@@ -1,0 +1,47 @@
+.container {
+    user-select: none;
+}
+
+.flex {
+    min-height: 50px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+
+    @media (max-width: 500px) {
+        flex-wrap: wrap;
+    }
+}
+
+.help {
+    font-size: 12px;
+    font-weight: 300;
+    color: #e0e0e0;
+    text-align: center;
+    padding: 5px 0;
+}
+
+.left {
+    flex: 1 0 100px;
+    margin-top: 2px;
+
+    &.invisible {
+        visibility: hidden;
+    }
+}
+
+.clear {
+    flex: 1 0 100px;
+    text-align: right;
+    margin-top: 2px;
+    transition: color 0.1s ease;
+
+    &:hover {
+        color: #0288d1;
+        cursor: pointer;
+    }
+
+    &.invisible {
+        visibility: hidden;
+    }
+}
