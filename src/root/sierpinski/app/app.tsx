@@ -1,5 +1,5 @@
 import styles from './app.scss'
-import { Fractal, RootContext, factor, Computed, observable, Context } from '@fract/core'
+import { Fractal, Context, factor, Computed, observable } from '@fract/core'
 
 const TIMER = factor<Timer>()
 
@@ -15,14 +15,14 @@ export class Timer extends Computed<number> {
         this.delay = delay
     }
 
-    *stream(ctx: RootContext) {
+    *stream(ctx: Context) {
         let timeoutId: number
-        let value = 0
+        let value = -1
 
         try {
             while (true) {
                 timeoutId = window.setTimeout(() => ctx.update(), this.delay)
-                yield value === 10 ? (value = 0) : value++
+                yield value === 9 ? (value = 0) : ++value
             }
         } finally {
             if (timeoutId!) {
@@ -33,7 +33,7 @@ export class Timer extends Computed<number> {
 }
 
 class Scaler extends Computed<number> {
-    *stream(ctx: RootContext) {
+    *stream(ctx: Context) {
         let elapsed = 0
         let rafId: number
 

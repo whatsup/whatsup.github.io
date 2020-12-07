@@ -1,4 +1,4 @@
-import { Computed, RootContext, computed } from '@fract/core'
+import { Computed, Context, computed } from '@fract/core'
 import { STORE_KEY } from './const'
 import { MODE, Mode } from './factors'
 import { AppData, App } from './app/app'
@@ -25,12 +25,12 @@ export class Antistress extends Computed<JSX.Element> {
     }
 }
 
-function* antistressJsx(this: Antistress, ctx: RootContext) {
+function* antistressJsx(this: Antistress, ctx: Context) {
     ctx.set(MODE, Mode.Jsx)
     while (true) yield yield* this.app
 }
 
-function* antistressData(this: Antistress, ctx: RootContext) {
+function* antistressData(this: Antistress, ctx: Context) {
     ctx.set(MODE, Mode.Data)
     while (true) yield yield* this.app
 }
