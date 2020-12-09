@@ -1,4 +1,4 @@
-import { fraction, Fractal, list, List, Context, Computed, computed } from '@fract/core'
+import { Fractal, list, List, Context, Computed, computed, observable } from '@fract/core'
 import { ENTER_KEY, ESCAPE_KEY } from '../const'
 import { FILTER } from './app.factors'
 import { Todo, TodoData } from './todo'
@@ -13,7 +13,7 @@ export type AppData = { filter: FilterValue; todos: TodoData[] }
 export class App extends Fractal<JSX.Element> {
     readonly filter: Filter
     readonly todos: List<Todo>
-    readonly data = computed<TodoData>(makeAppData, { thisArg: this })
+    readonly data = computed<AppData>(makeAppData, { thisArg: this })
 
     constructor({ filter = FilterValue.All, todos = [] }: AppData) {
         super()
@@ -47,7 +47,7 @@ export class App extends Fractal<JSX.Element> {
         const filtered = new Filtered(this.todos, this.filter)
         const counters = new Counters(this.todos)
         const footer = new Footer(counters)
-        const newTodoName = fraction('')
+        const newTodoName = observable('')
 
         const handleNewTodoNameInputChange = (e: any) => {
             newTodoName.set(e.target.value)
