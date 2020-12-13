@@ -17,7 +17,8 @@
         "postdeploy": "rimraf ./dist"
     },
     "dependencies": {
-        "@fract/browser-pathname": "^0.2.1",
+        "@fract/browser-pathname": "^0.3.0",
+        "@fract/route": "^0.2.0",
         "@fract/core": "^0.2.0",
         "@fract/jsx": "^0.2.0"
     },

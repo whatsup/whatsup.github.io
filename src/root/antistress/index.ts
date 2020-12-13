@@ -1,9 +1,9 @@
-import { Computed, Context, computed } from '@fract/core'
+import { Fractal, Context, computed } from '@fract/core'
 import { STORE_KEY } from './const'
 import { MODE, Mode } from './factors'
 import { AppData, App } from './app/app'
 
-export class Antistress extends Computed<JSX.Element> {
+export class Antistress extends Fractal<JSX.Element> {
     readonly app: App
     readonly jsx = computed(antistressJsx, { thisArg: this })
     readonly data = computed(antistressData, { thisArg: this })

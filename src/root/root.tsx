@@ -1,7 +1,8 @@
 import './reset.scss'
 import styles from './root.scss'
 import { Computed } from '@fract/core'
-import { Pathname } from '@fract/browser-pathname'
+import { route } from '@fract/route'
+import { redirect } from '@fract/browser-pathname'
 import { FractalJSX } from '@fract/jsx'
 import { Todos } from './todos'
 import { Factors } from './factors'
@@ -18,7 +19,6 @@ enum Route {
 }
 
 export class Root extends Computed<JSX.Element> {
-    private readonly pathname = new Pathname()
     private todos = new Todos()
     private antistress = new Antistress()
     private loadable = new Loadable()
@@ -26,40 +26,29 @@ export class Root extends Computed<JSX.Element> {
     private sierpinski = new Sierpinski();
 
     *stream() {
-        const redirect = (route: Route) => this.pathname.redirect(route)
+        const todosRoute = route(Route.Todos, this.todos)
+        const antistressRoute = route(Route.Antistress, this.antistress)
+        const loadableRoute = route(Route.Loadable, this.loadable)
+        const factorsRoute = route(Route.Factors, this.factors)
+        const sierpinskiRoute = route(Route.Sierpinski, this.sierpinski)
 
         while (true) {
-            switch (yield* this.pathname) {
-                case Route.Todos:
-                    yield this.todos
-                    continue
-                case Route.Antistress:
-                    yield this.antistress
-                    continue
-                case Route.Loadable:
-                    yield this.loadable
-                    continue
-                case Route.Factors:
-                    yield this.factors
-                    continue
-                case Route.Sierpinski:
-                    yield this.sierpinski
-                    continue
-                default:
-                    yield (
-                        <Container>
-                            <Title>Fractal examples</Title>
-                            <Flex>
-                                <TodosBtn onClick={() => redirect(Route.Todos)}>Todos</TodosBtn>
-                                <AntistressBtn onClick={() => redirect(Route.Antistress)}>Antistress</AntistressBtn>
-                                <LoadableBtn onClick={() => redirect(Route.Loadable)}>Loadable</LoadableBtn>
-                                <FactorsBtn onClick={() => redirect(Route.Factors)}>Factors</FactorsBtn>
-                                <SierpinskyBtn onClick={() => redirect(Route.Sierpinski)}>Sierpinski</SierpinskyBtn>
-                            </Flex>
-                        </Container>
-                    )
-                    continue
-            }
+            yield (yield* todosRoute) ||
+                (yield* antistressRoute) ||
+                (yield* loadableRoute) ||
+                (yield* factorsRoute) ||
+                (yield* sierpinskiRoute) || (
+                    <Container>
+                        <Title>Fractal examples</Title>
+                        <Flex>
+                            <TodosBtn onClick={() => redirect(Route.Todos)}>Todos</TodosBtn>
+                            <AntistressBtn onClick={() => redirect(Route.Antistress)}>Antistress</AntistressBtn>
+                            <LoadableBtn onClick={() => redirect(Route.Loadable)}>Loadable</LoadableBtn>
+                            <FactorsBtn onClick={() => redirect(Route.Factors)}>Factors</FactorsBtn>
+                            <SierpinskyBtn onClick={() => redirect(Route.Sierpinski)}>Sierpinski</SierpinskyBtn>
+                        </Flex>
+                    </Container>
+                )
         }
     }
 }

@@ -1,9 +1,9 @@
-import { Computed } from '@fract/core'
+import { Fractal } from '@fract/core'
 import { STORE_KEY } from './const'
 import { AppData } from './app/app'
 import { App } from './app/app'
 
-export class Todos extends Computed<any> {
+export class Todos extends Fractal<any> {
     readonly app: App
 
     constructor() {
