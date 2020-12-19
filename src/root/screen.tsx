@@ -1,20 +1,8 @@
 import styles from './screen.scss'
-import {
-    observable,
-    Observable,
-    Fractal,
-    factor,
-    Context,
-    transaction,
-    List,
-    list,
-    computed,
-    fractal,
-    Stream,
-} from '@fract/core'
-import { render } from '@fract/jsx'
+import { conse, Conse, Fractal, factor, Context, transaction, List, list, cause, fractal, Stream } from 'whatsup-js'
+import { render } from '@whatsup-js/jsx'
 
-const PixelSize = factor<Observable<number>>()
+const PixelSize = factor<Conse<number>>()
 const Shapes = factor<List<Shape>>()
 
 class Scene extends Fractal<JSX.Element> {
@@ -32,7 +20,7 @@ class Scene extends Fractal<JSX.Element> {
         this.shapes = list([])
     }
 
-    *stream(ctx: Context) {
+    *whatsUp(ctx: Context) {
         ctx.set(Shapes, this.shapes)
 
         while (true) {
@@ -52,7 +40,7 @@ class Scene extends Fractal<JSX.Element> {
 class Canvas extends Fractal<HTMLScreen> {
     readonly width: number
     readonly height: number
-    readonly pixelSize = observable(5)
+    readonly pixelSize = conse(5)
     readonly pixels: Pixel[]
 
     constructor(w: number, h: number) {
@@ -69,7 +57,7 @@ class Canvas extends Fractal<HTMLScreen> {
         })
     }
 
-    *stream(ctx: Context) {
+    *whatsUp(ctx: Context) {
         ctx.set(PixelSize, this.pixelSize)
 
         while (true) {
@@ -93,16 +81,16 @@ class Canvas extends Fractal<HTMLScreen> {
 abstract class Shape {
     abstract intersect(x: number, y: number): Generator<never, boolean>
 
-    readonly x: Observable<number>
-    readonly y: Observable<number>
-    readonly depth: Observable<number>
-    readonly color: Observable<string>
+    readonly x: Conse<number>
+    readonly y: Conse<number>
+    readonly depth: Conse<number>
+    readonly color: Conse<string>
 
     constructor(color = 'transparent') {
-        this.x = observable(0)
-        this.y = observable(0)
-        this.depth = observable(0)
-        this.color = observable(color)
+        this.x = conse(0)
+        this.y = conse(0)
+        this.depth = conse(0)
+        this.color = conse(color)
     }
 
     move(ox: number, oy: number) {
@@ -119,14 +107,14 @@ abstract class Shape {
 }
 
 class Rect extends Shape {
-    readonly width: Observable<number>
-    readonly height: Observable<number>
+    readonly width: Conse<number>
+    readonly height: Conse<number>
 
     constructor(width: number, height: number, color?: string) {
         super(color)
 
-        this.width = observable(width)
-        this.height = observable(height)
+        this.width = conse(width)
+        this.height = conse(height)
     }
 
     *intersect(x: number, y: number) {
@@ -152,11 +140,11 @@ class Pixel extends Fractal<HTMLPixel> {
         this.y = y
     }
 
-    *stream(ctx: Context) {
+    *whatsUp(ctx: Context) {
         const { x, y } = this
         const shapes = ctx.get(Shapes)!
         const pixelSize = ctx.get(PixelSize)!
-        const currentShape = computed(
+        const currentShape = cause(
             function* () {
                 let current: Shape | null = null
                 let currDepth = Infinity
@@ -176,7 +164,7 @@ class Pixel extends Fractal<HTMLPixel> {
             },
             { thisArg: this }
         )
-        const color = computed(
+        const color = cause(
             function* () {
                 while (true) {
                     const currShape = yield* currentShape
