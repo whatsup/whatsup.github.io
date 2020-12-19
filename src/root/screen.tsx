@@ -172,7 +172,7 @@ class Pixel extends Fractal<HTMLPixel> {
                     }
                 }
 
-                return (currShape = current)
+                return current
             },
             { thisArg: this }
         )
@@ -192,39 +192,13 @@ class Pixel extends Fractal<HTMLPixel> {
             { thisArg: this }
         )
 
-        let currShape: Shape | null = null
-
-        const onMouseUp = observable<undefined | ((e: any) => void)>(undefined)
-        const onMouseMove = observable<undefined | ((e: any) => void)>(undefined)
-        const onMouseDown = observable<undefined | ((e: any) => void)>(() => {
-            transaction(() => {
-                let moveX = 0
-                let moveY = 0
-
-                onMouseMove.set((e) => {
-                    currShape && currShape.move(e.offsetX, -e.offsetY)
-                })
-                onMouseUp.set(() => {
-                    onMouseMove.set(undefined)
-                })
-            })
-        })
-
         while (true) {
             const backgroundColor = yield* color
             const width = yield* pixelSize
             const height = width
             const style = { backgroundColor, width, height }
 
-            yield (
-                <div
-                    onMouseDown={yield* onMouseDown}
-                    onMouseUp={yield* onMouseUp}
-                    onMouseMove={yield* onMouseMove}
-                    className={styles.pixel}
-                    style={style}
-                />
-            )
+            yield <div className={styles.pixel} style={style} />
         }
     }
 }
