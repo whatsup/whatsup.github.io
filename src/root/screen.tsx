@@ -7,7 +7,7 @@ const PixelSize = factor<Observable<number>>()
 class Canvas extends Fractal<HTMLScreen> {
     readonly width: number
     readonly height: number
-    readonly pixelSize = observable(20)
+    readonly pixelSize = observable(5)
     readonly pixels: Pixel[]
 
     constructor(w: number, h: number, colors: Color[] = []) {
@@ -114,7 +114,7 @@ class Pixel extends Fractal<HTMLPixel> {
 
 type HTMLPixel = JSX.Element
 
-const canvas = new Canvas(20, 15)
+const canvas = new Canvas(150, 80)
 
 render(canvas)
 //
