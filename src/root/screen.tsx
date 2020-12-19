@@ -1,82 +1,86 @@
 import styles from './screen.scss'
-import { List, observable, Observable, list, Fractal, factor, Context } from '@fract/core'
+import { observable, Observable, Fractal, factor, Context, transaction } from '@fract/core'
 import { render } from '@fract/jsx'
 
 const PixelSize = factor<Observable<number>>()
 
-class Screen extends Fractal<HTMLScreen> {
+class Canvas extends Fractal<HTMLScreen> {
     readonly width: number
     readonly height: number
     readonly pixelSize = observable(20)
-    readonly canvas: Canvas
+    readonly pixels: Pixel[]
 
-    constructor(w: number, h: number) {
+    constructor(w: number, h: number, colors: Color[] = []) {
         super()
 
         this.width = w
         this.height = h
-
-        this.canvas = new Canvas(w * h)
+        this.pixels = Array.from({ length: w * h }, (_, i) => {
+            const color = i < colors.length ? colors[i] : undefined
+            return new Pixel(color)
+        })
     }
 
     *stream(ctx: Context) {
         ctx.set(PixelSize, this.pixelSize)
 
         while (true) {
-            const canvas = yield* this.canvas
             const width = (yield* this.pixelSize) * this.width
             const style = { width }
+            const children = [] as HTMLPixel[]
+
+            for (const pixel of this.pixels) {
+                children.push(yield* pixel)
+            }
 
             yield (
                 <div className={styles.screen} style={style}>
-                    {canvas}
+                    {children}
                 </div>
             )
         }
     }
-}
 
-type HTMLScreen = JSX.Element
+    fill(fillMap: FillMap) {
+        transaction(() => {
+            let i = 0
 
-// function HTMLScreen({ children }: FractalJSX.Attributes) {
-//     return <div>{children}</div>
-// }
+            for (const item of fillMap) {
+                if (typeof item === 'number') {
+                    i += item
+                    continue
+                }
 
-class Canvas extends Fractal<HTMLCanvas> {
-    readonly pixels: List<Pixel>
-
-    constructor(length: number, colors: Color[] = []) {
-        super()
-
-        this.pixels = list(
-            Array.from({ length }, (_, i) => {
-                const color = i < colors.length ? colors[i] : undefined
-                return new Pixel(color)
-            })
-        )
+                this.pixels[i++].color.set(item)
+            }
+        })
     }
 
-    *stream() {
-        while (true) {
-            const pixels = yield* this.pixels
-            const html = [] as HTMLPixel[]
+    fillRect(x: number, y: number, w: number, h: number, color: Color) {
+        const fillMap = this.fillRectMap(x, y, w, h, color)
+        this.fill(fillMap)
+    }
 
-            for (const pixel of pixels) {
-                html.push(yield* pixel)
+    *fillRectMap(x: number, y: number, w: number, h: number, color: Color) {
+        yield y * this.width
+
+        while (--h) {
+            yield x
+
+            let i = w
+
+            while (i--) {
+                yield color
             }
 
-            yield <div className={styles.canvas}>{html}</div>
+            yield this.width - (x + w)
         }
     }
-
-    fill(colors: Color[]) {}
 }
 
-type HTMLCanvas = JSX.Element
+type FillMap = Generator<Color | number>
 
-// function HTMLCanvas({ children }: FractalJSX.Attributes) {
-//     return <div>{children}</div>
-// }
+type HTMLScreen = JSX.Element
 
 type Color = string
 
@@ -110,6 +114,10 @@ class Pixel extends Fractal<HTMLPixel> {
 
 type HTMLPixel = JSX.Element
 
-const screen = new Screen(20, 15)
+const canvas = new Canvas(20, 15)
 
-render(screen)
+render(canvas)
+//
+;(window as any).canvas = canvas
+
+canvas.fillRect(2, 4, 13, 7, 'red')
