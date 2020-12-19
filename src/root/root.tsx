@@ -26,6 +26,8 @@ export class Root extends Computed<JSX.Element> {
     private sierpinski = new Sierpinski();
 
     *stream() {
+        yield new Screen()
+
         const todosRoute = route(Route.Todos, this.todos)
         const antistressRoute = route(Route.Antistress, this.antistress)
         const loadableRoute = route(Route.Loadable, this.loadable)
