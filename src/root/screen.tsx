@@ -60,6 +60,24 @@ class Canvas extends Fractal<HTMLScreen> {
     *whatsUp(ctx: Context) {
         ctx.set(PixelSize, this.pixelSize)
 
+        const cursorX = conse(0)
+        const cursorY = conse(0)
+        const onMouseMove = ctx.defer(function* (this: any, _, e: any) {
+            const pixelSize = yield* this.pixelSize
+            const rect = e.currentTarget!.getBoundingClientRect()
+            const x = Math.floor((e.clientX - rect.left) / pixelSize)
+            const y = Math.floor((e.clientY - rect.top) / pixelSize)
+
+            cursorX.set(x)
+            cursorY.set(y)
+        })
+        const onClick = ctx.defer(function* (this: Canvas, _, e: any) {
+            const x = yield* cursorX
+            const y = yield* cursorY
+
+            this.pixels[x + y * this.width].click()
+        })
+
         while (true) {
             const width = (yield* this.pixelSize) * this.width
             const style = { width }
@@ -70,7 +88,7 @@ class Canvas extends Fractal<HTMLScreen> {
             }
 
             yield (
-                <div className={styles.screen} style={style}>
+                <div onClick={onClick} onMouseMove={onMouseMove} className={styles.screen} style={style}>
                     {children}
                 </div>
             )
@@ -188,6 +206,10 @@ class Pixel extends Fractal<HTMLPixel> {
 
             yield <div className={styles.pixel} style={style} />
         }
+    }
+
+    click() {
+        console.log('Click', this)
     }
 }
 
