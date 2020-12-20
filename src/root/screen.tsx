@@ -1,6 +1,26 @@
 import styles from './screen.scss'
-import { conse, Conse, Fractal, factor, Context, transaction, List, list, cause, fractal, Stream } from 'whatsup-js'
+import {
+    conse,
+    Conse,
+    Fractal,
+    factor,
+    Context,
+    transaction,
+    List,
+    list,
+    cause,
+    fractal,
+    Stream,
+    watch,
+    Event,
+} from 'whatsup-js'
 import { render } from '@whatsup-js/jsx'
+
+class SelectionEvent extends Event {
+    constructor(readonly set: Set<Pixel>) {
+        super()
+    }
+}
 
 const PixelSize = factor<Conse<number>>()
 const Shapes = factor<List<Shape>>()
@@ -22,6 +42,7 @@ class Scene extends Fractal<JSX.Element> {
 
     *whatsUp(ctx: Context) {
         ctx.set(Shapes, this.shapes)
+        ctx.on(SelectionEvent, (e) => this.add(new Path()))
 
         while (true) {
             yield yield* this.canvas
@@ -66,13 +87,43 @@ class Canvas extends Fractal<HTMLScreen> {
 
         const cursorX = conse(0)
         const cursorY = conse(0)
+        const isMouseDown = conse(false)
+        const way = cause(function* (this: Canvas) {
+            while (true) {
+                const x = yield* cursorX
+                const y = yield* cursorY
+                yield this.getPixel(x, y)
+            }
+        })
+        const selected = cause(function* (this: Canvas) {
+            let set: Set<Pixel> | undefined
+
+            while (true) {
+                if (!(yield* isMouseDown)) {
+                    if (set!) {
+                        yield set
+                    }
+                    set = undefined
+                    continue
+                }
+                if (!set!) {
+                    set = new Set()
+                }
+
+                const pix = yield* way
+                set.add(pix)
+            }
+        })
+
+        const disposeSelectionEventChannel = watch(selected, (set: Set<Pixel>) => ctx.dispath(new SelectionEvent(set)))
+
         const setXY = ctx.defer(function* (this: any, _: Context, xy: [number, number]) {
             return transaction(() => {
                 cursorX.set(xy[0])
                 cursorY.set(xy[1])
             })
         })
-        const getXYFromEvent = ctx.defer(function* (this: any, _, e: any) {
+        const getXYFromEvent = ctx.defer(function* (this: Canvas, _: Context, e: any) {
             const pixelSize = yield* this.pixelSize
             const rect = e.currentTarget!.getBoundingClientRect()
             const x = Math.floor((e.clientX - rect.left) / pixelSize)
@@ -87,7 +138,7 @@ class Canvas extends Fractal<HTMLScreen> {
             return { pix }
         }) as any) as () => { pix: Pixel }
 
-        const onMouseMove = ctx.defer(function* (this: any, _, e: any) {
+        const onMouseMove = ctx.defer(function* (this: Canvas, _: Context, e: any) {
             const xy = getXYFromEvent(e) as any
             setXY(xy)
             getCurrentPixel().pix.mousemove()
@@ -99,9 +150,11 @@ class Canvas extends Fractal<HTMLScreen> {
             getCurrentPixel().pix.mouseleave()
         })
         const onMouseDown = ctx.defer(function* (this: Canvas) {
+            isMouseDown.set(true)
             getCurrentPixel().pix.mousedown()
         })
         const onMouseUp = ctx.defer(function* (this: Canvas) {
+            isMouseDown.set(false)
             getCurrentPixel().pix.mouseup()
         })
         const onClick = ctx.defer(function* (this: Canvas) {
