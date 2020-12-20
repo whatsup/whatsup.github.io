@@ -57,25 +57,55 @@ class Canvas extends Fractal<HTMLScreen> {
         })
     }
 
+    getPixel(x: number, y: number) {
+        return this.pixels[x + y * this.width]
+    }
+
     *whatsUp(ctx: Context) {
         ctx.set(PixelSize, this.pixelSize)
 
         const cursorX = conse(0)
         const cursorY = conse(0)
-        const onMouseMove = ctx.defer(function* (this: any, _, e: any) {
+        const setXY = ctx.defer(function* (this: any, _: Context, xy: [number, number]) {
+            return transaction(() => {
+                cursorX.set(xy[0])
+                cursorY.set(xy[1])
+            })
+        })
+        const getXYFromEvent = ctx.defer(function* (this: any, _, e: any) {
             const pixelSize = yield* this.pixelSize
             const rect = e.currentTarget!.getBoundingClientRect()
             const x = Math.floor((e.clientX - rect.left) / pixelSize)
             const y = Math.floor((e.clientY - rect.top) / pixelSize)
 
-            cursorX.set(x)
-            cursorY.set(y)
+            return [x, y]
         })
-        const onClick = ctx.defer(function* (this: Canvas, _, e: any) {
+        const getCurrentPixel = (ctx.defer(function* (this: Canvas) {
             const x = yield* cursorX
             const y = yield* cursorY
+            const pix = this.getPixel(x, y)
+            return { pix }
+        }) as any) as () => { pix: Pixel }
 
-            this.pixels[x + y * this.width].click()
+        const onMouseMove = ctx.defer(function* (this: any, _, e: any) {
+            const xy = getXYFromEvent(e) as any
+            setXY(xy)
+            getCurrentPixel().pix.mousemove()
+        })
+        const onMouseEnter = ctx.defer(function* (this: Canvas) {
+            getCurrentPixel().pix.mouseenter()
+        })
+        const onMouseLeave = ctx.defer(function* (this: Canvas) {
+            getCurrentPixel().pix.mouseleave()
+        })
+        const onMouseDown = ctx.defer(function* (this: Canvas) {
+            getCurrentPixel().pix.mousedown()
+        })
+        const onMouseUp = ctx.defer(function* (this: Canvas) {
+            getCurrentPixel().pix.mouseup()
+        })
+        const onClick = ctx.defer(function* (this: Canvas) {
+            getCurrentPixel().pix.click()
         })
 
         while (true) {
@@ -88,7 +118,16 @@ class Canvas extends Fractal<HTMLScreen> {
             }
 
             yield (
-                <div onClick={onClick} onMouseMove={onMouseMove} className={styles.screen} style={style}>
+                <div
+                    onClick={onClick}
+                    onMouseMove={onMouseMove}
+                    onMouseEnter={onMouseEnter}
+                    onMouseLeave={onMouseLeave}
+                    onMouseDown={onMouseDown}
+                    onMouseUp={onMouseUp}
+                    className={styles.screen}
+                    style={style}
+                >
                     {children}
                 </div>
             )
@@ -142,6 +181,43 @@ class Rect extends Shape {
         const h = yield* this.height
 
         return ox < x && x <= ox + w && oy < y && y <= oy + h
+    }
+}
+
+class Path extends Shape {
+    readonly pixels: List<Pixel>
+
+    constructor(start: Pixel, color: string) {
+        super(color)
+        this.pixels = list([start])
+    }
+
+    readonly map = cause(
+        function* (this: Path) {
+            while (true) {
+                const acc = new Map() as Map<number, Map<number, Pixel>>
+
+                for (const pixel of yield* this.pixels) {
+                    if (!acc.has(pixel.x)) {
+                        acc.set(pixel.x, new Map())
+                    }
+
+                    const submap = acc.get(pixel.x)!
+
+                    if (!submap.has(pixel.y)) {
+                        submap.set(pixel.y, pixel)
+                    }
+                }
+
+                yield acc
+            }
+        },
+        { thisArg: this }
+    );
+
+    *intersect(x: number, y: number) {
+        const map = yield* this.map
+        return map.has(x) && map.get(x)!.has(y)
     }
 }
 
@@ -209,7 +285,24 @@ class Pixel extends Fractal<HTMLPixel> {
     }
 
     click() {
-        console.log('Click', this)
+        //console.log('Click', this)
+    }
+
+    mousemove() {
+        //console.log('Mousemove', this)
+    }
+
+    mouseenter() {
+        //console.log('mouseenter', this)
+    }
+    mouseleave() {
+        //console.log('mouseleave', this)
+    }
+    mousedown() {
+        //console.log('mousedown', this)
+    }
+    mouseup() {
+        //console.log('mouseup', this)
     }
 }
 
