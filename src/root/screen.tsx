@@ -42,7 +42,6 @@ class Scene extends Fractal<JSX.Element> {
 
     *whatsUp(ctx: Context) {
         ctx.set(Shapes, this.shapes)
-        ctx.on(SelectionEvent, (e) => this.add(new Path()))
 
         while (true) {
             yield yield* this.canvas
@@ -95,27 +94,6 @@ class Canvas extends Fractal<HTMLScreen> {
                 yield this.getPixel(x, y)
             }
         })
-        const selected = cause(function* (this: Canvas) {
-            let set: Set<Pixel> | undefined
-
-            while (true) {
-                if (!(yield* isMouseDown)) {
-                    if (set!) {
-                        yield set
-                    }
-                    set = undefined
-                    continue
-                }
-                if (!set!) {
-                    set = new Set()
-                }
-
-                const pix = yield* way
-                set.add(pix)
-            }
-        })
-
-        const disposeSelectionEventChannel = watch(selected, (set: Set<Pixel>) => ctx.dispath(new SelectionEvent(set)))
 
         const setXY = ctx.defer(function* (this: any, _: Context, xy: [number, number]) {
             return transaction(() => {
@@ -234,43 +212,6 @@ class Rect extends Shape {
         const h = yield* this.height
 
         return ox < x && x <= ox + w && oy < y && y <= oy + h
-    }
-}
-
-class Path extends Shape {
-    readonly pixels: List<Pixel>
-
-    constructor(start: Pixel, color: string) {
-        super(color)
-        this.pixels = list([start])
-    }
-
-    readonly map = cause(
-        function* (this: Path) {
-            while (true) {
-                const acc = new Map() as Map<number, Map<number, Pixel>>
-
-                for (const pixel of yield* this.pixels) {
-                    if (!acc.has(pixel.x)) {
-                        acc.set(pixel.x, new Map())
-                    }
-
-                    const submap = acc.get(pixel.x)!
-
-                    if (!submap.has(pixel.y)) {
-                        submap.set(pixel.y, pixel)
-                    }
-                }
-
-                yield acc
-            }
-        },
-        { thisArg: this }
-    );
-
-    *intersect(x: number, y: number) {
-        const map = yield* this.map
-        return map.has(x) && map.get(x)!.has(y)
     }
 }
 
