@@ -179,7 +179,7 @@ class EqualSetFilter<T> extends Mutator<Set<T>> {
     }
 
     mutate(set: Set<T>) {
-        if (this.set.size !== set.size) {
+        if (!set || this.set.size !== set.size) {
             return this.set
         }
         for (const item of this.set) {
@@ -196,7 +196,32 @@ function equalSet<T>(set: Set<T>) {
     return new EqualSetFilter(set)
 }
 
-interface Foton {}
+class EqualArrFilter<T> extends Mutator<T[]> {
+    constructor(readonly arr: T[]) {
+        super()
+    }
+
+    mutate(arr: T[]) {
+        if (!arr || this.arr.length !== arr.length) {
+            return this.arr
+        }
+        for (let i = 0; i < this.arr.length; i++) {
+            if (arr[i] !== this.arr[i]) {
+                return this.arr
+            }
+        }
+
+        return arr
+    }
+}
+
+function equalArr<T>(arr: T[]) {
+    return new EqualArrFilter(arr)
+}
+
+interface Foton {
+    color: string
+}
 
 class Thread extends Fractal<Foton> {
     readonly layers = fractal<Set<Layer>>(
@@ -210,7 +235,7 @@ class Thread extends Fractal<Foton> {
 
             while (true) {
                 yield equalSet(
-                    yield* matrix.comeIn(function* (this: Matrix) {
+                    yield* matrix.say(function* (this: Matrix) {
                         const layers = new Set<Layer>()
 
                         /*
@@ -254,51 +279,138 @@ abstract class Layer extends Fractal<Set<Thread>> {
 }
 
 abstract class Pixel extends Fractal<any> {
-    readonly color = conse('green')
+    protected readonly _color = conse('black')
 
-    setColor(color: string) {
-        this.color.set(color)
+    fire(foton: Foton) {
+        debugger
+        transaction(() => {
+            for (const [key, value] of Object.entries(foton)) {
+                console.log(key, value)
+                if (key in this) {
+                    ;(this as any)[key](value)
+                }
+            }
+        })
+    }
+
+    color(value: string) {
+        this._color.set(value)
     }
 }
 
 class HTMLPixel extends Pixel {
     *whatsUp() {
-        const style = {}
-
+        const style = {
+            backgroundColor: yield* this._color,
+        }
+        debugger
         while (true) {
             yield <div style={style} />
         }
     }
 }
 
-class Eye extends Fractal<any> {
-    readonly matrix: Matrix
-    readonly pixels: Pixel[]
+class Display extends Fractal<void> {
+    readonly width: number
+    readonly height: number
+    readonly eye: Eye
 
-    constructor(pixels: Pixel[], width: number) {
+    constructor(w: number, h: number) {
+        // TODO add param pixelCtor
         super()
-        this.pixels = pixels
-        this.matrix = new Matrix(width, pixels.length / width)
+
+        this.width = w
+        this.height = h
+        this.eye = new Eye(w * h, w)
     }
 
     *whatsUp() {
-        while (true) {
-            let i = 0
+        const container = document.getElementById('app')!
 
-            for (const foton of this.matrix) {
-                this.pixels[i++].set
-            }
+        while (true) {
+            container.innerText = ''
+            container.append(...(yield* this.eye))
+
+            yield
         }
     }
 }
 
-class Matrix extends Fractal<Set<Foton>> {
-    *whatsUp(ctx: Context) {
+class HTMLPixelMutator extends Mutator<HTMLDivElement> {
+    readonly attributes: Map<string, string>
+
+    constructor(foton: Foton) {
+        super()
+        this.attributes = new Map(Object.entries(foton))
+    }
+
+    mutate(element: HTMLDivElement | undefined) {
+        if (!element) {
+            element = document.createElement('div')
+        }
+        for (const [attr, value] of this.attributes) {
+            element.style.setProperty(attr, value)
+        }
+        return element
+    }
+}
+
+class Eye extends Fractal<HTMLDivElement[]> {
+    readonly matrix: Matrix
+    readonly retina: Fractal<HTMLPixelMutator>[]
+
+    constructor(length: number, width: number) {
+        super()
+
+        const matrix = new Matrix(width, length / width)
+
+        this.matrix = matrix
+        this.retina = Array.from({ length }, (_, i) =>
+            fractal(function* () {
+                while (true) {
+                    yield new HTMLPixelMutator((yield* matrix)[i])
+                }
+            })
+        )
+    }
+
+    *whatsUp() {
         while (true) {
-            const fotons = new Set<Foton>()
+            const items = []
+
+            for (const item of this.retina) {
+                items.push(yield* item)
+            }
+
+            yield (equalArr(items) as any) as HTMLDivElement[]
+
+            // let i = 0
+
+            // for (const foton of yield* this.matrix) {
+            //     this.pixels[i++].fire(foton)
+            // }
+
+            // const view = new Set<T>()
+
+            // for (const pixel of this.pixels) {
+            //     view.add(yield* pixel)
+            // }
+
+            // yield (equalSet(view) as any) as Set<T>
+            // eye sleep for the next loop
+        }
+    }
+}
+
+class Matrix extends Fractal<Foton[]> {
+    *whatsUp(ctx: Context) {
+        ctx.set(MatrixQuery, this)
+
+        while (true) {
+            const fotons = [] as Foton[]
 
             for (const thread of yield* this.threads) {
-                fotons.add(yield* thread)
+                fotons.push(yield* thread)
             }
 
             yield fotons
@@ -318,7 +430,7 @@ class Matrix extends Fractal<Set<Foton>> {
         this.threads = Array.from({ length: w * h }, () => new Thread())
     }
 
-    *comeIn(generator: (this: this) => Generator<any>) {
+    *say(generator: (this: this) => Generator<any>) {
         return yield* generator.call(this)
     }
 
@@ -382,8 +494,9 @@ class Rect extends Layer {
             const w = yield* this.w
             const h = yield* this.h
 
-            yield yield* matrix.comeIn(function* (this: Matrix) {
-                // я в матрице :)
+            yield yield* matrix.say(function* (this: Matrix) {
+                // кто сказал say тот и this - т.е. this: Matrix
+                // я в матрице :) сам беру что мне надо
                 const set = new Set<Thread>()
 
                 for (let _x = x; _x < x + w; _x++) {
@@ -398,6 +511,48 @@ class Rect extends Layer {
     }
 }
 
+const display = new Display(5, 3)
+const rect = new Rect(2, 1, 2, 1, 'red')
+
+display.eye.matrix.layers.insert(rect)
+
+watch(
+    display,
+    (r) => console.log(r),
+    (e) => console.error(e)
+)
+
+/*
+TODO
+
+MUTOGEN
+
+class CreateElement extends Mutator {
+    mutate(){
+        return document.createElement('div')
+    }
+}
+
+class SetBackgroundColor extends Mutator {
+    readonly color: string
+
+    constructor(color: string){
+        super()
+        this.color = color
+    }
+
+    mutate(element: Element){ // after CreateElement
+        element.style.backgroundColor = this.color
+        return element
+    }
+}
+
+const frl = fractal(function*(){
+    yield new CreateElement()
+    yield new SetBackgroundColor('red')
+})
+
+*/
 // abstract class Shape {
 //     abstract intersect(x: number, y: number): Generator<never, boolean>
 
