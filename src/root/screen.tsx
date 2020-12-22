@@ -275,39 +275,6 @@ class Thread extends Fractal<Foton> {
 
 abstract class Layer extends Fractal<Set<Thread>> {
     abstract portal(foton: Foton): Generator<never, Foton>
-    //abstract threads(): Generator<never, Thread[]>
-}
-
-abstract class Pixel extends Fractal<any> {
-    protected readonly _color = conse('black')
-
-    fire(foton: Foton) {
-        debugger
-        transaction(() => {
-            for (const [key, value] of Object.entries(foton)) {
-                console.log(key, value)
-                if (key in this) {
-                    ;(this as any)[key](value)
-                }
-            }
-        })
-    }
-
-    color(value: string) {
-        this._color.set(value)
-    }
-}
-
-class HTMLPixel extends Pixel {
-    *whatsUp() {
-        const style = {
-            backgroundColor: yield* this._color,
-        }
-        debugger
-        while (true) {
-            yield <div style={style} />
-        }
-    }
 }
 
 class Display extends Fractal<void> {
@@ -326,12 +293,26 @@ class Display extends Fractal<void> {
 
     *whatsUp() {
         const container = document.getElementById('app')!
+        const element = document.createElement('div')
 
-        while (true) {
-            container.innerText = ''
-            container.append(...(yield* this.eye))
+        element.style.setProperty('font-size', '0')
+        element.style.setProperty('width', `${this.width * 20}px`)
+        element.style.setProperty('height', `${this.height * 20}px`)
 
-            yield
+        container.append(element)
+
+        try {
+            while (true) {
+                const elements = yield* this.eye
+
+                element.innerText = ''
+                element.append(...elements)
+
+                yield
+            }
+        } finally {
+            debugger
+            element.remove()
         }
     }
 }
@@ -347,6 +328,10 @@ class HTMLPixelMutator extends Mutator<HTMLDivElement> {
     mutate(element: HTMLDivElement | undefined) {
         if (!element) {
             element = document.createElement('div')
+            element.style.setProperty('background-color', 'currentColor')
+            element.style.setProperty('width', '20px')
+            element.style.setProperty('height', '20px')
+            element.style.setProperty('display', 'inline-block')
         }
         for (const [attr, value] of this.attributes) {
             element.style.setProperty(attr, value)
@@ -368,7 +353,9 @@ class Eye extends Fractal<HTMLDivElement[]> {
         this.retina = Array.from({ length }, (_, i) =>
             fractal(function* () {
                 while (true) {
-                    yield new HTMLPixelMutator((yield* matrix)[i])
+                    const fotons = yield* matrix
+
+                    yield new HTMLPixelMutator(fotons[i])
                 }
             })
         )
@@ -409,7 +396,7 @@ class Matrix extends Fractal<Foton[]> {
         while (true) {
             const fotons = [] as Foton[]
 
-            for (const thread of yield* this.threads) {
+            for (const thread of this.threads) {
                 fotons.push(yield* thread)
             }
 
@@ -470,12 +457,11 @@ class Rect extends Layer {
         }
     }
 
-    *whatsUp(ctx: Context, pixel?: Pixel) {
-        if (pixel) {
-            // восходящий поток
-            return
-        }
-
+    *whatsUp(ctx: Context /**, pixel?: Pixel */) {
+        // if (pixel) {
+        //     // восходящий поток
+        //     return
+        // }
         // если есть второй аргуметн - это восходящий поток (super.whatsUp(ctx, arg))
         // TODO
         // on up level
@@ -511,8 +497,8 @@ class Rect extends Layer {
     }
 }
 
-const display = new Display(5, 3)
-const rect = new Rect(2, 1, 2, 1, 'red')
+const display = new Display(18, 8)
+const rect = new Rect(1, 1, 1, 1, 'red')
 
 display.eye.matrix.layers.insert(rect)
 
