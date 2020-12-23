@@ -203,7 +203,7 @@ class Eye extends Fractal<HTMLDivElement[]> {
 
 const MatrixQuery = factor<Matrix>()
 
-class Matrix extends Cause<Foton[]> {
+class Matrix {
     readonly layers = list<Layer>([])
     readonly threads: Thread[] = []
 
@@ -211,7 +211,6 @@ class Matrix extends Cause<Foton[]> {
     readonly height: number
 
     constructor(w: number, h: number) {
-        super()
         this.width = w
         this.height = h
         this.threads = Array.from({ length: w * h }, () => new Thread(this))
@@ -221,29 +220,29 @@ class Matrix extends Cause<Foton[]> {
         return yield* generator.call(this)
     }
 
-    getThread(index: number) {
-        const { threads } = this
+    // getThread(index: number) {
+    //     const { threads } = this
 
-        if (index >= threads.length) {
-            throw `Invalid thread index ${index}`
-        }
+    //     if (index >= threads.length) {
+    //         throw `Invalid thread index ${index}`
+    //     }
 
-        return this.threads[index]
-    }
+    //     return this.threads[index]
+    // }
 
-    *whatsUp(ctx: Context) {
-        ctx.set(MatrixQuery, this)
+    // *whatsUp(ctx: Context) {
+    //     ctx.set(MatrixQuery, this)
 
-        while (true) {
-            const fotons = [] as Foton[]
+    //     while (true) {
+    //         const fotons = [] as Foton[]
 
-            for (const thread of this.threads) {
-                fotons.push(yield* thread)
-            }
+    //         for (const thread of this.threads) {
+    //             fotons.push(yield* thread)
+    //         }
 
-            yield fotons
-        }
-    }
+    //         yield fotons
+    //     }
+    // }
 }
 
 class Thread extends Cause<Foton> {
@@ -347,7 +346,7 @@ class Rect extends Layer {
                 for (let _x = x; _x < x + w; _x++) {
                     for (let _y = y; _y < y + h; _y++) {
                         // console.log('GET', x, y, w, h, _y * w + _x)
-                        set.add(this.getThread(_y * this.width + _x))
+                        set.add(this.threads[_y * this.width + _x])
                     }
                 }
 
