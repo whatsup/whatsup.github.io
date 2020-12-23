@@ -15,8 +15,7 @@ import {
     Event,
     Cause,
     Mutator,
-} from 'whatsup-js'
-import { render } from '@whatsup-js/jsx'
+} from 'whatsup'
 
 // class SelectionEvent extends Event {
 //     constructor(readonly set: Set<Pixel>) {
