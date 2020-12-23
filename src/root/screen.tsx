@@ -73,60 +73,6 @@ interface Foton {
     color: string
 }
 
-class Thread extends Fractal<Foton> {
-    readonly layers = fractal<Set<Layer>>(
-        function* (this: Thread, ctx: Context) {
-            const thread = this
-            const matrix = ctx.get(MatrixQuery)
-
-            if (!matrix) {
-                throw 'Matrix not exist'
-            }
-
-            while (true) {
-                yield equalSet(
-                    yield* matrix.say(function* (this: Matrix) {
-                        const layers = new Set<Layer>()
-
-                        /*
-                        в матрице каждый сам берет себе все что ему нужно
-                        и только для частых или защищенных запросов
-                        в узле реализуются новые методы
-                        */
-
-                        for (const layer of yield* this.layers) {
-                            if ((yield* layer).has(thread)) {
-                                layers.add(layer)
-                            }
-                        }
-
-                        return layers
-                    })
-                )
-            }
-        },
-        { thisArg: this }
-    );
-
-    *whatsUp(ctx: Context) {
-        // возвращает себя тлько через фильтры
-
-        while (true) {
-            let foton = {} as Foton
-
-            for (const layer of yield* this.layers) {
-                foton = yield* layer.portal(foton)
-            }
-
-            yield foton
-        }
-    }
-}
-
-abstract class Layer extends Fractal<Set<Thread>> {
-    abstract portal(foton: Foton): Generator<never, Foton>
-}
-
 class Display extends Fractal<void> {
     readonly width: number
     readonly height: number
@@ -224,21 +170,9 @@ class Eye extends Fractal<HTMLDivElement[]> {
     }
 }
 
-class Matrix extends Fractal<Foton[]> {
-    *whatsUp(ctx: Context) {
-        ctx.set(MatrixQuery, this)
+const MatrixQuery = factor<Matrix>()
 
-        while (true) {
-            const fotons = [] as Foton[]
-
-            for (const thread of this.threads) {
-                fotons.push(yield* thread)
-            }
-
-            yield fotons
-        }
-    }
-
+class Matrix extends Cause<Foton[]> {
     readonly layers = list<Layer>([])
     readonly threads: Thread[] = []
 
@@ -265,9 +199,75 @@ class Matrix extends Fractal<Foton[]> {
 
         return this.threads[index]
     }
+
+    *whatsUp(ctx: Context) {
+        ctx.set(MatrixQuery, this)
+
+        while (true) {
+            const fotons = [] as Foton[]
+
+            for (const thread of this.threads) {
+                fotons.push(yield* thread)
+            }
+
+            yield fotons
+        }
+    }
 }
 
-const MatrixQuery = factor<Matrix>()
+class Thread extends Fractal<Foton> {
+    readonly layers = fractal<Set<Layer>>(
+        function* (this: Thread, ctx: Context) {
+            const thread = this
+            const matrix = ctx.get(MatrixQuery)
+
+            if (!matrix) {
+                throw 'Matrix not exist'
+            }
+
+            while (true) {
+                yield equalSet(
+                    yield* matrix.say(function* (this: Matrix) {
+                        const layers = new Set<Layer>()
+
+                        /*
+                        в матрице каждый сам берет себе все что ему нужно
+                        и только для частых или защищенных запросов
+                        в узле реализуются новые методы
+                        */
+
+                        for (const layer of yield* this.layers) {
+                            if ((yield* layer).has(thread)) {
+                                layers.add(layer)
+                            }
+                        }
+
+                        return layers
+                    })
+                )
+            }
+        },
+        { thisArg: this }
+    );
+
+    *whatsUp(ctx: Context) {
+        // возвращает себя тлько через фильтры
+
+        while (true) {
+            let foton = { color: 'black' } as Foton
+
+            for (const layer of yield* this.layers) {
+                foton = yield* layer.portal(foton)
+            }
+
+            yield foton
+        }
+    }
+}
+
+abstract class Layer extends Fractal<Set<Thread>> {
+    abstract portal(foton: Foton): Generator<never, Foton>
+}
 
 class Rect extends Layer {
     readonly x: Conse<number>
@@ -308,9 +308,12 @@ class Rect extends Layer {
 
                 for (let _x = x; _x < x + w; _x++) {
                     for (let _y = y; _y < y + h; _y++) {
-                        set.add(this.getThread(_y * w + _x))
+                        // console.log('GET', x, y, w, h, _y * w + _x)
+                        set.add(this.getThread(_y * this.width + _x))
                     }
                 }
+
+                console.log([...set])
 
                 return set
             })
@@ -318,10 +321,14 @@ class Rect extends Layer {
     }
 }
 
-const display = new Display(30, 20)
-const rect = new Rect(1, 1, 1, 1, 'red')
+const display = new Display(15, 7)
+const rect = new Rect(2, 2, 5, 3, 'red')
 
 display.eye.matrix.layers.insert(rect)
+
+declare var window: any
+
+window.rect = rect
 
 watch(
     display,
