@@ -70,26 +70,20 @@ function equalArr<T>(arr: T[]) {
     return new EqualArrFilter(arr)
 }
 
-class EqualFotonFilter<T extends Foton> extends Mutator<T> {
-    constructor(readonly foton: T) {
+class EqualFotonFilter extends Mutator<Foton> {
+    constructor(readonly foton: Foton) {
         super()
     }
 
-    mutate(foton: T) {
-        if (!foton) {
+    mutate(foton: Foton) {
+        if (
+            !foton ||
+            foton.r !== this.foton.r ||
+            foton.g !== this.foton.g ||
+            foton.b !== this.foton.b ||
+            foton.a !== this.foton.a
+        ) {
             return this.foton
-        }
-
-        const oldKeys = Object.keys(foton)
-        const newKeys = Object.keys(this.foton)
-
-        if (oldKeys.length !== newKeys.length) {
-            return this.foton
-        }
-        for (let i = 0; i < newKeys.length; i++) {
-            if (foton[newKeys[i]] !== this.foton[newKeys[i]]) {
-                return this.foton
-            }
         }
 
         return foton
@@ -101,7 +95,10 @@ function equalFoton<T extends Foton>(foton: T) {
 }
 
 interface Foton {
-    [k: string]: string
+    r: number
+    g: number
+    b: number
+    a: number
 }
 
 const PIXEL_SIZE = 10
@@ -147,11 +144,24 @@ class Display extends Fractal<void> {
 }
 
 class HTMLPixelMutator extends Mutator<HTMLDivElement> {
-    readonly attributes: Map<string, string>
+    readonly color: string
 
     constructor(foton: Foton) {
         super()
-        this.attributes = new Map(Object.entries(foton))
+
+        let color = '#'
+
+        for (const channel of 'rgba') {
+            const value = foton[channel as keyof Foton]
+
+            if (value < 16) {
+                color += '0'
+            }
+
+            color += value.toString(16)
+        }
+
+        this.color = color
     }
 
     mutate(element: HTMLDivElement | undefined) {
@@ -162,8 +172,8 @@ class HTMLPixelMutator extends Mutator<HTMLDivElement> {
             element.style.setProperty('height', `${PIXEL_SIZE}px`)
             element.style.setProperty('display', 'inline-block')
         }
-        for (const [attr, value] of this.attributes) {
-            element.style.setProperty(attr, value)
+        if (element.style.color !== this.color) {
+            element.style.color = this.color
         }
         return element
     }
@@ -200,8 +210,6 @@ class Eye extends Fractal<HTMLDivElement[]> {
         }
     }
 }
-
-const MatrixQuery = factor<Matrix>()
 
 class Matrix {
     readonly layers = list<Layer>([])
@@ -253,14 +261,14 @@ class Thread extends Cause<Foton> {
         this.matrix = matrix
     }
 
-    readonly layers = cause<Set<Layer>>(
+    readonly layers = cause<Layer[]>(
         function* (this: Thread) {
             const thread = this
 
             while (true) {
-                yield equalSet(
+                yield equalArr(
                     yield* this.matrix.say(function* (this: Matrix) {
-                        const layers = new Set<Layer>()
+                        const layers = [] as Layer[][]
 
                         /*
                         в матрице каждый сам берет себе все что ему нужно
@@ -270,11 +278,17 @@ class Thread extends Cause<Foton> {
 
                         for (const layer of yield* this.layers) {
                             if ((yield* layer).has(thread)) {
-                                layers.add(layer)
+                                const depth = yield* layer.depth
+
+                                if (!layers[depth]) {
+                                    layers[depth] = [] as Layer[]
+                                }
+
+                                layers[depth].push(layer)
                             }
                         }
 
-                        return layers
+                        return layers.flat()
                     })
                 )
             }
@@ -286,10 +300,19 @@ class Thread extends Cause<Foton> {
         // возвращает себя тлько через фильтры
 
         while (true) {
-            let foton = { color: 'black' } as Foton
+            let foton = {
+                r: 0,
+                g: 0,
+                b: 0,
+                a: 0,
+            } as Foton
 
             for (const layer of yield* this.layers) {
                 foton = yield* layer.portal(foton)
+
+                if (foton.a >= 255) {
+                    break
+                }
             }
 
             yield equalFoton(foton)
@@ -299,7 +322,15 @@ class Thread extends Cause<Foton> {
 
 abstract class Layer extends Cause<Set<Thread>> {
     abstract portal(foton: Foton): Generator<never, Foton>
+
+    readonly depth = conse(0)
 }
+
+function channel(color: string, group: number) {
+    return parseInt('0x' + color.slice(group * 2, group * 2 + 2))
+}
+
+class Filter {}
 
 class Rect extends Layer {
     matrix!: Matrix
@@ -307,26 +338,34 @@ class Rect extends Layer {
     readonly y: Conse<number>
     readonly w: Conse<number>
     readonly h: Conse<number>
-    readonly color: Conse<string>
+    readonly color = conse('00000000')
 
-    constructor(x: number, y: number, w: number, h: number, color = 'black') {
+    constructor(x: number, y: number, w: number, h: number) {
         super()
         this.x = conse(x)
         this.y = conse(y)
         this.w = conse(w)
         this.h = conse(h)
-        this.color = conse(color)
     }
 
     setMatrix(matrix: Matrix) {
         this.matrix = matrix
     }
 
-    *portal(foton: Foton) {
-        return {
-            ...foton,
-            color: yield* this.color,
-        }
+    *portal({ r, g, b, a }: Foton) {
+        const color = yield* this.color
+
+        r += channel(color, 0)
+        g += channel(color, 1)
+        b += channel(color, 2)
+        a += channel(color, 3)
+
+        if (r > 255) r = 255
+        if (g > 255) g = 255
+        if (b > 255) b = 255
+        if (a > 255) a = 255
+
+        return { r, g, b, a }
     }
 
     *whatsUp(ctx: Context /**, pixel?: Pixel */) {
@@ -356,25 +395,36 @@ class Rect extends Layer {
     }
 }
 
-const display = new Display(100, 70)
-const rect = new Rect(2, 2, 5, 3, 'red')
+const display = new Display(40, 30)
+const rect1 = new Rect(2, 2, 15, 10)
+const rect2 = new Rect(10, 10, 15, 10)
+const rect3 = new Rect(5, 5, 15, 10)
+
+rect1.color.set('0000ff50')
+rect2.color.set('ff0000ff')
+rect3.color.set('00ff0050')
 
 const delay = (t: number) => new Promise((r) => setTimeout(r, t))
 
 async function move() {
     for (let i = 0; i < 10; i++) {
-        rect.x.set(rect.x.get() + 1)
+        rect1.x.set(rect1.x.get() + 1)
         await delay(10)
     }
 }
 
-rect.setMatrix(display.eye.matrix)
+rect1.setMatrix(display.eye.matrix)
+rect2.setMatrix(display.eye.matrix)
+rect3.setMatrix(display.eye.matrix)
 
-display.eye.matrix.layers.insert(rect)
+display.eye.matrix.layers.insert(rect1)
+display.eye.matrix.layers.insert(rect2)
+display.eye.matrix.layers.insert(rect3)
 
 declare var window: any
 
-window.rect = rect
+window.rect1 = rect1
+window.rect2 = rect2
 window.move = move
 
 watch(
