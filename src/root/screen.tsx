@@ -16,6 +16,7 @@ import {
     Cause,
     Mutator,
 } from 'whatsup'
+import { Computed } from '@fract/core'
 
 /*
 фрактал - это когда ты понимаешь 
@@ -69,9 +70,41 @@ function equalArr<T>(arr: T[]) {
     return new EqualArrFilter(arr)
 }
 
-interface Foton {
-    color: string
+class EqualFotonFilter<T extends Foton> extends Mutator<T> {
+    constructor(readonly foton: T) {
+        super()
+    }
+
+    mutate(foton: T) {
+        if (!foton) {
+            return this.foton
+        }
+
+        const oldKeys = Object.keys(foton)
+        const newKeys = Object.keys(this.foton)
+
+        if (oldKeys.length !== newKeys.length) {
+            return this.foton
+        }
+        for (let i = 0; i < newKeys.length; i++) {
+            if (foton[newKeys[i]] !== this.foton[newKeys[i]]) {
+                return this.foton
+            }
+        }
+
+        return foton
+    }
 }
+
+function equalFoton<T extends Foton>(foton: T) {
+    return new EqualFotonFilter(foton)
+}
+
+interface Foton {
+    [k: string]: string
+}
+
+const PIXEL_SIZE = 10
 
 class Display extends Fractal<void> {
     readonly width: number
@@ -92,8 +125,8 @@ class Display extends Fractal<void> {
         const element = document.createElement('div')
 
         element.style.setProperty('font-size', '0')
-        element.style.setProperty('width', `${this.width * 20}px`)
-        element.style.setProperty('height', `${this.height * 20}px`)
+        element.style.setProperty('width', `${this.width * PIXEL_SIZE}px`)
+        element.style.setProperty('height', `${this.height * PIXEL_SIZE}px`)
 
         container.append(element)
 
@@ -125,8 +158,8 @@ class HTMLPixelMutator extends Mutator<HTMLDivElement> {
         if (!element) {
             element = document.createElement('div')
             element.style.setProperty('background-color', 'currentColor')
-            element.style.setProperty('width', '20px')
-            element.style.setProperty('height', '20px')
+            element.style.setProperty('width', `${PIXEL_SIZE}px`)
+            element.style.setProperty('height', `${PIXEL_SIZE}px`)
             element.style.setProperty('display', 'inline-block')
         }
         for (const [attr, value] of this.attributes) {
@@ -138,7 +171,7 @@ class HTMLPixelMutator extends Mutator<HTMLDivElement> {
 
 class Eye extends Fractal<HTMLDivElement[]> {
     readonly matrix: Matrix
-    readonly retina: Fractal<HTMLPixelMutator>[]
+    readonly retina: Cause<HTMLPixelMutator>[]
 
     constructor(length: number, width: number) {
         super()
@@ -147,11 +180,9 @@ class Eye extends Fractal<HTMLDivElement[]> {
 
         this.matrix = matrix
         this.retina = Array.from({ length }, (_, i) =>
-            fractal(function* () {
+            cause(function* () {
                 while (true) {
-                    const fotons = yield* matrix
-
-                    yield new HTMLPixelMutator(fotons[i])
+                    yield new HTMLPixelMutator(yield* matrix.threads[i])
                 }
             })
         )
@@ -183,7 +214,7 @@ class Matrix extends Cause<Foton[]> {
         super()
         this.width = w
         this.height = h
-        this.threads = Array.from({ length: w * h }, () => new Thread())
+        this.threads = Array.from({ length: w * h }, () => new Thread(this))
     }
 
     *say(generator: (this: this) => Generator<any>) {
@@ -215,19 +246,21 @@ class Matrix extends Cause<Foton[]> {
     }
 }
 
-class Thread extends Fractal<Foton> {
-    readonly layers = fractal<Set<Layer>>(
-        function* (this: Thread, ctx: Context) {
-            const thread = this
-            const matrix = ctx.get(MatrixQuery)
+class Thread extends Cause<Foton> {
+    readonly matrix: Matrix
 
-            if (!matrix) {
-                throw 'Matrix not exist'
-            }
+    constructor(matrix: Matrix) {
+        super()
+        this.matrix = matrix
+    }
+
+    readonly layers = cause<Set<Layer>>(
+        function* (this: Thread) {
+            const thread = this
 
             while (true) {
                 yield equalSet(
-                    yield* matrix.say(function* (this: Matrix) {
+                    yield* this.matrix.say(function* (this: Matrix) {
                         const layers = new Set<Layer>()
 
                         /*
@@ -260,16 +293,17 @@ class Thread extends Fractal<Foton> {
                 foton = yield* layer.portal(foton)
             }
 
-            yield foton
+            yield equalFoton(foton)
         }
     }
 }
 
-abstract class Layer extends Fractal<Set<Thread>> {
+abstract class Layer extends Cause<Set<Thread>> {
     abstract portal(foton: Foton): Generator<never, Foton>
 }
 
 class Rect extends Layer {
+    matrix!: Matrix
     readonly x: Conse<number>
     readonly y: Conse<number>
     readonly w: Conse<number>
@@ -285,6 +319,10 @@ class Rect extends Layer {
         this.color = conse(color)
     }
 
+    setMatrix(matrix: Matrix) {
+        this.matrix = matrix
+    }
+
     *portal(foton: Foton) {
         return {
             ...foton,
@@ -293,7 +331,7 @@ class Rect extends Layer {
     }
 
     *whatsUp(ctx: Context /**, pixel?: Pixel */) {
-        const matrix = ctx.get(MatrixQuery)!
+        //const matrix = ctx.get(MatrixQuery)!
 
         while (true) {
             const x = yield* this.x
@@ -301,7 +339,7 @@ class Rect extends Layer {
             const w = yield* this.w
             const h = yield* this.h
 
-            yield yield* matrix.say(function* (this: Matrix) {
+            yield yield* this.matrix.say(function* (this: Matrix) {
                 // кто сказал say тот и this - т.е. this: Matrix
                 // я в матрице :) сам беру что мне надо
                 const set = new Set<Thread>()
@@ -313,22 +351,32 @@ class Rect extends Layer {
                     }
                 }
 
-                console.log([...set])
-
                 return set
             })
         }
     }
 }
 
-const display = new Display(15, 7)
+const display = new Display(100, 70)
 const rect = new Rect(2, 2, 5, 3, 'red')
+
+const delay = (t: number) => new Promise((r) => setTimeout(r, t))
+
+async function move() {
+    for (let i = 0; i < 10; i++) {
+        rect.x.set(rect.x.get() + 1)
+        await delay(10)
+    }
+}
+
+rect.setMatrix(display.eye.matrix)
 
 display.eye.matrix.layers.insert(rect)
 
 declare var window: any
 
 window.rect = rect
+window.move = move
 
 watch(
     display,
