@@ -11,7 +11,7 @@ import {
     cause,
     fractal,
     Stream,
-    watch,
+    whatsUp,
     Event,
     Cause,
     Mutator,
@@ -501,7 +501,7 @@ const rect = new Rect(1, 1, 1, 1, 'red')
 
 display.eye.matrix.layers.insert(rect)
 
-watch(
+whatsUp(
     display,
     (r) => console.log(r),
     (e) => console.error(e)

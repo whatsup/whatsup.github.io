@@ -18,10 +18,10 @@
     },
     "dependencies": {
         "@fract/browser-pathname": "^0.3.0",
-        "whatsup": "0.2.3-async.0",
+        "whatsup": "0.2.3-async.1",
         "@fract/route": "^0.2.0",
         "@fract/core": "^0.2.0",
-        "@whatsup-js/jsx": "^0.1.1"
+        "@whatsup-js/jsx": "^0.1.2"
     },
     "devDependencies": {
         "@babel/cli": "^7.10.4",

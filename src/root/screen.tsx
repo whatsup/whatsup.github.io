@@ -11,12 +11,11 @@ import {
     cause,
     fractal,
     Stream,
-    watch,
     Event,
     Cause,
     Mutator,
+    whatsUp,
 } from 'whatsup'
-import { Computed } from '@fract/core'
 
 /*
 фрактал - это когда ты понимаешь 
@@ -427,7 +426,7 @@ window.rect1 = rect1
 window.rect2 = rect2
 window.move = move
 
-watch(
+whatsUp(
     display,
     (r) => console.log(r),
     (e) => console.error(e)
