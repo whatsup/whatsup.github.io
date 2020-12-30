@@ -57,7 +57,7 @@ export function eventMutator<T extends HTMLElement>(event: string, cb: (e: any) 
 }
 
 export function onClick(cb: (e: any) => void) {
-    return eventMutator('onClick', cb)
+    return eventMutator('click', cb)
 }
 
 export function stylePropertyMutator<T extends CSSStyleDeclaration>(prop: keyof T, value: T[keyof T]) {
@@ -89,11 +89,15 @@ export function backgroundColor(value: string) {
     return stylePropertyMutator('backgroundColor', value)
 }
 
+export function cursor(value: string) {
+    return stylePropertyMutator('cursor', value)
+}
+
 export function HTMLPixel({ color, evClick }: { color: string; evClick: () => void }) {
     return mutator(
         component(
             div,
-            style(display('inline-block'), width('20px'), height('20px'), backgroundColor(color)),
+            style(display('inline-block'), width('20px'), height('20px'), cursor('pointer'), backgroundColor(color)),
             onClick(evClick)
         )
     )

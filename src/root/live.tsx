@@ -28,7 +28,7 @@ import { HTMLPixel, div } from './jsx'
 //     }
 // }
 
-class Thread extends Fractal<any> {
+class Thread extends Cause<any> {
     readonly navigator: Navigator
     readonly color: Conse<string>
 
@@ -54,22 +54,28 @@ class Thread extends Fractal<any> {
 
         while (true) {
             const color = yield* this.color
-            // const t = top ? yield* top : undefined
-            // const l = left ? yield* left : undefined
-            // const r = right ? yield* right : undefined
-            // const b = bottom ? yield* bottom : undefined
-            // const tl = topLeft ? yield* topLeft : undefined
-            // const tb = topRight ? yield* topRight : undefined
-            // const bl = bottomLeft ? yield* bottomLeft : undefined
-            // const br = bottomRight ? yield* bottomRight : undefined
-            // const colors = [t, l, r, b, tl, tb, bl, br]
+            const t = top ? yield* top.color : undefined
+            const l = left ? yield* left.color : undefined
+            const r = right ? yield* right.color : undefined
+            const b = bottom ? yield* bottom.color : undefined
+            const tl = topLeft ? yield* topLeft.color : undefined
+            const tb = topRight ? yield* topRight.color : undefined
+            const bl = bottomLeft ? yield* bottomLeft.color : undefined
+            const br = bottomRight ? yield* bottomRight.color : undefined
+            const colors = [t, l, r, b, tl, tb, bl, br]
 
-            // if (color === 'white' && colors.filter((c) => c === 'black').length >= 2) {
-            //     yield 'black'
-            //     continue
-            // }
+            const blackCount = colors.filter((c) => c === 'black').length
 
-            yield color
+            if (color === 'white' && blackCount === 3) {
+                yield this
+                continue
+            }
+            if (color === 'black' && (blackCount < 2 || blackCount > 3)) {
+                yield this
+                continue
+            }
+
+            yield null
         }
     }
 }
@@ -137,7 +143,7 @@ class Pixel extends Cause<HTMLElement> {
 
         while (true) {
             yield HTMLPixel({
-                color: yield* this.thread,
+                color: yield* this.thread.color,
                 evClick,
             })
         }
@@ -164,6 +170,25 @@ class Matrix extends Cause<any> {
 
         this.pixels = this.threads.map((thread) => new Pixel(thread))
     }
+
+    readonly updateReady = cause(
+        function* (this: Matrix) {
+            while (true) {
+                const threads = [] as Thread[]
+
+                for (const thread of this.threads) {
+                    const result = yield* thread
+
+                    if (result) {
+                        threads.push(result)
+                    }
+                }
+
+                yield equalArr(threads)
+            }
+        },
+        { thisArg: this }
+    );
 
     *whatsUp() {
         //const prev = [] as string[]
@@ -239,6 +264,7 @@ class Display extends Cause<HTMLElement> {
             console.log(element, pixels)
             element.style.width = (this.width * 20).toString() + 'px'
             element.style.height = (this.height * 20).toString() + 'px'
+            element.style.fontSize = '0'
 
             element.innerHTML = ''
             element.append(...pixels)
@@ -247,6 +273,16 @@ class Display extends Cause<HTMLElement> {
         }
     }
 }
+
+const display = new Display(2, 2)
+
+whatsUp(display.matrix.updateReady, (threads: Thread[]) => {
+    transaction(() => {
+        for (const thread of threads) {
+            thread.invertColor()
+        }
+    })
+})
 
 whatsUp(
     new Display(2, 2),
