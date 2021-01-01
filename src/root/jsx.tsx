@@ -93,11 +93,14 @@ export function cursor(value: string) {
     return stylePropertyMutator('cursor', value)
 }
 
-export function HTMLPixel({ color, evClick }: { color: string; evClick: () => void }) {
+export const HTMLPixelRatio = 5
+
+export function HTMLPixel({ color, evClick }: { color: string; evClick: (e: any) => void }) {
+    const size = HTMLPixelRatio + 'px'
     return mutator(
         component(
             div,
-            style(display('inline-block'), width('20px'), height('20px'), cursor('pointer'), backgroundColor(color)),
+            style(display('inline-block'), width(size), height(size), cursor('pointer'), backgroundColor(color)),
             onClick(evClick)
         )
     )

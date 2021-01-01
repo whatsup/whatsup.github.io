@@ -16,7 +16,7 @@ import {
     Mutator,
     whatsUp,
 } from 'whatsup'
-import { HTMLPixel, div } from './jsx'
+import { HTMLPixel, HTMLPixelRatio, div } from './jsx'
 
 //class Alive extends Conse<boolean> {}
 
@@ -81,49 +81,97 @@ class Thread extends Cause<any> {
 }
 
 class Navigator {
-    readonly id: number
+    readonly key: number
     readonly width: number
     readonly lines: number
     readonly threads: Thread[]
 
-    constructor(id: number, width: number, lines: number, threads: Thread[]) {
+    constructor(key: number, width: number, lines: number, threads: Thread[]) {
         //super()
-        this.id = id
+        this.key = key
         this.width = width
         this.lines = lines
         this.threads = threads
     }
 
     top() {
-        return this.threads[this.id - this.width]
+        const { key, width, threads } = this
+        const i = key < width ? -1 : key - width
+        return i === -1 ? null : threads[i]
     }
 
     left() {
-        return this.threads[this.id - 1]
+        const { key, width, threads } = this
+        const i = key === Math.floor(key / width) * width ? -1 : key - 1
+        return i === -1 ? null : threads[i]
     }
 
     right() {
-        return this.threads[this.id + 1]
+        const { key, width, threads } = this
+        const i = (key + 1) % width === 0 ? -1 : key + 1
+        return i === -1 ? null : threads[i]
     }
 
     bottom() {
-        return this.threads[this.id + this.width]
+        const { key, width, lines, threads } = this
+        const i = key > (lines - 1) * width ? -1 : key + width
+        return i === -1 ? null : threads[i]
     }
 
     topLeft() {
-        return this.threads[this.id - this.width - 1]
+        const top = this.top()
+
+        if (top) {
+            const left = top.navigator.left()
+
+            if (left) {
+                return left
+            }
+        }
+
+        return null
     }
 
     topRight() {
-        return this.threads[this.id - this.width + 1]
+        const top = this.top()
+
+        if (top) {
+            const right = top.navigator.right()
+
+            if (right) {
+                return right
+            }
+        }
+
+        return null
     }
 
     bottomLeft() {
-        return this.threads[this.id + this.width - 1]
+        const bottom = this.bottom()
+
+        if (bottom) {
+            const left = bottom.navigator.left()
+
+            if (left) {
+                return left
+            }
+        }
+
+        return null
     }
 
     bottomRight() {
-        return this.threads[this.id + this.width + 1]
+        const bottom = this.bottom()
+
+        if (bottom) {
+            const right = bottom.navigator.right()
+
+            if (right) {
+                return right
+            }
+        }
+
+        return null
     }
 }
 
@@ -137,7 +185,6 @@ class Pixel extends Cause<HTMLElement> {
 
     *whatsUp() {
         const evClick = (e: any) => {
-            console.log(e)
             this.thread.invertColor()
         }
 
@@ -183,29 +230,22 @@ class Matrix extends Cause<any> {
                         threads.push(result)
                     }
                 }
-
                 yield equalArr(threads)
             }
         },
         { thisArg: this }
-    );
+    )
+
+    fill() {
+        transaction(() => {
+            for (const thread of this.threads) {
+                thread.color.set(Math.round(Math.random()) ? 'black' : 'white')
+            }
+        })
+    }
 
     *whatsUp() {
-        //const prev = [] as string[]
-
         while (true) {
-            // const tasks = [] as (() => void)[]
-
-            // let i = 0
-
-            // for (const thread of this.threads) {
-            //     const color = yield* thread
-
-            //     if (i >= prev.length || prev[i] !== color) {
-            //         tasks.push(() => thread.color.set(color))
-            //     }
-            // }
-
             const elements = [] as HTMLElement[]
 
             for (const pixel of this.pixels) {
@@ -261,9 +301,8 @@ class Display extends Cause<HTMLElement> {
         while (true) {
             const pixels = yield* this.matrix
 
-            console.log(element, pixels)
-            element.style.width = (this.width * 20).toString() + 'px'
-            element.style.height = (this.height * 20).toString() + 'px'
+            element.style.width = (this.width * HTMLPixelRatio).toString() + 'px'
+            element.style.height = (this.height * HTMLPixelRatio).toString() + 'px'
             element.style.fontSize = '0'
 
             element.innerHTML = ''
@@ -274,18 +313,40 @@ class Display extends Cause<HTMLElement> {
     }
 }
 
-const display = new Display(2, 2)
+const display = new Display(100, 100)
 
-whatsUp(display.matrix.updateReady, (threads: Thread[]) => {
-    transaction(() => {
-        for (const thread of threads) {
-            thread.invertColor()
-        }
-    })
-})
+;(window as any).display = display
 
 whatsUp(
-    new Display(2, 2),
+    display,
     (d) => console.log(d),
     (e) => console.error(e)
 )
+
+whatsUp(display.matrix.updateReady, (threads: Thread[]) => {
+    update(() =>
+        transaction(() => {
+            for (const thread of threads) {
+                thread.invertColor()
+            }
+        })
+    )
+})
+
+const updateQueue = [] as (() => void)[]
+let timeoutId: number | undefined
+
+function update(start?: () => void) {
+    if (start) {
+        updateQueue.push(start)
+    }
+    if (!timeoutId && updateQueue.length) {
+        timeoutId = window.setTimeout(() => {
+            updateQueue[0]()
+            updateQueue.shift()
+
+            timeoutId = undefined
+            update()
+        }, 500)
+    }
+}
