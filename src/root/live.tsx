@@ -347,6 +347,6 @@ function update(start?: () => void) {
 
             timeoutId = undefined
             update()
-        }, 500)
+        }, 200)
     }
 }
