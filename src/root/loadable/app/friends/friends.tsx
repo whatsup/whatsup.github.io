@@ -1,6 +1,6 @@
 import styles from './friends.scss'
-import { list, Fractal, List, Context } from '@fract/core'
-import { FractalJSX } from '@fract/jsx'
+import { list, Fractal, List, Context } from 'whatsup'
+import { WhatsJSX } from '@whatsup-js/jsx'
 import { Loader } from 'loadable/loader'
 import { Api } from 'loadable/api'
 import { Friend, FriendLoader } from './friend'
@@ -15,8 +15,8 @@ export class Friends extends Fractal<JSX.Element> {
         }
     }
 
-    *stream(ctx: Context) {
-        this.loadFriendList().then(() => ctx.update())
+    *whatsUp(ctx: Context) {
+        ctx.defer(() => this.loadFriendList())
 
         yield <FriendsLoader />
 
@@ -47,10 +47,10 @@ function FriendsLoader() {
     )
 }
 
-function Container({ children }: FractalJSX.Attributes) {
+function Container({ children }: WhatsJSX.Attributes) {
     return <div className={styles.container}>{children}</div>
 }
 
-function FriendsTitle({ children }: FractalJSX.Attributes) {
+function FriendsTitle({ children }: WhatsJSX.Attributes) {
     return <div className={styles.title}>{children}</div>
 }

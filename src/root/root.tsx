@@ -1,9 +1,9 @@
 import './reset.scss'
 import styles from './root.scss'
-import { Computed } from '@fract/core'
-import { route } from '@fract/route'
-import { redirect } from '@fract/browser-pathname'
-import { FractalJSX } from '@fract/jsx'
+import { Cause } from 'whatsup'
+import { route } from '@whatsup-js/route'
+import { redirect } from '@whatsup-js/browser-pathname'
+import { WhatsJSX } from '@whatsup-js/jsx'
 import { Todos } from './todos'
 import { Factors } from './factors'
 import { Sierpinski } from './sierpinski'
@@ -18,14 +18,14 @@ enum Route {
     Sierpinski = '/sierpinski',
 }
 
-export class Root extends Computed<JSX.Element> {
+export class Root extends Cause<JSX.Element> {
     private todos = new Todos()
     private antistress = new Antistress()
     private loadable = new Loadable()
     private factors = new Factors()
     private sierpinski = new Sierpinski();
 
-    *stream() {
+    *whatsUp() {
         const todosRoute = route(Route.Todos, this.todos)
         const antistressRoute = route(Route.Antistress, this.antistress)
         const loadableRoute = route(Route.Loadable, this.loadable)
@@ -39,7 +39,7 @@ export class Root extends Computed<JSX.Element> {
                 (yield* factorsRoute) ||
                 (yield* sierpinskiRoute) || (
                     <Container>
-                        <Title>Fractal examples</Title>
+                        <Title>WhatsUp examples</Title>
                         <Flex>
                             <TodosBtn onClick={() => redirect(Route.Todos)}>Todos</TodosBtn>
                             <AntistressBtn onClick={() => redirect(Route.Antistress)}>Antistress</AntistressBtn>
@@ -53,20 +53,20 @@ export class Root extends Computed<JSX.Element> {
     }
 }
 
-function Container({ children }: FractalJSX.Attributes) {
+function Container({ children }: WhatsJSX.Attributes) {
     return <section className={styles.container}>{children}</section>
 }
 
-function Title({ children }: FractalJSX.Attributes) {
+function Title({ children }: WhatsJSX.Attributes) {
     return <header className={styles.title}>{children}</header>
 }
 
-function Flex({ children }: FractalJSX.Attributes) {
+function Flex({ children }: WhatsJSX.Attributes) {
     return <div className={styles.flex}>{children}</div>
 }
 
-type BtnProps = FractalJSX.Attributes & {
-    onClick: (event: FractalJSX.MouseEvent<HTMLButtonElement>) => void
+type BtnProps = WhatsJSX.Attributes & {
+    onClick: (event: WhatsJSX.MouseEvent<HTMLButtonElement>) => void
 }
 
 function TodosBtn({ children, onClick }: BtnProps) {

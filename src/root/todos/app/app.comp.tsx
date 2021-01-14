@@ -1,31 +1,31 @@
 import styles from './app.scss'
-import { FractalJSX } from '@fract/jsx'
+import { WhatsJSX } from '@whatsup-js/jsx'
 
-export function Container({ children }: FractalJSX.Attributes) {
+export function Container({ children }: WhatsJSX.Attributes) {
     return <section className={styles.container}>{children}</section>
 }
 
-export function Wrapper({ children }: FractalJSX.Attributes) {
+export function Wrapper({ children }: WhatsJSX.Attributes) {
     return <section className={styles.wrapper}>{children}</section>
 }
 
-export function Header({ children }: FractalJSX.Attributes) {
+export function Header({ children }: WhatsJSX.Attributes) {
     return <header className={styles.header}>{children}</header>
 }
 
-export function Main({ children }: FractalJSX.Attributes) {
+export function Main({ children }: WhatsJSX.Attributes) {
     return <main className={styles.main}>{children}</main>
 }
 
-export function FilteredList({ children }: FractalJSX.Attributes) {
+export function FilteredList({ children }: WhatsJSX.Attributes) {
     return <ul className={styles.list}>{children}</ul>
 }
 
-export type NewTodoNameInputProps = FractalJSX.Attributes & {
+export type NewTodoNameInputProps = WhatsJSX.Attributes & {
     placeholder: string
     value: string
-    onInput: (event: FractalJSX.FormEvent<HTMLInputElement>) => void
-    onKeyDown: (event: FractalJSX.KeyboardEvent<HTMLInputElement>) => void
+    onInput: (event: WhatsJSX.FormEvent<HTMLInputElement>) => void
+    onKeyDown: (event: WhatsJSX.KeyboardEvent<HTMLInputElement>) => void
 }
 
 export function NewTodoNameInput({ value, placeholder, onInput, onKeyDown }: NewTodoNameInputProps) {

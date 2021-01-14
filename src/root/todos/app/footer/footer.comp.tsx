@@ -1,19 +1,19 @@
 import styles from './footer.scss'
-import { FractalJSX } from '@fract/jsx'
+import { WhatsJSX } from '@whatsup-js/jsx'
 
-export function Container({ children }: FractalJSX.Attributes) {
+export function Container({ children }: WhatsJSX.Attributes) {
     return <footer className={styles.container}>{children}</footer>
 }
 
-export function Flex({ children }: FractalJSX.Attributes) {
+export function Flex({ children }: WhatsJSX.Attributes) {
     return <footer className={styles.flex}>{children}</footer>
 }
 
-export function Help({ children }: FractalJSX.Attributes) {
+export function Help({ children }: WhatsJSX.Attributes) {
     return <div className={styles.help}>{children}</div>
 }
 
-export type LeftProps = FractalJSX.Attributes & { visible: boolean }
+export type LeftProps = WhatsJSX.Attributes & { visible: boolean }
 
 export function Left({ children, visible }: LeftProps) {
     let className = styles.left
@@ -25,9 +25,9 @@ export function Left({ children, visible }: LeftProps) {
     return <span className={className}>{children}</span>
 }
 
-export type ClearProps = FractalJSX.Attributes & {
+export type ClearProps = WhatsJSX.Attributes & {
     visible: boolean
-    onClick: (event: FractalJSX.MouseEvent<HTMLAnchorElement>) => void
+    onClick: (event: WhatsJSX.MouseEvent<HTMLAnchorElement>) => void
 }
 
 export function Clear({ children, visible, onClick }: ClearProps) {

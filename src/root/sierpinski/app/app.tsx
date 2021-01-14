@@ -1,5 +1,5 @@
 import styles from './app.scss'
-import { Fractal, Context, factor, Computed, observable } from '@fract/core'
+import { Fractal, Context, factor, Cause, conse } from 'whatsup'
 
 const TIMER = factor<Timer>()
 
@@ -7,7 +7,7 @@ function layer(depth: number) {
     return depth === 0 ? new Dot() : new Triangle(--depth)
 }
 
-export class Timer extends Computed<number> {
+export class Timer extends Cause<number> {
     private delay: number
 
     constructor(delay: number = 1000) {
@@ -15,7 +15,7 @@ export class Timer extends Computed<number> {
         this.delay = delay
     }
 
-    *stream(ctx: Context) {
+    *whatsUp(ctx: Context) {
         let timeoutId: number
         let value = -1
 
@@ -32,8 +32,8 @@ export class Timer extends Computed<number> {
     }
 }
 
-class Scaler extends Computed<number> {
-    *stream(ctx: Context) {
+class Scaler extends Cause<number> {
+    *whatsUp(ctx: Context) {
         let elapsed = 0
         let rafId: number
 
@@ -50,9 +50,9 @@ class Scaler extends Computed<number> {
 }
 
 class Dot extends Fractal<JSX.Element> {
-    *stream(ctx: Context) {
-        const Timer = ctx.get(TIMER)!
-        const Hovered = observable(false)
+    *whatsUp(ctx: Context) {
+        const Timer = ctx.find(TIMER)!
+        const Hovered = conse(false)
 
         const onMouseOver = () => Hovered.set(true)
         const onMouseOut = () => Hovered.set(false)
@@ -84,7 +84,7 @@ class Triangle extends Fractal<JSX.Element> {
         this.thr = layer(depth)
     }
 
-    *stream() {
+    *whatsUp() {
         while (true) {
             yield (
                 <div className={styles.triangle}>
@@ -102,8 +102,8 @@ export class App extends Fractal<JSX.Element> {
     readonly scaler = new Scaler()
     readonly triangle = new Triangle(5);
 
-    *stream(ctx: Context) {
-        ctx.set(TIMER, this.timer)
+    *whatsUp(ctx: Context) {
+        ctx.define(TIMER, this.timer)
 
         while (true) {
             const transform = `scaleX(${yield* this.scaler})`

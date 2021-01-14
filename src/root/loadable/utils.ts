@@ -1,6 +1,6 @@
-import { Stream } from '@fract/core'
+import { Stream } from 'whatsup'
 
-export function* connect<T>(target: T[] | Stream<T[]>) {
+export function* connect<T>(target: Stream<T>[] | Stream<Stream<T>[]>) {
     const items = target instanceof Stream ? yield* target : target
     const acc = [] as T[]
 

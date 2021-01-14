@@ -1,4 +1,4 @@
-import { factor } from '@fract/core'
+import { factor } from 'whatsup'
 
 export enum Mode {
     View,

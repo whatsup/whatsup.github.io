@@ -1,32 +1,27 @@
 import styles from './group.scss'
-import { Fractal, Context } from '@fract/core'
+import { Fractal, Context } from 'whatsup'
 import { Loader } from 'loadable/loader'
 import { Api } from 'loadable/api'
-import { FractalJSX } from '@fract/jsx'
+import { WhatsJSX } from '@whatsup-js/jsx'
 
 export class Group extends Fractal<JSX.Element> {
     constructor(readonly id: number) {
         super()
     }
 
-    *stream(ctx: Context) {
+    *whatsUp(ctx: Context) {
         const { id } = this
-        let groupName: string
-        let groupImage: string
-
-        Api.loadGroup(id).then((group) => {
-            groupName = group.name
-            groupImage = group.image
-            ctx.update()
-        })
+        const deferredGroup = ctx.defer(() => Api.loadGroup(id))
 
         yield <GroupLoader key={id} />
+
+        const { name, image } = deferredGroup.value!
 
         while (true) {
             yield (
                 <Container key={id}>
-                    <GroupImg src={groupImage!} />
-                    <GroupName>{groupName!}</GroupName>
+                    <GroupImg src={image} />
+                    <GroupName>{name}</GroupName>
                 </Container>
             )
         }
@@ -44,11 +39,11 @@ export function GroupLoader() {
     )
 }
 
-function Container({ children }: FractalJSX.Attributes) {
+function Container({ children }: WhatsJSX.Attributes) {
     return <div className={styles.group}>{children}</div>
 }
 
-export type GroupImgProps = FractalJSX.Attributes & { src: string }
+export type GroupImgProps = WhatsJSX.Attributes & { src: string }
 
 function GroupImg({ src }: GroupImgProps) {
     return <img className={styles.img} src={src} />
@@ -58,6 +53,6 @@ function GroupImgLoader() {
     return <Loader className={styles.imgLoader} w="auto" h="auto" />
 }
 
-function GroupName({ children }: FractalJSX.Attributes) {
+function GroupName({ children }: WhatsJSX.Attributes) {
     return <div className={styles.name}>{children}</div>
 }

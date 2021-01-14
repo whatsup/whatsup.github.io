@@ -1,4 +1,4 @@
-import { Fractal } from '@fract/core'
+import { Fractal } from 'whatsup'
 import { STORE_KEY } from './const'
 import { AppData } from './app/app'
 import { App } from './app/app'
@@ -12,7 +12,7 @@ export class Todos extends Fractal<any> {
         this.app = new App(data)
     }
 
-    *stream() {
+    *whatsUp() {
         while (true) {
             const data = yield* this.app.data
 

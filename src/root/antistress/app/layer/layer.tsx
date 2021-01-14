@@ -1,22 +1,22 @@
 import styles from './layer.scss'
-import { fraction, Fractal, Fraction, Context } from '@fract/core'
+import { conse, Fractal, Conse, Context } from 'whatsup'
 import { Color } from 'root/antistress/const'
 import { playSplitSound, playFillSound } from 'root/antistress/sounds'
 import { CURRENT_COLOR, MODE, Mode } from 'root/antistress/factors'
-import { FractalJSX } from '@fract/jsx'
+import { WhatsJSX } from '@whatsup-js/jsx'
 
 export type LayerData = Color | LayerData[]
 
 export class Layer extends Fractal<any> {
-    readonly nested: Fraction<LayerData | Fractal<LayerData | JSX.Element>[]>
+    readonly nested: Conse<LayerData | Fractal<LayerData | JSX.Element>[]>
 
     constructor(data: LayerData) {
         super()
-        this.nested = fraction(Array.isArray(data) ? data.map((d) => new Layer(d)) : data)
+        this.nested = conse(Array.isArray(data) ? data.map((d) => new Layer(d)) : data)
     }
 
-    stream(ctx: Context) {
-        switch (ctx.get(MODE)) {
+    whatsUp(ctx: Context) {
+        switch (ctx.find(MODE)) {
             case Mode.Data:
                 return workInDataMode.call(this)
             case Mode.Jsx:
@@ -25,7 +25,7 @@ export class Layer extends Fractal<any> {
         throw 'Unknown MODE'
     }
 
-    *convertNestedToColorAndChildren(): Generator<any, { color: Color; children: JSX.Element[] }> {
+    *convertNestedToColorAndChildren(): Generator<any, { color: Color; children: JSX.Element[] }, any> {
         const nested = yield* this.nested
 
         if (Array.isArray(nested)) {
@@ -41,7 +41,7 @@ export class Layer extends Fractal<any> {
     }
 }
 
-function* workInDataMode(this: Layer): Generator<LayerData> {
+function* workInDataMode(this: Layer): Generator<LayerData, never, any> {
     while (true) {
         const nested = yield* this.nested
 
@@ -61,7 +61,7 @@ function* workInDataMode(this: Layer): Generator<LayerData> {
 
 function* workInJsxMode(this: Layer, ctx: Context): Generator<JSX.Element> {
     const key = (~~(Math.random() * 1e8)).toString(16)
-    const currentColor = ctx.get(CURRENT_COLOR)!
+    const currentColor = ctx.find(CURRENT_COLOR)!
 
     while (true) {
         const { color, children } = yield* this.convertNestedToColorAndChildren()
@@ -97,10 +97,10 @@ function* workInJsxMode(this: Layer, ctx: Context): Generator<JSX.Element> {
     }
 }
 
-type ContainerProps = FractalJSX.Attributes & {
+type ContainerProps = WhatsJSX.Attributes & {
     color: string
-    onMouseDown: (event: FractalJSX.MouseEvent<HTMLDivElement>) => void
-    onMouseUp: (event: FractalJSX.MouseEvent<HTMLDivElement>) => void
+    onMouseDown: (event: WhatsJSX.MouseEvent<HTMLDivElement>) => void
+    onMouseUp: (event: WhatsJSX.MouseEvent<HTMLDivElement>) => void
 }
 
 function Container({ children, color, onMouseDown, onMouseUp }: ContainerProps) {

@@ -1,23 +1,23 @@
 import styles from './user.scss'
-import { Observable, observable, fractal, Fractal, Context } from '@fract/core'
-import { FractalJSX } from '@fract/jsx'
+import { Conse, conse, fractal, Fractal, Context } from 'whatsup'
+import { WhatsJSX } from '@whatsup-js/jsx'
 import { MODE, Mode } from '../factors'
 
 export class User extends Fractal<JSX.Element> {
-    readonly name: Observable<string>
-    readonly age: Observable<number>
-    readonly json = fractal(json, { thisArg: this })
-    readonly view = fractal(view, { thisArg: this })
-    readonly edit = fractal(edit, { thisArg: this })
+    readonly name: Conse<string>
+    readonly age: Conse<number>
+    readonly json = fractal(json, this)
+    readonly view = fractal(view, this)
+    readonly edit = fractal(edit, this)
 
     constructor(name: string, age: number) {
         super()
-        this.name = observable(name)
-        this.age = observable(age)
+        this.name = conse(name)
+        this.age = conse(age)
     }
 
-    stream(ctx: Context) {
-        switch (ctx.get(MODE)) {
+    whatsUp(ctx: Context) {
+        switch (ctx.find(MODE)) {
             case Mode.View:
                 return view.call(this)
             case Mode.Edit:
@@ -29,7 +29,7 @@ export class User extends Fractal<JSX.Element> {
     }
 }
 
-function* json(this: User): Generator<JSX.Element> {
+function* json(this: User): Generator<JSX.Element, never, any> {
     while (true) {
         const data = {
             name: yield* this.name,
@@ -41,7 +41,7 @@ function* json(this: User): Generator<JSX.Element> {
     }
 }
 
-function* view(this: User): Generator<JSX.Element> {
+function* view(this: User): Generator<JSX.Element, never, any> {
     while (true) {
         yield (
             <AsView>
@@ -58,7 +58,7 @@ function* view(this: User): Generator<JSX.Element> {
     }
 }
 
-function* edit(this: User): Generator<JSX.Element> {
+function* edit(this: User): Generator<JSX.Element, never, any> {
     const handleNameInput = (e: any) => {
         this.name.set(e.target.value)
     }
@@ -86,34 +86,34 @@ function* edit(this: User): Generator<JSX.Element> {
     }
 }
 
-function AsJson(props: FractalJSX.Attributes) {
+function AsJson(props: WhatsJSX.Attributes) {
     return <code className={styles.asJson}>{props.children}</code>
 }
 
-function AsEdit(props: FractalJSX.Attributes) {
+function AsEdit(props: WhatsJSX.Attributes) {
     return <div className={styles.asEdit}>{props.children}</div>
 }
 
-function AsView(props: FractalJSX.Attributes) {
+function AsView(props: WhatsJSX.Attributes) {
     return <div className={styles.asView}>{props.children}</div>
 }
 
-function Property(props: FractalJSX.Attributes) {
+function Property(props: WhatsJSX.Attributes) {
     return <div className={styles.property}>{props.children}</div>
 }
 
-function PropertyName(props: FractalJSX.Attributes) {
+function PropertyName(props: WhatsJSX.Attributes) {
     return <div className={styles.propertyName}>{props.children}</div>
 }
 
-function PropertyValue(props: FractalJSX.Attributes) {
+function PropertyValue(props: WhatsJSX.Attributes) {
     return <div className={styles.propertyValue}>{props.children}</div>
 }
 
-function NameInput(props: { onInput: (event: FractalJSX.FormEvent<HTMLInputElement>) => void; defaultValue: string }) {
+function NameInput(props: { onInput: (event: WhatsJSX.FormEvent<HTMLInputElement>) => void; defaultValue: string }) {
     return <input type="text" className={styles.nameInput} onInput={props.onInput} defaultValue={props.defaultValue} />
 }
 
-function AgeInput(props: { onInput: (event: FractalJSX.FormEvent<HTMLInputElement>) => void; defaultValue: number }) {
+function AgeInput(props: { onInput: (event: WhatsJSX.FormEvent<HTMLInputElement>) => void; defaultValue: number }) {
     return <input type="text" className={styles.ageInput} onInput={props.onInput} defaultValue={props.defaultValue} />
 }

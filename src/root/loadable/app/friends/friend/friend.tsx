@@ -1,6 +1,6 @@
 import styles from './friend.scss'
-import { Fractal, Context } from '@fract/core'
-import { FractalJSX } from '@fract/jsx'
+import { Fractal, Context } from 'whatsup'
+import { WhatsJSX } from '@whatsup-js/jsx'
 import { Loader } from 'loadable/loader'
 import { Api } from 'loadable/api'
 
@@ -9,27 +9,20 @@ export class Friend extends Fractal<JSX.Element> {
         super()
     }
 
-    *stream(ctx: Context) {
+    *whatsUp(ctx: Context) {
         const { id } = this
-        let friendAvatar: string
-        let friendName: string
-        let friendJob: string
-
-        Api.loadFriend(id).then((friend) => {
-            friendAvatar = friend.avatar
-            friendName = friend.name
-            friendJob = friend.job
-            ctx.update()
-        })
+        const deferredFriend = ctx.defer(() => Api.loadFriend(id))
 
         yield <FriendLoader key={id} />
+
+        const { avatar, name, job } = deferredFriend.value!
 
         while (true) {
             yield (
                 <Container key={id}>
-                    <FriendAvatar src={friendAvatar!} />
-                    <FriendName>{friendName!}</FriendName>
-                    <FriendJob>{friendJob!}</FriendJob>
+                    <FriendAvatar src={avatar} />
+                    <FriendName>{name}</FriendName>
+                    <FriendJob>{job}</FriendJob>
                 </Container>
             )
         }
@@ -50,21 +43,21 @@ export function FriendLoader() {
     )
 }
 
-function Container({ children }: FractalJSX.Attributes) {
+function Container({ children }: WhatsJSX.Attributes) {
     return <div className={styles.container}>{children}</div>
 }
 
-type AvatarProps = FractalJSX.Attributes & { src: string }
+type AvatarProps = WhatsJSX.Attributes & { src: string }
 
 function FriendAvatar({ src }: AvatarProps) {
     return <img className={styles.avatar} src={src} />
 }
 
-function FriendName({ children }: FractalJSX.Attributes) {
+function FriendName({ children }: WhatsJSX.Attributes) {
     return <div className={styles.name}>{children}</div>
 }
 
-function FriendJob({ children }: FractalJSX.Attributes) {
+function FriendJob({ children }: WhatsJSX.Attributes) {
     return <div className={styles.job}>{children}</div>
 }
 

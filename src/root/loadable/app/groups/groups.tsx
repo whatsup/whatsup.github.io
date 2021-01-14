@@ -1,8 +1,8 @@
 import styles from './groups.scss'
-import { list, Fractal, List, Context } from '@fract/core'
+import { list, Fractal, List, Context } from 'whatsup'
 import { Api } from 'loadable/api'
 import { Group, GroupLoader } from './group'
-import { FractalJSX } from '@fract/jsx'
+import { WhatsJSX } from '@whatsup-js/jsx'
 import { connect } from 'loadable/utils'
 
 export class Groups extends Fractal<JSX.Element> {
@@ -14,8 +14,8 @@ export class Groups extends Fractal<JSX.Element> {
         }
     }
 
-    *stream(ctx: Context) {
-        this.loadGroupList().then(() => ctx.update())
+    *whatsUp(ctx: Context) {
+        ctx.defer(() => this.loadGroupList())
 
         yield <GroupsLoader />
 
@@ -38,6 +38,6 @@ function GroupsLoader() {
     )
 }
 
-function Container({ children }: FractalJSX.Attributes) {
+function Container({ children }: WhatsJSX.Attributes) {
     return <div className={styles.container}>{children}</div>
 }

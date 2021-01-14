@@ -9,7 +9,7 @@ const htmlTemplate = `
     <meta charset="utf-8">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <title>Fractal examples</title>
+    <title>WhatsUp examples</title>
   </head>
   <body>
     <div id="app"></div>

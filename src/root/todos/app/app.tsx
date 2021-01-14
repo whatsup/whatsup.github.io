@@ -1,4 +1,4 @@
-import { Fractal, list, List, Context, Computed, computed, observable } from '@fract/core'
+import { Fractal, list, List, Context, Cause, cause, conse } from 'whatsup'
 import { ENTER_KEY, ESCAPE_KEY } from '../const'
 import { FILTER } from './app.factors'
 import { Todo, TodoData } from './todo'
@@ -13,7 +13,7 @@ export type AppData = { filter: FilterValue; todos: TodoData[] }
 export class App extends Fractal<JSX.Element> {
     readonly filter: Filter
     readonly todos: List<Todo>
-    readonly data = computed<AppData>(makeAppData, { thisArg: this })
+    readonly data = cause<AppData>(makeAppData, this)
 
     constructor({ filter = FilterValue.All, todos = [] }: AppData) {
         super()
@@ -37,17 +37,17 @@ export class App extends Fractal<JSX.Element> {
         this.todos.set(newTodos)
     }
 
-    *stream(ctx: Context) {
+    *whatsUp(ctx: Context) {
         ctx.on(CreateEvent, (e) => this.create(e.name))
         ctx.on(RemoveEvent, (e) => this.remove(e.todo))
         ctx.on(RemoveCompletedEvent, () => this.removeCompleted())
 
-        ctx.set(FILTER, this.filter)
+        ctx.define(FILTER, this.filter)
 
         const filtered = new Filtered(this.todos, this.filter)
         const counters = new Counters(this.todos)
         const footer = new Footer(counters)
-        const newTodoName = observable('')
+        const newTodoName = conse('')
 
         const handleNewTodoNameInputChange = (e: any) => {
             newTodoName.set(e.target.value)
@@ -87,7 +87,7 @@ export class App extends Fractal<JSX.Element> {
     }
 }
 
-export class Counters extends Computed<any> {
+export class Counters extends Cause<any> {
     readonly todos: List<Todo>
 
     constructor(todos: List<Todo>) {
@@ -95,7 +95,7 @@ export class Counters extends Computed<any> {
         this.todos = todos
     }
 
-    *stream() {
+    *whatsUp() {
         while (true) {
             let active = 0
             let completed = 0
@@ -109,7 +109,7 @@ export class Counters extends Computed<any> {
     }
 }
 
-export class Filtered extends Computed<Todo[]> {
+export class Filtered extends Cause<Todo[]> {
     readonly todos: List<Todo>
     readonly filter: Filter
 
@@ -119,7 +119,7 @@ export class Filtered extends Computed<Todo[]> {
         this.filter = filter
     }
 
-    *stream() {
+    *whatsUp() {
         while (true) {
             const filter = yield* this.filter.value
             const acc = [] as Todo[]

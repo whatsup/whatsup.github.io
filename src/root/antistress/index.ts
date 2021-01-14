@@ -1,12 +1,12 @@
-import { Fractal, Context, computed } from '@fract/core'
+import { Fractal, Context, cause } from 'whatsup'
 import { STORE_KEY } from './const'
 import { MODE, Mode } from './factors'
 import { AppData, App } from './app/app'
 
 export class Antistress extends Fractal<JSX.Element> {
     readonly app: App
-    readonly jsx = computed(antistressJsx, { thisArg: this })
-    readonly data = computed(antistressData, { thisArg: this })
+    readonly jsx = cause(antistressJsx, this)
+    readonly data = cause(antistressData, this)
 
     constructor() {
         super()
@@ -14,7 +14,7 @@ export class Antistress extends Fractal<JSX.Element> {
         this.app = new App(data)
     }
 
-    *stream() {
+    *whatsUp() {
         while (true) {
             const data = yield* this.data
 
@@ -26,11 +26,11 @@ export class Antistress extends Fractal<JSX.Element> {
 }
 
 function* antistressJsx(this: Antistress, ctx: Context) {
-    ctx.set(MODE, Mode.Jsx)
+    ctx.define(MODE, Mode.Jsx)
     while (true) yield yield* this.app
 }
 
 function* antistressData(this: Antistress, ctx: Context) {
-    ctx.set(MODE, Mode.Data)
+    ctx.define(MODE, Mode.Data)
     while (true) yield yield* this.app
 }

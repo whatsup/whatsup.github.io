@@ -1,4 +1,4 @@
 import { Filter } from './filter'
-import { factor } from '@fract/core'
+import { factor } from 'whatsup'
 
 export const FILTER = factor<Filter>()

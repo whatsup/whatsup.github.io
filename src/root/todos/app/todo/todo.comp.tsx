@@ -1,11 +1,11 @@
 import styles from './todo.scss'
-import { FractalJSX } from '@fract/jsx'
-export function Container({ children }: FractalJSX.Attributes) {
+import { WhatsJSX } from '@whatsup-js/jsx'
+export function Container({ children }: WhatsJSX.Attributes) {
     return <li className={styles.container}>{children}</li>
 }
-type TodoNameProps = FractalJSX.Attributes & {
+type TodoNameProps = WhatsJSX.Attributes & {
     done: boolean
-    onDblClick: (event: FractalJSX.MouseEvent<HTMLSpanElement>) => void
+    onDblClick: (event: WhatsJSX.MouseEvent<HTMLSpanElement>) => void
 }
 export function TodoName({ children, done, onDblClick }: TodoNameProps) {
     let className = styles.todoName
@@ -20,9 +20,9 @@ export function TodoName({ children, done, onDblClick }: TodoNameProps) {
         </span>
     )
 }
-type StatusProps = FractalJSX.Attributes & {
+type StatusProps = WhatsJSX.Attributes & {
     done: boolean
-    onClick: (event: FractalJSX.MouseEvent<HTMLButtonElement>) => void
+    onClick: (event: WhatsJSX.MouseEvent<HTMLButtonElement>) => void
 }
 export function Status({ children, done, onClick }: StatusProps) {
     let className = styles.status
@@ -37,8 +37,8 @@ export function Status({ children, done, onClick }: StatusProps) {
         </button>
     )
 }
-type RemoveProps = FractalJSX.Attributes & {
-    onClick: (event: FractalJSX.MouseEvent<HTMLButtonElement>) => void
+type RemoveProps = WhatsJSX.Attributes & {
+    onClick: (event: WhatsJSX.MouseEvent<HTMLButtonElement>) => void
 }
 export function Remove({ children, onClick }: RemoveProps) {
     return (
@@ -47,10 +47,10 @@ export function Remove({ children, onClick }: RemoveProps) {
         </button>
     )
 }
-type EditNameProps = FractalJSX.Attributes & {
+type EditNameProps = WhatsJSX.Attributes & {
     defaultValue: string
-    onInput: (event: FractalJSX.ChangeEvent<HTMLInputElement>) => void
-    onKeyDown: (event: FractalJSX.KeyboardEvent<HTMLInputElement>) => void
+    onInput: (event: WhatsJSX.ChangeEvent<HTMLInputElement>) => void
+    onKeyDown: (event: WhatsJSX.KeyboardEvent<HTMLInputElement>) => void
 }
 export function EditNameInput({ defaultValue, onInput, onKeyDown }: EditNameProps) {
     return (

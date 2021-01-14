@@ -1,4 +1,4 @@
-import { Fractal, Context } from '@fract/core'
+import { Fractal, Context } from 'whatsup'
 import { FILTER } from '../app.factors'
 import { RemoveCompletedEvent } from '../events'
 import { Counters } from '../app'
@@ -12,8 +12,8 @@ export class Footer extends Fractal<JSX.Element> {
         this.counters = counters
     }
 
-    *stream(ctx: Context) {
-        const filter = ctx.get(FILTER)!
+    *whatsUp(ctx: Context) {
+        const filter = ctx.find(FILTER)!
 
         while (true) {
             const { active, completed } = yield* this.counters

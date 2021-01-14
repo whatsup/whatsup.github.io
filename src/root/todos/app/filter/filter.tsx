@@ -1,5 +1,5 @@
 import { Container, Button } from './filter.comp'
-import { Observable, Fractal, observable } from '@fract/core'
+import { Conse, Fractal, conse } from 'whatsup'
 
 export enum Value {
     All,
@@ -8,14 +8,14 @@ export enum Value {
 }
 
 export class Filter extends Fractal<JSX.Element> {
-    readonly value: Observable<Value>
+    readonly value: Conse<Value>
 
     constructor(value: Value) {
         super()
-        this.value = observable(value)
+        this.value = conse(value)
     }
 
-    *stream() {
+    *whatsUp() {
         while (true) {
             const value = yield* this.value
 

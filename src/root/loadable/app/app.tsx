@@ -1,6 +1,6 @@
 import styles from './app.scss'
-import { Fractal } from '@fract/core'
-import { FractalJSX } from '@fract/jsx'
+import { Fractal } from 'whatsup'
+import { WhatsJSX } from '@whatsup-js/jsx'
 import { Friends } from './friends'
 import { Groups } from './groups'
 import { Menu } from './menu'
@@ -10,7 +10,7 @@ export class App extends Fractal<JSX.Element> {
     readonly groups = new Groups()
     readonly menu = new Menu();
 
-    *stream() {
+    *whatsUp() {
         while (true) {
             yield (
                 <Container>
@@ -25,14 +25,14 @@ export class App extends Fractal<JSX.Element> {
     }
 }
 
-function Container({ children }: FractalJSX.Attributes) {
+function Container({ children }: WhatsJSX.Attributes) {
     return <section className={styles.container}>{children}</section>
 }
 
-function Logo({ children }: FractalJSX.Attributes) {
+function Logo({ children }: WhatsJSX.Attributes) {
     return <div className={styles.logo}>{children}</div>
 }
 
-function Title({ children }: FractalJSX.Attributes) {
+function Title({ children }: WhatsJSX.Attributes) {
     return <div className={styles.title}>{children}</div>
 }

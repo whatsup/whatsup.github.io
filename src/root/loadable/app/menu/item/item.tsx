@@ -1,27 +1,23 @@
 import styles from './ITEM.scss'
-import { Fractal, Context } from '@fract/core'
+import { Fractal, Context } from 'whatsup'
 import { Loader } from 'loadable/loader'
 import { Api } from 'loadable/api'
 import { Icons } from './icons'
-import { FractalJSX } from '@fract/jsx'
+import { WhatsJSX } from '@whatsup-js/jsx'
 
 export class Item extends Fractal<JSX.Element> {
     constructor(readonly id: number) {
         super()
     }
 
-    *stream(ctx: Context) {
+    *whatsUp(ctx: Context) {
         const { id } = this
-        let itemName: string
-
-        Api.loadMenuItem(id).then((item) => {
-            itemName = item.name
-            ctx.update()
-        })
+        const Icon = Icons[id]
+        const deferredItem = ctx.defer(() => Api.loadMenuItem(id))
 
         yield <ItemLoader key={id} />
 
-        const Icon = Icons[id]
+        const { name } = deferredItem.value!
 
         while (true) {
             yield (
@@ -29,7 +25,7 @@ export class Item extends Fractal<JSX.Element> {
                     <IconWrapper>
                         <Icon />
                     </IconWrapper>
-                    <Name>{itemName!}</Name>
+                    <Name>{name!}</Name>
                 </Container>
             )
         }
@@ -53,14 +49,14 @@ function IconLoader() {
     return <Loader w={26} h={26} r="50%" className={styles.iconLoader} />
 }
 
-function Container({ children }: FractalJSX.Attributes) {
+function Container({ children }: WhatsJSX.Attributes) {
     return <div className={styles.container}>{children}</div>
 }
 
-function IconWrapper({ children }: FractalJSX.Attributes) {
+function IconWrapper({ children }: WhatsJSX.Attributes) {
     return <div className={styles.icon}>{children}</div>
 }
 
-function Name({ children }: FractalJSX.Attributes) {
+function Name({ children }: WhatsJSX.Attributes) {
     return <div className={styles.name}>{children}</div>
 }

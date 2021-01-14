@@ -1,13 +1,13 @@
 import styles from './filter.scss'
-import { FractalJSX } from '@fract/jsx'
+import { WhatsJSX } from '@whatsup-js/jsx'
 
-export function Container({ children }: FractalJSX.Attributes) {
+export function Container({ children }: WhatsJSX.Attributes) {
     return <ul className={styles.filters}>{children}</ul>
 }
 
-export type Button = FractalJSX.Attributes & {
+export type Button = WhatsJSX.Attributes & {
     active: boolean
-    onClick: (event: FractalJSX.MouseEvent<HTMLLIElement>) => void
+    onClick: (event: WhatsJSX.MouseEvent<HTMLLIElement>) => void
 }
 
 export function Button({ children, active, onClick }: Button) {

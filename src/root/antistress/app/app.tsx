@@ -1,6 +1,6 @@
 import styles from './app.scss'
-import { Fractal, Context, Observable, observable } from '@fract/core'
-import { FractalJSX } from '@fract/jsx'
+import { Fractal, Context, Conse, conse } from 'whatsup'
+import { WhatsJSX } from '@whatsup-js/jsx'
 import { Color, Palette } from '../const'
 import { CURRENT_COLOR, MODE, Mode } from '../factors'
 import { LayerData, Layer } from './layer'
@@ -11,17 +11,17 @@ export type AppData = {
 }
 
 export class App extends Fractal<any> {
-    readonly currentColor: Observable<Color>
+    readonly currentColor: Conse<Color>
     readonly layer: Layer
 
     constructor({ currentColor = Color.Default, layer = Color.Default }: AppData) {
         super()
-        this.currentColor = observable(currentColor)
+        this.currentColor = conse(currentColor)
         this.layer = new Layer(layer)
     }
 
-    stream(ctx: Context) {
-        switch (ctx.get(MODE)) {
+    whatsUp(ctx: Context) {
+        switch (ctx.find(MODE)) {
             case Mode.Data:
                 return workInDataMode.call(this)
 
@@ -43,7 +43,7 @@ function* workInDataMode(this: App) {
 }
 
 function* workInJsxMode(this: App, ctx: Context) {
-    ctx.set(CURRENT_COLOR, this.currentColor)
+    ctx.define(CURRENT_COLOR, this.currentColor)
 
     while (true) {
         const currentColor = yield* this.currentColor
@@ -70,34 +70,34 @@ function* workInJsxMode(this: App, ctx: Context) {
     }
 }
 
-function Container({ children }: FractalJSX.Attributes) {
+function Container({ children }: WhatsJSX.Attributes) {
     return <section className={styles.container}>{children}</section>
 }
 
-function Main({ children }: FractalJSX.Attributes) {
+function Main({ children }: WhatsJSX.Attributes) {
     return <main className={styles.main}>{children}</main>
 }
 
-function Help({ children }: FractalJSX.Attributes) {
+function Help({ children }: WhatsJSX.Attributes) {
     return <div className={styles.help}>{children}</div>
 }
 
-function Title({ children }: FractalJSX.Attributes) {
+function Title({ children }: WhatsJSX.Attributes) {
     return <div className={styles.title}>{children}</div>
 }
 
-function Tools({ children }: FractalJSX.Attributes) {
+function Tools({ children }: WhatsJSX.Attributes) {
     return <div className={styles.tools}>{children}</div>
 }
 
-function Canvas({ children }: FractalJSX.Attributes) {
+function Canvas({ children }: WhatsJSX.Attributes) {
     return <div className={styles.canvas}>{children}</div>
 }
 
-export type ColorBtnProps = FractalJSX.Attributes & {
+export type ColorBtnProps = WhatsJSX.Attributes & {
     color: string
     selected: boolean
-    onClick: (event: FractalJSX.MouseEvent<HTMLDivElement>) => void
+    onClick: (event: WhatsJSX.MouseEvent<HTMLDivElement>) => void
 }
 
 function ColorBtn({ color, selected, onClick }: ColorBtnProps) {

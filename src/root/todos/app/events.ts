@@ -1,4 +1,4 @@
-import { Event } from '@fract/core'
+import { Event } from 'whatsup'
 import { Todo } from './todo'
 
 export class CreateEvent extends Event {

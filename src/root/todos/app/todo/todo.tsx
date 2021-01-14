@@ -1,4 +1,4 @@
-import { Fractal, Observable, Context, Event, observable, computed } from '@fract/core'
+import { Fractal, Conse, Context, Event, conse, cause } from 'whatsup'
 import { RemoveEvent } from '../events'
 import {
     Container,
@@ -10,26 +10,26 @@ import {
     Remove,
     RemoveIcon,
 } from './todo.comp'
-import { createRef } from '@fract/jsx'
+import { createRef } from '@whatsup-js/jsx'
 
 export type TodoData = { id: string; name: string; done?: boolean }
 
 export class Todo extends Fractal<JSX.Element> {
     readonly id: string
-    readonly name: Observable<string>
-    readonly done: Observable<boolean>
-    readonly edit: Observable<boolean>
-    readonly data = computed<TodoData>(makeTodoData, { thisArg: this })
+    readonly name: Conse<string>
+    readonly done: Conse<boolean>
+    readonly edit: Conse<boolean>
+    readonly data = cause<TodoData>(makeTodoData, this)
 
     constructor({ id, name, done = false }: TodoData) {
         super()
         this.id = id
-        this.name = observable(name)
-        this.done = observable(done)
-        this.edit = observable(false)
+        this.name = conse(name)
+        this.done = conse(done)
+        this.edit = conse(false)
     }
 
-    *stream(ctx: Context) {
+    *whatsUp(ctx: Context) {
         ctx.on(NeedDisableEditEvent, () => this.edit.set(false))
         ctx.on(NameChangeEvent, (e) => this.name.set(e.value))
 
@@ -80,14 +80,14 @@ class NameChangeEvent extends Event {
 }
 
 class NameEditor extends Fractal<JSX.Element> {
-    readonly value: Observable<string>
+    readonly value: Conse<string>
 
-    constructor(value: Observable<string>) {
+    constructor(value: Conse<string>) {
         super()
         this.value = value
     }
 
-    *stream(ctx: Context) {
+    *whatsUp(ctx: Context) {
         const ref = createRef()
 
         const outsideClickHandler = (e: any) => {

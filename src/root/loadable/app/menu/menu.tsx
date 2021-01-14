@@ -1,8 +1,8 @@
 import styles from './menu.scss'
-import { list, Fractal, List, Context } from '@fract/core'
+import { list, Fractal, List, Context } from 'whatsup'
 import { Api } from 'loadable/api'
 import { Item, ItemLoader } from './item'
-import { FractalJSX } from '@fract/jsx'
+import { WhatsJSX } from '@whatsup-js/jsx'
 import { connect } from 'loadable/utils'
 
 export class Menu extends Fractal<JSX.Element> {
@@ -14,10 +14,12 @@ export class Menu extends Fractal<JSX.Element> {
         }
     }
 
-    *stream(ctx: Context) {
-        this.loadMenuItemList().then(() => ctx.update())
+    *whatsUp(ctx: Context) {
+        ctx.defer(() => this.loadMenuItemList())
 
         yield <MenuLoader />
+
+        let r = yield* connect(this.list)
 
         while (true) {
             yield <Container>{yield* connect(this.list)}</Container>
@@ -38,6 +40,6 @@ function MenuLoader() {
     )
 }
 
-function Container({ children }: FractalJSX.Attributes) {
+function Container({ children }: WhatsJSX.Attributes) {
     return <div className={styles.container}>{children}</div>
 }
