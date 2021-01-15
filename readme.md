@@ -1,7 +1,8 @@
-Fractal examples
+WhatsUp examples
 
--   [Main page](https://fract.github.io/)
--   [Todos](https://fract.github.io/todos) - TodoMVC example
--   [Loadable](https://fract.github.io/loadable) - example of using temporary projections
--   [Factors](https://fract.github.io/factors) - example of using factors
--   [Antistress](https://fract.github.io/antistress) - simple fractal-like game
+-   [Main page](https://whatsup.github.io/)
+-   [Todos](https://whatsup.github.io/todos) - TodoMVC example
+-   [Loadable](https://whatsup.github.io/loadable) - example of using temporary projections
+-   [Factors](https://whatsup.github.io/factors) - example of using factors
+-   [Antistress](https://whatsup.github.io/antistress) - simple fractal-like game
+-   [Sierpinski](https://whatsup.github.io/sierpinski) - sierpinski triangle perfomance demo
