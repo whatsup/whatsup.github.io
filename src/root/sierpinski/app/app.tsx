@@ -1,7 +1,5 @@
 import styles from './app.scss'
-import { Fractal, Context, factor, Cause, conse } from 'whatsup'
-
-const TIMER = factor<Timer>()
+import { Fractal, Context, Cause, conse } from 'whatsup'
 
 function layer(depth: number) {
     return depth === 0 ? new Dot() : new Triangle(--depth)
@@ -51,7 +49,7 @@ class Scaler extends Cause<number> {
 
 class Dot extends Fractal<JSX.Element> {
     *whatsUp(ctx: Context) {
-        const Timer = ctx.find(TIMER)!
+        const timer = ctx.find(Timer)!
         const Hovered = conse(false)
 
         const onMouseOver = () => Hovered.set(true)
@@ -59,8 +57,8 @@ class Dot extends Fractal<JSX.Element> {
 
         while (true) {
             const hovered = yield* Hovered
-            const timer = yield* Timer
-            const text = hovered ? `*${timer}*` : timer
+            const time = yield* timer
+            const text = hovered ? `*${time}*` : time
             const className = styles.dot + (hovered ? ' ' + styles.hovered : '')
 
             yield (
@@ -103,7 +101,7 @@ export class App extends Fractal<JSX.Element> {
     readonly triangle = new Triangle(5);
 
     *whatsUp(ctx: Context) {
-        ctx.define(TIMER, this.timer)
+        ctx.share(this.timer)
 
         while (true) {
             const transform = `scaleX(${yield* this.scaler})`
