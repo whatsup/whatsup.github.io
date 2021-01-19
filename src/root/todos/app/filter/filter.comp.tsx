@@ -1,5 +1,5 @@
 import styles from './filter.scss'
-import { WhatsJSX } from '@whatsup-js/jsx'
+import { WhatsJSX } from '@whatsup/jsx'
 
 export function Container({ children }: WhatsJSX.Attributes) {
     return <ul className={styles.filters}>{children}</ul>

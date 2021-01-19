@@ -10,7 +10,7 @@ import {
     Remove,
     RemoveIcon,
 } from './todo.comp'
-import { createRef } from '@whatsup-js/jsx'
+import { createRef } from '@whatsup/jsx'
 
 export type TodoData = { id: string; name: string; done?: boolean }
 

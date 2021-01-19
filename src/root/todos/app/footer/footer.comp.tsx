@@ -1,5 +1,5 @@
 import styles from './footer.scss'
-import { WhatsJSX } from '@whatsup-js/jsx'
+import { WhatsJSX } from '@whatsup/jsx'
 
 export function Container({ children }: WhatsJSX.Attributes) {
     return <footer className={styles.container}>{children}</footer>

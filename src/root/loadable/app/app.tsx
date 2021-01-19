@@ -1,6 +1,6 @@
 import styles from './app.scss'
 import { Fractal } from 'whatsup'
-import { WhatsJSX } from '@whatsup-js/jsx'
+import { WhatsJSX } from '@whatsup/jsx'
 import { Friends } from './friends'
 import { Groups } from './groups'
 import { Menu } from './menu'

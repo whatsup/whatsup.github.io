@@ -2,7 +2,7 @@ import styles from './group.scss'
 import { Fractal, Context } from 'whatsup'
 import { Loader } from 'loadable/loader'
 import { Api } from 'loadable/api'
-import { WhatsJSX } from '@whatsup-js/jsx'
+import { WhatsJSX } from '@whatsup/jsx'
 
 export class Group extends Fractal<JSX.Element> {
     constructor(readonly id: number) {

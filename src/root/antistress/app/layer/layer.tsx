@@ -3,7 +3,7 @@ import { conse, Fractal, Conse, Context } from 'whatsup'
 import { Color } from 'root/antistress/const'
 import { playSplitSound, playFillSound } from 'root/antistress/sounds'
 import { CURRENT_COLOR, MODE, Mode } from 'root/antistress/factors'
-import { WhatsJSX } from '@whatsup-js/jsx'
+import { WhatsJSX } from '@whatsup/jsx'
 
 export type LayerData = Color | LayerData[]
 

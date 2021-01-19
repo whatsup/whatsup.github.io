@@ -1,5 +1,5 @@
 import styles from './todo.scss'
-import { WhatsJSX } from '@whatsup-js/jsx'
+import { WhatsJSX } from '@whatsup/jsx'
 export function Container({ children }: WhatsJSX.Attributes) {
     return <li className={styles.container}>{children}</li>
 }

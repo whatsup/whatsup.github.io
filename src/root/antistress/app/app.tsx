@@ -1,6 +1,6 @@
 import styles from './app.scss'
 import { Fractal, Context, Conse, conse } from 'whatsup'
-import { WhatsJSX } from '@whatsup-js/jsx'
+import { WhatsJSX } from '@whatsup/jsx'
 import { Color, Palette } from '../const'
 import { CURRENT_COLOR, MODE, Mode } from '../factors'
 import { LayerData, Layer } from './layer'

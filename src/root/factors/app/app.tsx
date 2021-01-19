@@ -1,6 +1,6 @@
 import styles from './app.scss'
 import { Fractal, fractal } from 'whatsup'
-import { WhatsJSX } from '@whatsup-js/jsx'
+import { WhatsJSX } from '@whatsup/jsx'
 import { User } from './user'
 import { MODE, Mode } from './factors'
 

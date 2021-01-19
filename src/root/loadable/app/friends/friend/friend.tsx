@@ -1,6 +1,6 @@
 import styles from './friend.scss'
 import { Fractal, Context } from 'whatsup'
-import { WhatsJSX } from '@whatsup-js/jsx'
+import { WhatsJSX } from '@whatsup/jsx'
 import { Loader } from 'loadable/loader'
 import { Api } from 'loadable/api'
 

@@ -1,6 +1,6 @@
 import styles from './user.scss'
 import { Conse, conse, fractal, Fractal, Context } from 'whatsup'
-import { WhatsJSX } from '@whatsup-js/jsx'
+import { WhatsJSX } from '@whatsup/jsx'
 import { MODE, Mode } from '../factors'
 
 export class User extends Fractal<JSX.Element> {

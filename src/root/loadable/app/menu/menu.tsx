@@ -2,7 +2,7 @@ import styles from './menu.scss'
 import { list, Fractal, List, Context } from 'whatsup'
 import { Api } from 'loadable/api'
 import { Item, ItemLoader } from './item'
-import { WhatsJSX } from '@whatsup-js/jsx'
+import { WhatsJSX } from '@whatsup/jsx'
 import { connect } from 'loadable/utils'
 
 export class Menu extends Fractal<JSX.Element> {
