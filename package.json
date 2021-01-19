@@ -20,7 +20,7 @@
         "whatsup": "^1.1.0",
         "@whatsup/browser-pathname": "^0.4.0",
         "@whatsup/route": "^0.3.1",
-        "@whatsup/jsx": "^0.1.3"
+        "@whatsup/jsx": "^0.1.4"
     },
     "devDependencies": {
         "@babel/cli": "^7.10.4",
