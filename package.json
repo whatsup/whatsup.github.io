@@ -1,12 +1,12 @@
 {
-    "name": "fractal-examples",
-    "description": "Fractal examples",
+    "name": "whatsup-examples",
+    "description": "WhatsUp examples",
     "version": "0.0.0",
     "author": "Denis Churbanov",
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/fract/examples.git"
+        "url": "https://github.com/whatsup/whatsup.github.io.git"
     },
     "scripts": {
         "start": "cross-env NODE_ENV=development webpack-dev-server",
