@@ -23,9 +23,7 @@ export class Timer extends Cause<number> {
                 yield value === 9 ? (value = 0) : ++value
             }
         } finally {
-            if (timeoutId!) {
-                clearTimeout(timeoutId!)
-            }
+            clearTimeout(timeoutId!)
         }
     }
 }
