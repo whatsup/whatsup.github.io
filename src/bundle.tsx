@@ -69,8 +69,13 @@ abstract class Model<T extends Data> extends Cause<T> {
     static get instances() {
         return this._instances || (this._instances = new Map())
     }
+    static create<T extends Data>(this: new <M extends Model<T>>(data: T) => M, data: T) {
+        return new this(data).set(data)
+    }
 
     abstract validate(data: T): void
+
+    readonly $key!: string
 
     constructor(data: T) {
         super()
@@ -81,6 +86,7 @@ abstract class Model<T extends Data> extends Cause<T> {
         const { instances } = this.constructor as typeof Model
 
         if (!instances.has($key)) {
+            this.$key = $key
             instances.set($key, this)
         }
 
@@ -101,6 +107,8 @@ abstract class Model<T extends Data> extends Cause<T> {
                 stream.set(value)
             }
         }
+
+        return this
     }
 }
 
@@ -149,20 +157,26 @@ class Message extends Model<MessageData> {
     *whatsUp() {}
 }
 
-const mData: MessageData = {
+const message = Message.create({
     $message: true,
+    $key: 1,
     text: 'Hello world',
     user: {
         $user: true,
+        $key: 2,
         name: 'John',
         age: 33,
     },
-}
-const m = new Message(mData)
+})
 
-m.set(mData)
+const user = User.create({
+    $user: true,
+    $key: 2,
+    name: 'Barry',
+    age: 11,
+})
 
-console.log(m)
+console.log(message, user)
 
 type Ctor<T extends Model<any>> = new <D extends Data>(data: D) => T
 
