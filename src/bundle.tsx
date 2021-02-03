@@ -135,7 +135,6 @@ function checkSignature(data: Data, sign: string) {
 }
 
 class User extends Model<UserData> {
-    static readonly sign = '$user'
     readonly name = new Name('')
     readonly age = new Age(NaN)
 
