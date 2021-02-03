@@ -2,7 +2,19 @@
 // import './test_mobx'
 // import './test_whatsup'
 
-import { Cause, conse, Conse, Context, delegate, Delegation, factor, Fractal, Stream } from 'whatsup'
+import {
+    Cause,
+    conse,
+    Conse,
+    Context,
+    delegate,
+    Delegation,
+    factor,
+    Fractal,
+    Stream,
+    whatsUp,
+    transaction,
+} from 'whatsup'
 
 interface Data {
     $key?: string
@@ -12,55 +24,65 @@ class Input<T extends Data = {}> extends Conse<T> {}
 
 interface View {}
 
-abstract class Relation<T> extends Cause<T> {
-    abstract set(source: T): void
-
+class Relation<T extends Model<any>> extends Cause<Model<T> | undefined> {
     readonly ctor: Ctor<Model<T>>
 
-    constructor(ctor: Ctor<Model<T>>) {
+    private contexts = new Set<Context>()
+    protected value?: T
+
+    constructor(ctor: Ctor<T>) {
         super()
         this.ctor = ctor
     }
-}
 
-class HasOne<T extends Data> extends Relation<T> {
-    readonly model: Conse<Model<T> | null>
+    *whatsUp(context: Context) {
+        this.contexts.add(context)
 
-    constructor(ctor: Ctor<Model<T>>) {
-        super(ctor)
-        this.model = conse(null)
+        try {
+            while (true) {
+                if (!this.value) {
+                    throw 'Model is not defined'
+                }
+                yield delegate(this.value)
+            }
+        } finally {
+            this.contexts.delete(context)
+        }
     }
 
     get() {
-        return this.model.get()
+        return this.value
     }
 
-    set(source: T | Model<T>) {
+    set(value: T | undefined) {
+        this.value = value
+
+        transaction(() => {
+            for (const context of this.contexts) {
+                context.update()
+            }
+        })
+    }
+}
+
+class HasOne<T extends Model<any>> extends Relation<T> {
+    set<D extends Data>(source: D | T | undefined) {
         if (source instanceof Model) {
-            this.model.set(source)
-            return
-        }
-
-        let model = this.model.get()
-
-        if (!model) {
-            model = new this.ctor(source)
-            this.model.set(model)
-        }
-
-        model.set(source)
-    }
-
-    *whatsUp() {
-        while (true) {
-            const model = yield* this.model
+            super.set(source as T)
+            return this
+        } else if (source !== undefined) {
+            let model = this.get()
 
             if (!model) {
-                throw 'Model is not defined'
+                super.set((model = new this.ctor(source)))
             }
 
-            yield delegate(model)
+            model.set(source)
+        } else {
+            super.set(undefined)
         }
+
+        return this
     }
 }
 
@@ -77,7 +99,7 @@ abstract class Model<T extends Data> extends Cause<T> {
 
     readonly $key!: string
 
-    constructor(data: T) {
+    constructor(data = {} as T) {
         super()
 
         this.validate(data)
@@ -94,19 +116,21 @@ abstract class Model<T extends Data> extends Cause<T> {
     }
 
     set(data: T) {
-        for (const [key, value] of Object.entries(data)) {
-            // if (value instanceof Relation) {
-            //     const instance = new value.ctor()
-            //     Reflect.set(this, key)
-            // }
-            const stream = Reflect.get(this, key)
+        transaction(() => {
+            for (const [key, value] of Object.entries(data)) {
+                // if (value instanceof Relation) {
+                //     const instance = new value.ctor()
+                //     Reflect.set(this, key)
+                // }
+                const stream = Reflect.get(this, key)
 
-            //debugger
+                //debugger
 
-            if (stream instanceof Conse || stream instanceof Model || stream instanceof Relation) {
-                stream.set(value)
+                if (stream instanceof Conse || stream instanceof Model || stream instanceof Relation) {
+                    stream.set(value)
+                }
             }
-        }
+        })
 
         return this
     }
@@ -142,7 +166,14 @@ class User extends Model<UserData> {
         checkSignature(data, '$user')
     }
 
-    *whatsUp() {}
+    *whatsUp() {
+        while (true) {
+            yield ` 
+                Name: ${yield* this.name}
+                Age: ${yield* this.age}
+            `
+        }
+    }
 }
 
 class Message extends Model<MessageData> {
@@ -153,10 +184,17 @@ class Message extends Model<MessageData> {
         checkSignature(data, '$message')
     }
 
-    *whatsUp() {}
+    *whatsUp() {
+        while (true) {
+            yield `
+                Text: ${yield* this.text}
+                User: ${yield* this.user}
+            `
+        }
+    }
 }
 
-const message = Message.create({
+const message: Message = Message.create({
     $message: true,
     $key: 1,
     text: 'Hello world',
@@ -168,16 +206,28 @@ const message = Message.create({
     },
 })
 
-const user = User.create({
+whatsUp(message, (m) => console.log('>>>', m))
+
+message.user.set({
     $user: true,
-    $key: 2,
+    $key: 3,
     name: 'Barry',
     age: 11,
 })
 
-console.log(message, user)
+// const user = User.create({
+//     $user: true,
+//     $key: 3,
+//     name: 'Barry',
+//     age: 11,
+// })
 
-type Ctor<T extends Model<any>> = new <D extends Data>(data: D) => T
+console.dir(Message)
+console.log(message)
+console.dir(User)
+console.log(user)
+
+type Ctor<T extends Model<any>> = new <D extends Data>(data?: D) => T
 
 const Ctor = factor<Ctor<Model<any>>>()
 
