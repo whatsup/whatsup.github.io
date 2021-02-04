@@ -1,4 +1,4 @@
-import { conse, cause, transaction, whatsUp } from 'whatsup'
+import { conse, cause, action, whatsUp } from 'whatsup'
 
 function testWhatsUp(layerCount) {
     let i = 0
@@ -49,7 +49,7 @@ function testWhatsUp(layerCount) {
     const run = () => {
         const now = performance.now()
 
-        transaction(() => {
+        action(() => {
             start.prop1.set(i++)
             start.prop2.set(i++)
             start.prop3.set(i++)

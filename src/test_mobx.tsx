@@ -65,4 +65,4 @@ function testMobx(layerCount) {
     }
 }
 
-testMobx(1000)(1000)
+testMobx(1000)(100)
