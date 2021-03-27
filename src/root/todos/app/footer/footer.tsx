@@ -13,7 +13,7 @@ export class Footer extends Fractal<JSX.Element> {
     }
 
     *whatsUp(ctx: Context) {
-        const filter = ctx.find(FILTER)!
+        const filter = ctx.get(FILTER)
 
         while (true) {
             const { active, completed } = yield* this.counters

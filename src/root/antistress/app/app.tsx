@@ -21,7 +21,7 @@ export class App extends Fractal<any> {
     }
 
     whatsUp(ctx: Context) {
-        switch (ctx.find(MODE)) {
+        switch (ctx.get(MODE)) {
             case Mode.Data:
                 return workInDataMode.call(this)
 
@@ -43,7 +43,7 @@ function* workInDataMode(this: App) {
 }
 
 function* workInJsxMode(this: App, ctx: Context) {
-    ctx.define(CURRENT_COLOR, this.currentColor)
+    ctx.share(CURRENT_COLOR, this.currentColor)
 
     while (true) {
         const currentColor = yield* this.currentColor

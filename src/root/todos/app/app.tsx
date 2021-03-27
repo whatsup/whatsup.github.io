@@ -42,7 +42,7 @@ export class App extends Fractal<JSX.Element> {
         ctx.on(RemoveEvent, (e) => this.remove(e.todo))
         ctx.on(RemoveCompletedEvent, () => this.removeCompleted())
 
-        ctx.define(FILTER, this.filter)
+        ctx.share(FILTER, this.filter)
 
         const filtered = new Filtered(this.todos, this.filter)
         const counters = new Counters(this.todos)
@@ -57,7 +57,7 @@ export class App extends Fractal<JSX.Element> {
 
             if (name) {
                 if (keyCode === ENTER_KEY) {
-                    ctx.dispath(new CreateEvent(name))
+                    ctx.dispath(new CreateEvent(name as string))
                 }
                 if (keyCode === ENTER_KEY || keyCode === ESCAPE_KEY) {
                     newTodoName.set('')

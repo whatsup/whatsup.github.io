@@ -109,7 +109,8 @@ class NameEditor extends Fractal<JSX.Element> {
             const { current } = ref
 
             if (current) {
-                current.selectionStart = current.selectionEnd = this.value.get().length
+                const value = this.value.get() as string
+                current.selectionStart = current.selectionEnd = value.length
                 current.focus()
             }
         })

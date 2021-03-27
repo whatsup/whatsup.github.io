@@ -17,7 +17,7 @@ export class User extends Fractal<JSX.Element> {
     }
 
     whatsUp(ctx: Context) {
-        switch (ctx.find(MODE)) {
+        switch (ctx.get(MODE)) {
             case Mode.View:
                 return view.call(this)
             case Mode.Edit:

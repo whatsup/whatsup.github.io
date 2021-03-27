@@ -11,19 +11,19 @@ export class App extends Fractal<JSX.Element> {
         const { user } = this
 
         const json = fractal(function* (ctx) {
-            ctx.define(MODE, Mode.Json)
+            ctx.share(MODE, Mode.Json)
             while (true) {
                 yield yield* user
             }
         })
         const view = fractal(function* (ctx) {
-            ctx.define(MODE, Mode.View)
+            ctx.share(MODE, Mode.View)
             while (true) {
                 yield yield* user
             }
         })
         const edit = fractal(function* (ctx) {
-            ctx.define(MODE, Mode.Edit)
+            ctx.share(MODE, Mode.Edit)
             while (true) {
                 yield yield* user
             }

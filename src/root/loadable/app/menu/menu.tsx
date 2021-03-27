@@ -19,8 +19,6 @@ export class Menu extends Fractal<JSX.Element> {
 
         yield <MenuLoader />
 
-        let r = yield* connect(this.list)
-
         while (true) {
             yield <Container>{yield* connect(this.list)}</Container>
         }

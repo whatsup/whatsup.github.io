@@ -47,7 +47,7 @@ class Scaler extends Cause<number> {
 
 class Dot extends Fractal<JSX.Element> {
     *whatsUp(ctx: Context) {
-        const timer = ctx.find(Timer)!
+        const timer = ctx.get(Timer)
         const Hovered = conse(false)
 
         const onMouseOver = () => Hovered.set(true)

@@ -16,7 +16,7 @@ export class Layer extends Fractal<any> {
     }
 
     whatsUp(ctx: Context) {
-        switch (ctx.find(MODE)) {
+        switch (ctx.get(MODE)) {
             case Mode.Data:
                 return workInDataMode.call(this)
             case Mode.Jsx:
@@ -61,7 +61,7 @@ function* workInDataMode(this: Layer): Generator<LayerData, never, any> {
 
 function* workInJsxMode(this: Layer, ctx: Context): Generator<JSX.Element> {
     const key = (~~(Math.random() * 1e8)).toString(16)
-    const currentColor = ctx.find(CURRENT_COLOR)!
+    const currentColor = ctx.get(CURRENT_COLOR)
 
     while (true) {
         const { color, children } = yield* this.convertNestedToColorAndChildren()

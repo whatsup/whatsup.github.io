@@ -26,11 +26,11 @@ export class Antistress extends Fractal<JSX.Element> {
 }
 
 function* antistressJsx(this: Antistress, ctx: Context) {
-    ctx.define(MODE, Mode.Jsx)
+    ctx.share(MODE, Mode.Jsx)
     while (true) yield yield* this.app
 }
 
 function* antistressData(this: Antistress, ctx: Context) {
-    ctx.define(MODE, Mode.Data)
+    ctx.share(MODE, Mode.Data)
     while (true) yield yield* this.app
 }
