@@ -17,10 +17,9 @@
         "postdeploy": "rimraf ./dist"
     },
     "dependencies": {
-        "whatsup": "^1.2.0",
-        "@whatsup/browser-pathname": "^0.4.1",
+        "@whatsup/jsx": "^0.2.2",
         "@whatsup/route": "^0.4.1",
-        "@whatsup/jsx": "^0.2.2"
+        "whatsup": "^1.2.0"
     },
     "devDependencies": {
         "@babel/cli": "^7.10.4",
