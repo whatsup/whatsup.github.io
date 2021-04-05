@@ -53,7 +53,7 @@ export class Todo extends Fractal<JSX.Element> {
                             {name}
                         </TodoName>
                     )}
-                    <Remove onClick={() => ctx.dispath(new RemoveEvent(this))}>
+                    <Remove onClick={() => ctx.dispatch(new RemoveEvent(this))}>
                         <RemoveIcon />
                     </Remove>
                 </Container>
@@ -92,15 +92,15 @@ class NameEditor extends Fractal<JSX.Element> {
 
         const outsideClickHandler = (e: any) => {
             if (!ref.current.contains(e.target)) {
-                ctx.dispath(new NeedDisableEditEvent())
+                ctx.dispatch(new NeedDisableEditEvent())
             }
         }
         const handleEditInputChange = (e: any) => {
-            ctx.dispath(new NameChangeEvent(e.target.value))
+            ctx.dispatch(new NameChangeEvent(e.target.value))
         }
         const handleEditInputKeyDown = (e: any) => {
             if (e.key === 'Enter') {
-                ctx.dispath(new NeedDisableEditEvent())
+                ctx.dispatch(new NeedDisableEditEvent())
             }
         }
 

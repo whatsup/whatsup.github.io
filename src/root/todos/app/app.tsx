@@ -57,7 +57,7 @@ export class App extends Fractal<JSX.Element> {
 
             if (name) {
                 if (keyCode === ENTER_KEY) {
-                    ctx.dispath(new CreateEvent(name as string))
+                    ctx.dispatch(new CreateEvent(name as string))
                 }
                 if (keyCode === ENTER_KEY || keyCode === ESCAPE_KEY) {
                     newTodoName.set('')
