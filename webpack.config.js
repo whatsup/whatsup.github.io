@@ -61,7 +61,7 @@ module.exports = {
                 exclude: /node_modules/,
             },
             {
-                test: /\.(mp3|ogg|jpg)$/,
+                test: /\.(mp3|ogg|jpg|png)$/,
                 use: ['file-loader'],
                 exclude: /node_modules/,
             },
