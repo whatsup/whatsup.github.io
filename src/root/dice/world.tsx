@@ -93,9 +93,9 @@ interface _WorldProps extends JSX.IntrinsicAttributes {
     cropY: number
 }
 
-function _World({ width, height, cropX: offsetX, cropY: offsetY, children }: _WorldProps) {
+function _World({ width, height, cropX, cropY, children }: _WorldProps) {
     const viewBox = [
-        [offsetX, offsetY],
+        [cropX, cropY],
         [width, height],
     ].join(' ')
 
