@@ -25,12 +25,12 @@ class World extends Cause<JSX.Element> {
         this.screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
         this.screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
         this.cellSize = Math.min(Math.floor(this.screenWidth / (MIN_WORLD_WIDTH + WORLD_BORDER * 2)), MAX_CELL_SIZE)
-        this.width = Math.ceil(this.screenWidth / (this.cellSize + CELL_GAP) /* px */) + 1
-        this.height = Math.ceil(this.screenHeight / (this.cellSize * 0.7 + CELL_GAP) /* px */) + 1
+        this.width = Math.ceil(this.screenWidth / (this.cellSize + CELL_GAP) /* px */) + 1 /* stock */
+        this.height = Math.ceil(this.screenHeight / (this.cellSize * 0.7 + CELL_GAP) /* px */) + 1 /* stock */
         this.pxWidth = this.width * (this.cellSize + CELL_GAP)
         this.pxHeight = this.height * (this.cellSize * 0.7 + CELL_GAP)
-        this.pxOffsetX = -(this.screenWidth - this.pxWidth) / 2
-        this.pxOffsetY = -(this.screenHeight - this.pxHeight) / 2
+        this.pxOffsetX = (this.pxWidth - this.screenWidth) / 2
+        this.pxOffsetY = (this.pxHeight - this.screenHeight) / 2
         this.cells = []
 
         for (let x = 0; x < this.width; x++) {
