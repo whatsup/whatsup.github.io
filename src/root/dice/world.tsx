@@ -16,8 +16,8 @@ class World extends Cause<JSX.Element> {
     readonly height: number
     readonly pxWidth: number
     readonly pxHeight: number
-    readonly pxOffsetX: number
-    readonly pxOffsetY: number
+    readonly pxCropX: number
+    readonly pxCropY: number
     readonly cells: Cell[]
 
     constructor() {
@@ -29,12 +29,18 @@ class World extends Cause<JSX.Element> {
         this.height = Math.ceil(this.screenHeight / (this.cellSize * 0.7 + CELL_GAP) /* px */) + 1 /* stock */
         this.pxWidth = this.width * (this.cellSize + CELL_GAP)
         this.pxHeight = this.height * (this.cellSize * 0.7 + CELL_GAP)
-        this.pxOffsetX = (this.pxWidth - this.screenWidth) / 2
-        this.pxOffsetY = (this.pxHeight - this.screenHeight) / 2
+
+        const offsetX = -Math.floor(this.width / 2)
+        const offsetY = -Math.floor(this.height / 2)
+        const pxOffsetX = offsetX * (this.cellSize + CELL_GAP)
+        const pxOffsetY = offsetY * (this.cellSize * 0.7 + CELL_GAP)
+
+        this.pxCropX = pxOffsetX + (this.pxWidth - this.screenWidth) / 2
+        this.pxCropY = pxOffsetY + (this.pxHeight - this.screenHeight) / 2
         this.cells = []
 
-        for (let x = 0; x < this.width; x++) {
-            for (let y = 0; y < this.height; y++) {
+        for (let x = offsetX; x < offsetX + this.width; x++) {
+            for (let y = offsetY; y < offsetY + this.height; y++) {
                 this.cells.push(new Cell(x, y))
             }
         }
@@ -51,12 +57,7 @@ class World extends Cause<JSX.Element> {
             }
 
             yield (
-                <_World
-                    width={this.screenWidth}
-                    height={this.screenHeight}
-                    offsetX={this.pxOffsetX}
-                    offsetY={this.pxOffsetY}
-                >
+                <_World width={this.screenWidth} height={this.screenHeight} cropX={this.pxCropX} cropY={this.pxCropY}>
                     {cells}
                 </_World>
             )
@@ -88,11 +89,11 @@ class Cell extends Fractal<JSX.Element> {
 interface _WorldProps extends JSX.IntrinsicAttributes {
     width: number
     height: number
-    offsetX: number
-    offsetY: number
+    cropX: number
+    cropY: number
 }
 
-function _World({ width, height, offsetX, offsetY, children }: _WorldProps) {
+function _World({ width, height, cropX: offsetX, cropY: offsetY, children }: _WorldProps) {
     const viewBox = [
         [offsetX, offsetY],
         [width, height],
