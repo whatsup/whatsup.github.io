@@ -1,12 +1,15 @@
 import { Cause, Context, Fractal } from 'whatsup'
 import { render } from '@whatsup/jsx'
+import { generateWorldMap } from './generator'
 import _ from './world.scss'
 
-const MIN_WORLD_WIDTH = 30 // Cells
-const MIN_WORLD_HEIGHT = 20 // Cells
+const MIN_WORLD_WIDTH = 50 // Cells
+const MIN_WORLD_HEIGHT = 50 // Cells
 const MIN_WORLD_BORDER = 2 // Cells
 const MAX_CELL_SIZE = 60 // px
 const CELL_GAP = 1 // px
+
+console.log(generateWorldMap(5))
 
 class World extends Cause<JSX.Element> {
     readonly cellSize: number
@@ -14,6 +17,7 @@ class World extends Cause<JSX.Element> {
     readonly height: number
     readonly viewBox: string
     readonly cells: Cell[]
+    readonly data: any
 
     constructor() {
         super()
@@ -22,8 +26,8 @@ class World extends Cause<JSX.Element> {
         const cellSize = Math.min(Math.floor(screenWidth / (MIN_WORLD_WIDTH + MIN_WORLD_BORDER * 2)), MAX_CELL_SIZE)
         const width = Math.ceil(screenWidth / (cellSize + CELL_GAP) /* px */) + 1 /* stock */
         const height = Math.ceil(screenHeight / (cellSize * 0.7 + CELL_GAP) /* px */) + 1 /* stock */
-        const offsetX = -Math.floor(width / 2)
-        const offsetY = -Math.floor(height / 2)
+        const offsetX = 0
+        const offsetY = 0
         const offsetXPx = offsetX * (cellSize + CELL_GAP)
         const offsetYPx = offsetY * (cellSize * 0.7 + CELL_GAP)
         const widthPx = width * (cellSize + CELL_GAP)
@@ -36,12 +40,15 @@ class World extends Cause<JSX.Element> {
         this.height = height
         this.viewBox = `${viewBoxX},${viewBoxY} ${screenWidth},${screenHeight}`
         this.cells = []
+        this.data = generateWorldMap(5)
 
         for (let x = offsetX; x < offsetX + width; x++) {
             for (let y = offsetY; y < offsetY + height; y++) {
                 this.cells.push(new Cell(x, y))
             }
         }
+
+        console.log('Cells length', this.cells.length)
     }
 
     *whatsUp(ctx: Context) {
@@ -79,11 +86,19 @@ class Cell extends Fractal<JSX.Element> {
 
     *whatsUp(ctx: Context) {
         const world = ctx.get(World)
-        const { cellSize } = world
+        const { cellSize, data } = world
         const { x, y } = this
 
+        let color
+
+        if (data[x] !== undefined && data[x][y] !== undefined) {
+            color = colors[data[x][y]]
+        } else {
+            color = '#eceff1'
+        }
+
         while (true) {
-            yield <_Cell x={x} y={y} size={cellSize}></_Cell>
+            yield <_Cell x={x} y={y} size={cellSize} color={color}></_Cell>
         }
     }
 }
@@ -92,9 +107,10 @@ interface _CellProps extends JSX.IntrinsicAttributes {
     x: number
     y: number
     size: number
+    color: string
 }
 
-function _Cell({ x, y, size }: _CellProps) {
+function _Cell({ x, y, size, color }: _CellProps) {
     const isOdd = y % 2 === 0
     const translateX = isOdd ? x * size + x * CELL_GAP : x * size + x * CELL_GAP + size / 2
     const translateY = y * size * 0.7 + y * CELL_GAP
@@ -108,13 +124,145 @@ function _Cell({ x, y, size }: _CellProps) {
         [         0, size * 0.7],
         [         0, size * 0.3],
     ].join(' ')
-    //prettier-ignore
+
     const style = {
-        transform: `translate(${translateX}px,${translateY}px)` ,
-        fill: `#eceff1`
+        transform: `translate(${translateX}px,${translateY}px)`,
+    }
+    const polygonStyle = {
+        fill: color, //`#eceff1`,
+    }
+    const textStyle = {
+        fontSize: '8px',
     }
 
-    return <polygon points={points} style={style}></polygon>
+    return (
+        <g style={style}>
+            <polygon points={points} style={polygonStyle}></polygon>
+            <text dy={size / 2} dx={size / 4} style={textStyle}>
+                {x}, {y}
+            </text>
+        </g>
+    )
 }
+
+const colors = [
+    'aqua',
+    'aquamarine',
+    'blue',
+    'brown',
+    'saddlebrown',
+    'sandybrown',
+    'slateblue',
+    'tomato',
+    'yellow',
+    'yellowgreen',
+    'khaki',
+    'indigo',
+    'lightblue',
+    'lightsalmon',
+    'maroon',
+    'midnightblue',
+    'olive',
+    'palegreen',
+    'rebeccapurple',
+    'sandybrown',
+    'royalblue',
+    'salmon',
+    'coral',
+    'aqua',
+    'aquamarine',
+    'blue',
+    'brown',
+    'saddlebrown',
+    'sandybrown',
+    'slateblue',
+    'tomato',
+    'yellow',
+    'yellowgreen',
+    'khaki',
+    'indigo',
+    'lightblue',
+    'lightsalmon',
+    'maroon',
+    'midnightblue',
+    'olive',
+    'palegreen',
+    'rebeccapurple',
+    'sandybrown',
+    'royalblue',
+    'salmon',
+    'coral',
+    'aqua',
+    'aquamarine',
+    'blue',
+    'brown',
+    'saddlebrown',
+    'sandybrown',
+    'slateblue',
+    'tomato',
+    'yellow',
+    'yellowgreen',
+    'khaki',
+    'indigo',
+    'lightblue',
+    'lightsalmon',
+    'maroon',
+    'midnightblue',
+    'olive',
+    'palegreen',
+    'rebeccapurple',
+    'sandybrown',
+    'royalblue',
+    'salmon',
+    'coral',
+    'aqua',
+    'aquamarine',
+    'blue',
+    'brown',
+    'saddlebrown',
+    'sandybrown',
+    'slateblue',
+    'tomato',
+    'yellow',
+    'yellowgreen',
+    'khaki',
+    'indigo',
+    'lightblue',
+    'lightsalmon',
+    'maroon',
+    'midnightblue',
+    'olive',
+    'palegreen',
+    'rebeccapurple',
+    'sandybrown',
+    'royalblue',
+    'salmon',
+    'coral',
+    'salmon',
+    'coral',
+    'aqua',
+    'aquamarine',
+    'blue',
+    'brown',
+    'saddlebrown',
+    'sandybrown',
+    'slateblue',
+    'tomato',
+    'yellow',
+    'yellowgreen',
+    'khaki',
+    'indigo',
+    'lightblue',
+    'lightsalmon',
+    'maroon',
+    'midnightblue',
+    'olive',
+    'palegreen',
+    'rebeccapurple',
+    'sandybrown',
+    'royalblue',
+    'salmon',
+    'coral',
+]
 
 render(new World())
