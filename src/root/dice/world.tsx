@@ -4,43 +4,41 @@ import _ from './world.scss'
 
 const MIN_WORLD_WIDTH = 30 // Cells
 const MIN_WORLD_HEIGHT = 20 // Cells
-const WORLD_BORDER = 2 // Cells
+const MIN_WORLD_BORDER = 2 // Cells
 const MAX_CELL_SIZE = 60 // px
 const CELL_GAP = 1 // px
 
 class World extends Cause<JSX.Element> {
-    readonly screenWidth: number
-    readonly screenHeight: number
     readonly cellSize: number
     readonly width: number
     readonly height: number
-    readonly pxWidth: number
-    readonly pxHeight: number
-    readonly pxCropX: number
-    readonly pxCropY: number
+    readonly viewBox: string
     readonly cells: Cell[]
 
     constructor() {
         super()
-        this.screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
-        this.screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
-        this.cellSize = Math.min(Math.floor(this.screenWidth / (MIN_WORLD_WIDTH + WORLD_BORDER * 2)), MAX_CELL_SIZE)
-        this.width = Math.ceil(this.screenWidth / (this.cellSize + CELL_GAP) /* px */) + 1 /* stock */
-        this.height = Math.ceil(this.screenHeight / (this.cellSize * 0.7 + CELL_GAP) /* px */) + 1 /* stock */
-        this.pxWidth = this.width * (this.cellSize + CELL_GAP)
-        this.pxHeight = this.height * (this.cellSize * 0.7 + CELL_GAP)
+        const screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
+        const screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
+        const cellSize = Math.min(Math.floor(screenWidth / (MIN_WORLD_WIDTH + MIN_WORLD_BORDER * 2)), MAX_CELL_SIZE)
+        const width = Math.ceil(screenWidth / (cellSize + CELL_GAP) /* px */) + 1 /* stock */
+        const height = Math.ceil(screenHeight / (cellSize * 0.7 + CELL_GAP) /* px */) + 1 /* stock */
+        const offsetX = -Math.floor(width / 2)
+        const offsetY = -Math.floor(height / 2)
+        const offsetXPx = offsetX * (cellSize + CELL_GAP)
+        const offsetYPx = offsetY * (cellSize * 0.7 + CELL_GAP)
+        const widthPx = width * (cellSize + CELL_GAP)
+        const weightPx = height * (cellSize * 0.7 + CELL_GAP)
+        const viewBoxX = offsetXPx + (widthPx - screenWidth) / 2
+        const viewBoxY = offsetYPx + (weightPx - screenHeight) / 2
 
-        const offsetX = -Math.floor(this.width / 2)
-        const offsetY = -Math.floor(this.height / 2)
-        const pxOffsetX = offsetX * (this.cellSize + CELL_GAP)
-        const pxOffsetY = offsetY * (this.cellSize * 0.7 + CELL_GAP)
-
-        this.pxCropX = pxOffsetX + (this.pxWidth - this.screenWidth) / 2
-        this.pxCropY = pxOffsetY + (this.pxHeight - this.screenHeight) / 2
+        this.cellSize = cellSize
+        this.width = width
+        this.height = height
+        this.viewBox = `${viewBoxX},${viewBoxY} ${screenWidth},${screenHeight}`
         this.cells = []
 
-        for (let x = offsetX; x < offsetX + this.width; x++) {
-            for (let y = offsetY; y < offsetY + this.height; y++) {
+        for (let x = offsetX; x < offsetX + width; x++) {
+            for (let y = offsetY; y < offsetY + height; y++) {
                 this.cells.push(new Cell(x, y))
             }
         }
@@ -56,13 +54,17 @@ class World extends Cause<JSX.Element> {
                 cells.push(yield* cell)
             }
 
-            yield (
-                <_World width={this.screenWidth} height={this.screenHeight} cropX={this.pxCropX} cropY={this.pxCropY}>
-                    {cells}
-                </_World>
-            )
+            yield <_World viewBox={this.viewBox}>{cells}</_World>
         }
     }
+}
+
+interface _WorldProps extends JSX.IntrinsicAttributes {
+    viewBox: string
+}
+
+function _World({ viewBox, children }: _WorldProps) {
+    return <svg viewBox={viewBox}>{children}</svg>
 }
 
 class Cell extends Fractal<JSX.Element> {
@@ -84,22 +86,6 @@ class Cell extends Fractal<JSX.Element> {
             yield <_Cell x={x} y={y} size={cellSize}></_Cell>
         }
     }
-}
-
-interface _WorldProps extends JSX.IntrinsicAttributes {
-    width: number
-    height: number
-    cropX: number
-    cropY: number
-}
-
-function _World({ width, height, cropX, cropY, children }: _WorldProps) {
-    const viewBox = [
-        [cropX, cropY],
-        [width, height],
-    ].join(' ')
-
-    return <svg viewBox={viewBox}>{children}</svg>
 }
 
 interface _CellProps extends JSX.IntrinsicAttributes {
