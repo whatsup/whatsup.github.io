@@ -26,8 +26,8 @@ class World extends Cause<JSX.Element> {
         const cellSize = Math.min(Math.floor(screenWidth / (MIN_WORLD_WIDTH + MIN_WORLD_BORDER * 2)), MAX_CELL_SIZE)
         const width = Math.ceil(screenWidth / (cellSize + CELL_GAP) /* px */) + 1 /* stock */
         const height = Math.ceil(screenHeight / (cellSize * 0.7 + CELL_GAP) /* px */) + 1 /* stock */
-        const offsetX = 0
-        const offsetY = 0
+        const offsetX = -Math.floor(width / 2)
+        const offsetY = -Math.floor(height / 2)
         const offsetXPx = offsetX * (cellSize + CELL_GAP)
         const offsetYPx = offsetY * (cellSize * 0.7 + CELL_GAP)
         const widthPx = width * (cellSize + CELL_GAP)
