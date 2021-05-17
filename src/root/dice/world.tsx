@@ -1,15 +1,9 @@
 import { Cause, Context, Fractal } from 'whatsup'
 import { render } from '@whatsup/jsx'
 import { generateWorldMap } from './generator'
+import { generateMap } from './gen'
 import _ from './world.scss'
-
-const MIN_WORLD_WIDTH = 50 // Cells
-const MIN_WORLD_HEIGHT = 50 // Cells
-const MIN_WORLD_BORDER = 2 // Cells
-const MAX_CELL_SIZE = 60 // px
-const CELL_GAP = 1 // px
-
-console.log(generateWorldMap(5))
+import { MIN_WORLD_WIDTH, MIN_WORLD_BORDER, MAX_CELL_SIZE, CELL_GAP } from './constants'
 
 class World extends Cause<JSX.Element> {
     readonly cellSize: number
@@ -40,7 +34,9 @@ class World extends Cause<JSX.Element> {
         this.height = height
         this.viewBox = `${viewBoxX},${viewBoxY} ${screenWidth},${screenHeight}`
         this.cells = []
-        this.data = generateWorldMap(5)
+        this.data = generateMap()
+
+        console.log(this.data)
 
         for (let x = offsetX; x < offsetX + width; x++) {
             for (let y = offsetY; y < offsetY + height; y++) {
@@ -98,7 +94,7 @@ class Cell extends Fractal<JSX.Element> {
         }
 
         while (true) {
-            yield <_Cell x={x} y={y} size={cellSize} color={color}></_Cell>
+            yield <_Cell x={x} y={y} size={cellSize} color={color} onClick={() => console.log(data[x][y])}></_Cell>
         }
     }
 }
@@ -108,9 +104,10 @@ interface _CellProps extends JSX.IntrinsicAttributes {
     y: number
     size: number
     color: string
+    onClick: () => void
 }
 
-function _Cell({ x, y, size, color }: _CellProps) {
+function _Cell({ x, y, size, color, onClick }: _CellProps) {
     const isOdd = y % 2 === 0
     const translateX = isOdd ? x * size + x * CELL_GAP : x * size + x * CELL_GAP + size / 2
     const translateY = y * size * 0.7 + y * CELL_GAP
@@ -130,14 +127,17 @@ function _Cell({ x, y, size, color }: _CellProps) {
     }
     const polygonStyle = {
         fill: color, //`#eceff1`,
+        pointerEvents: 'all',
     }
     const textStyle = {
         fontSize: '8px',
+        pointerEvents: 'none',
+        // display: 'none',
     }
 
     return (
         <g style={style}>
-            <polygon points={points} style={polygonStyle}></polygon>
+            <polygon points={points} style={polygonStyle} onClick={onClick}></polygon>
             <text dy={size / 2} dx={size / 4} style={textStyle}>
                 {x}, {y}
             </text>
