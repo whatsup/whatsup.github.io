@@ -1,5 +1,3 @@
-import { BOUNDS_MIN_X, BOUNDS_MAX_X, BOUNDS_MIN_Y, BOUNDS_MAX_Y } from './constants'
-
 const DIRECTIONS = [
     [
         [-1, -1],
@@ -18,10 +16,6 @@ const DIRECTIONS = [
         [-1, +0],
     ],
 ]
-
-function checkBounds(x: number, y: number) {
-    return BOUNDS_MIN_X <= x && x <= BOUNDS_MAX_X && BOUNDS_MIN_Y <= y && y <= BOUNDS_MAX_Y
-}
 
 class Cell {
     readonly x: number
@@ -103,14 +97,6 @@ class World {
         return (this.cells[x][y] = new Cell(this, x, y))
     }
 
-    // createArea(size: number) {
-    //     const area = new Area(this, size)
-
-    //     this.areas.push(area)
-
-    //     return area
-    // }
-
     getCell(x: number, y: number) {
         if (x in this.cells && y in this.cells[x]) {
             return this.cells[x][y]
@@ -141,7 +127,7 @@ class World {
 
     expand() {
         while (this.areas.length < this.size) {
-            const size = getRandomNumberFromRange(7, 15)
+            const size = getRandomNumberFromRange(10, 15)
             const area = new Area(this, size)
             const perimeter = this.getPerimeter()
 
@@ -170,27 +156,53 @@ class World {
 
     pack() {
         const acc = {} as { [k: number]: { [k: number]: number } }
+        const [offsetX, offsetY] = calculateNormalizationOffsets(this.areas)
 
         for (const area of this.areas) {
             for (const cell of area.cells) {
-                if (acc[cell.x] === undefined) {
-                    acc[cell.x] = {}
+                const x = cell.x + offsetX
+                const y = cell.y + offsetY
+
+                if (acc[x] === undefined) {
+                    acc[x] = {}
                 }
 
-                acc[cell.x][cell.y] = area.id
+                acc[x][y] = area.id
             }
         }
 
-        // for (const cell of this.iterateCells()) {
-        //     if (acc[cell.x] === undefined) {
-        //         acc[cell.x] = {}
-        //     }
-
-        //     acc[cell.x][cell.y] = cell.getArea().id
-        // }
-
         return acc
     }
+}
+
+function calculateNormalizationOffsets(areas: Area[]) {
+    let minX = NaN
+    let maxX = NaN
+    let minY = NaN
+    let maxY = NaN
+
+    for (const area of areas) {
+        for (const cell of area.cells) {
+            if (Number.isNaN(minX) || cell.x < minX) {
+                minX = cell.x
+            }
+            if (Number.isNaN(maxX) || cell.x > maxX) {
+                maxX = cell.x
+            }
+            if (Number.isNaN(minY) || cell.y < minY) {
+                minY = cell.y
+            }
+            if (Number.isNaN(maxY) || cell.y > maxY) {
+                maxY = cell.y
+            }
+        }
+    }
+
+    const offsetX = Math.floor((Math.abs(minX) - Math.abs(maxX)) / 2)
+    const rawOffsetY = Math.floor((Math.abs(minY) - Math.abs(maxY)) / 2)
+    const offsetY = rawOffsetY + (rawOffsetY % 2)
+
+    return [offsetX, offsetY]
 }
 
 function getRandomNumberFromRange(start: number, end: number) {
@@ -232,6 +244,11 @@ class Area {
     expand() {
         while (this.cells.length < this.size) {
             const perimeter = this.getPerimeter()
+
+            if (perimeter.length === 0) {
+                throw 'Cannot expand area'
+            }
+
             const from = getCandidateFromPerimeter(perimeter)
             const freeNeighborsCoords = from.getFreeNeighborsCoords()
             const [x, y] = getRandomItemFromArray(freeNeighborsCoords)
