@@ -141,7 +141,7 @@ class World {
 
     expand() {
         while (this.areas.length < this.size) {
-            const size = getRandomNumberFromRange(10, 15)
+            const size = getRandomNumberFromRange(7, 15)
             const area = new Area(this, size)
             const perimeter = this.getPerimeter()
 
@@ -150,7 +150,7 @@ class World {
 
                 area.addCell(center)
             } else {
-                const from = getRandomItemFromArray(perimeter)
+                const from = getCandidateFromPerimeter(perimeter)
                 const freeNeighborsCoords = from.getFreeNeighborsCoords()
                 const [x, y] = getRandomItemFromArray(freeNeighborsCoords)
                 const candidate = this.createCell(x, y)
@@ -232,7 +232,7 @@ class Area {
     expand() {
         while (this.cells.length < this.size) {
             const perimeter = this.getPerimeter()
-            const from = getRandomItemFromArray(perimeter)
+            const from = getCandidateFromPerimeter(perimeter)
             const freeNeighborsCoords = from.getFreeNeighborsCoords()
             const [x, y] = getRandomItemFromArray(freeNeighborsCoords)
             const candidate = this.world.createCell(x, y)
@@ -242,8 +242,29 @@ class Area {
     }
 }
 
+function calculateCandidateWeight(candidate: Cell) {
+    return (6 - candidate.getFreeNeighborsCount()) ** 7
+}
+
+function getCandidateFromPerimeter(perimeter: Cell[]) {
+    const max = perimeter.reduce((acc, cell) => acc + calculateCandidateWeight(cell), 0)
+    const rnd = getRandomNumberFromRange(0, max)
+
+    let offset = 0
+
+    for (const cell of perimeter) {
+        offset += calculateCandidateWeight(cell)
+
+        if (offset >= rnd) {
+            return cell
+        }
+    }
+
+    throw 'error search perimeter candidate'
+}
+
 export function generateMap() {
-    const world = new World(25)
+    const world = new World(24)
 
     world.expand()
 

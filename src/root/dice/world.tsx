@@ -132,7 +132,7 @@ function _Cell({ x, y, size, color, onClick }: _CellProps) {
     const textStyle = {
         fontSize: '8px',
         pointerEvents: 'none',
-        // display: 'none',
+        display: 'none',
     }
 
     return (
