@@ -79,12 +79,10 @@ class Cell {
 }
 
 class World {
-    readonly size: number
     readonly areas: Area[]
     readonly cells: { [k: number]: { [k: number]: Cell } }
 
-    constructor(size: number /* Areas */) {
-        this.size = size
+    constructor() {
         this.areas = []
         this.cells = {}
     }
@@ -125,10 +123,10 @@ class World {
         return result
     }
 
-    expand() {
-        while (this.areas.length < this.size) {
+    expand(size: number) {
+        while (this.areas.length < size) {
             const size = getRandomNumberFromRange(10, 15)
-            const area = new Area(this, size)
+            const area = new Area(this)
             const perimeter = this.getPerimeter()
 
             if (perimeter.length === 0) {
@@ -145,7 +143,7 @@ class World {
             }
 
             try {
-                area.expand()
+                area.expand(size)
             } catch (e) {
                 continue
             }
@@ -220,17 +218,11 @@ let AREA_ID = 1
 class Area {
     readonly id = AREA_ID++
     readonly world: World
-    readonly size: number
     readonly cells: Cell[]
 
-    constructor(world: World, size: number /* Cells */) {
+    constructor(world: World) {
         this.world = world
-        this.size = size
         this.cells = []
-    }
-
-    get filled() {
-        return this.cells.length === this.size
     }
 
     getPerimeter() {
@@ -241,8 +233,8 @@ class Area {
         this.cells.push(cell)
     }
 
-    expand() {
-        while (this.cells.length < this.size) {
+    expand(size: number) {
+        while (this.cells.length < size) {
             const perimeter = this.getPerimeter()
 
             if (perimeter.length === 0) {
@@ -260,7 +252,7 @@ class Area {
 }
 
 function calculateCandidateWeight(candidate: Cell) {
-    return (6 - candidate.getFreeNeighborsCount()) ** 7
+    return (6 - candidate.getFreeNeighborsCount()) ** 10
 }
 
 function getCandidateFromPerimeter(perimeter: Cell[]) {
@@ -281,9 +273,9 @@ function getCandidateFromPerimeter(perimeter: Cell[]) {
 }
 
 export function generateMap() {
-    const world = new World(24)
+    const world = new World()
 
-    world.expand()
+    world.expand(24)
 
     return world.pack()
 }
