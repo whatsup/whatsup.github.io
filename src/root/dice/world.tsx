@@ -1,7 +1,6 @@
 import { Cause, Context, Fractal } from 'whatsup'
 import { render } from '@whatsup/jsx'
-import { generateWorldMap } from './generator'
-import { generateMap } from './gen'
+import { generateMap } from './generator'
 import _ from './world.scss'
 import { MIN_WORLD_WIDTH, MIN_WORLD_BORDER, MAX_CELL_SIZE, CELL_GAP } from './constants'
 
@@ -34,9 +33,12 @@ class World extends Cause<JSX.Element> {
         this.height = height
         this.viewBox = `${viewBoxX},${viewBoxY} ${screenWidth},${screenHeight}`
         this.cells = []
-        this.data = generateMap()
 
-        console.log(this.data)
+        const map = generateMap(24)
+
+        this.data = map.cells
+
+        console.log(map)
 
         for (let x = offsetX; x < offsetX + width; x++) {
             for (let y = offsetY; y < offsetY + height; y++) {

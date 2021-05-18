@@ -1,119 +1,304 @@
-const WORLD_RADIUS = 3 // Areas
-const AREA_RADIUS = 2 // Cells
-const AREA_SIZE_IN_CELLS = AREA_RADIUS * 2
-const WORLD_SIZE_IN_AREAS = WORLD_RADIUS * 2
-const WORLD_SIZE_IN_CELLS = WORLD_SIZE_IN_AREAS * AREA_SIZE_IN_CELLS
+const MIN_AREA_SIZE = 10
+const MAX_AREA_SIZE = 15
+const DIRECTIONS = [
+    [
+        [-1, -1],
+        [+0, -1],
+        [+1, +0],
+        [+0, +1],
+        [-1, +1],
+        [-1, +0],
+    ],
+    [
+        [+0, -1],
+        [+1, -1],
+        [+1, +0],
+        [+1, +1],
+        [+0, +1],
+        [-1, +0],
+    ],
+]
 
-function getRandomValuesFromRange(rangeStart: number, rangeEnd: number, count: number) {
-    const result = [] as number[]
+/* Types */
 
-    while (result.length < count) {
-        const index = rangeStart + Math.floor(Math.random() * (rangeEnd - rangeStart))
+type Cell = {
+    x: number
+    y: number
+    freeNeighborsCount: number
+}
 
-        if (result.includes(index)) {
-            continue
+type Area = {
+    id: number
+    cells: Cell[]
+}
+
+type Store = { [k: number]: { [k: number]: Cell } }
+
+/* Cell */
+
+function createCell(x: number, y: number) {
+    const freeNeighborsCount = 0
+
+    return { x, y, freeNeighborsCount } as Cell
+}
+
+function initCell(store: Store, x: number, y: number) {
+    if (!(x in store)) {
+        store[x] = {}
+    }
+
+    const cell = createCell(x, y)
+
+    for (const [x, y] of iterateCellNeighborsCoords(cell)) {
+        const neighbor = findCell(store, x, y)
+
+        if (neighbor) {
+            neighbor.freeNeighborsCount--
+        } else {
+            cell.freeNeighborsCount++
         }
+    }
 
-        result.push(index)
+    return (store[x][y] = cell)
+}
+
+function* iterateCellNeighborsCoords(cell: Cell) {
+    const parity = cell.y & 1
+
+    for (const [ox, oy] of DIRECTIONS[parity]) {
+        yield [cell.x + ox, cell.y + oy]
+    }
+}
+
+function getCellFreeNeighborsCoords(store: Store, cell: Cell) {
+    const result = [] as [number, number][]
+
+    for (const [x, y] of iterateCellNeighborsCoords(cell)) {
+        if (!findCell(store, x, y)) {
+            result.push([x, y])
+        }
     }
 
     return result
 }
 
-type Cells = { [k: number]: { [k: number]: number } }
+function isCellHasFreeNeighbors(cell: Cell) {
+    return cell.freeNeighborsCount > 0
+}
 
-export function generateWorldMap(playersCount: number) {
-    const cells = {} as Cells
-    const perimeterLength = WORLD_SIZE_IN_AREAS * 4 - 4
-    const excessAreaCount = WORLD_SIZE_IN_AREAS ** 2 % playersCount
-    const excessAreaIndexes = getRandomValuesFromRange(0, perimeterLength, excessAreaCount)
-    const cellAreasMap = new Map<[number, number], number>()
+/* Area */
 
-    let areaIndex = 0
-    let perimeterAreaIndex = 0
+function createArea(id: number) {
+    const cells = [] as Cell[]
 
-    for (let x = 0; x < WORLD_SIZE_IN_AREAS; x++) {
-        for (let y = 0; y < WORLD_SIZE_IN_AREAS; y++) {
-            if (x === 0 || y === 0 || x === WORLD_SIZE_IN_AREAS - 1 || y === WORLD_SIZE_IN_AREAS - 1) {
-                perimeterAreaIndex++
+    return { id, cells } as Area
+}
 
-                if (excessAreaIndexes.includes(perimeterAreaIndex)) {
-                    continue
-                }
-            }
+function addCellToArea(area: Area, cell: Cell) {
+    area.cells.push(cell)
+}
 
-            const cellX = x * AREA_SIZE_IN_CELLS + 1 + Math.floor(Math.random() * (AREA_SIZE_IN_CELLS - 2))
-            const cellY = y * AREA_SIZE_IN_CELLS + 1 + Math.floor(Math.random() * (AREA_SIZE_IN_CELLS - 2))
+function getAreaPerimeter(area: Area) {
+    return area.cells.filter((cell) => isCellHasFreeNeighbors(cell))
+}
 
-            setCellArea(cells, cellX, cellY, areaIndex)
-            cellAreasMap.set([cellX, cellY], areaIndex)
+/* Store */
 
-            areaIndex++
+function createStore() {
+    return {} as Store
+}
+
+function createAreasStore() {
+    return [] as Area[]
+}
+
+function findCell(store: Store, x: number, y: number) {
+    if (x in store && y in store[x]) {
+        return store[x][y]
+    }
+
+    return null
+}
+
+function* iterateCells(store: Store) {
+    for (const nested of Object.values(store)) {
+        for (const cell of Object.values(nested)) {
+            yield cell
+        }
+    }
+}
+
+function getMapPerimeter(store: Store) {
+    const result = [] as Cell[]
+
+    for (const cell of iterateCells(store)) {
+        if (isCellHasFreeNeighbors(cell)) {
+            result.push(cell)
         }
     }
 
-    let completed: boolean
+    return result
+}
 
-    do {
-        completed = true
+/* Utils */
 
-        const cellAreasMapCopy = new Map(cellAreasMap)
-        const neiAreaMap = new Map<number, Set<number>>()
+function getRandomNumberFromRange(start: number, end: number) {
+    return start + Math.round(Math.random() * (end - start))
+}
 
-        for (const [[x, y], areaId] of cellAreasMapCopy) {
-            if (!neiAreaMap.has(areaId)) {
-                neiAreaMap.set(areaId, new Set())
-            }
+function getRandomItemFromArray<T>(array: T[]) {
+    const index = getRandomNumberFromRange(0, array.length - 1)
 
-            for (const [nx, ny] of neighbors(x, y)) {
-                const nAreaId = getCellArea(cells, nx, ny)
+    return array[index]
+}
 
-                if (nAreaId === null) {
-                    setCellArea(cells, nx, ny, areaId)
-                    cellAreasMap.set([nx, ny], areaId)
-                } else {
-                    neiAreaMap.get(areaId)!.add(nAreaId)
-                }
-            }
+function calculateCandidateWeight(candidate: Cell) {
+    return (6 - candidate.freeNeighborsCount) ** 10
+}
+
+function getCandidateFromPerimeter(perimeter: Cell[]) {
+    const max = perimeter.reduce((acc, cell) => acc + calculateCandidateWeight(cell), 0)
+    const rnd = getRandomNumberFromRange(0, max)
+
+    let offset = 0
+
+    for (const cell of perimeter) {
+        offset += calculateCandidateWeight(cell)
+
+        if (offset >= rnd) {
+            return cell
+        }
+    }
+
+    throw 'error search perimeter candidate'
+}
+
+/* Generator */
+
+export function generateMap(size: number) {
+    const store = createStore()
+    const areas = createAreasStore()
+
+    generateAreas(store, areas, size)
+
+    return pack(areas)
+}
+
+function generateAreas(store: Store, areas: Area[], areasCount: number) {
+    let nextAreaId = 1
+
+    while (areas.length < areasCount) {
+        const area = createArea(nextAreaId++)
+        const perimeter = getMapPerimeter(store)
+
+        if (perimeter.length === 0) {
+            const center = initCell(store, 0, 0)
+
+            addCellToArea(area, center)
+        } else {
+            const from = getCandidateFromPerimeter(perimeter)
+            const freeNeighborsCoords = getCellFreeNeighborsCoords(store, from)
+            const [x, y] = getRandomItemFromArray(freeNeighborsCoords)
+            const candidate = initCell(store, x, y)
+
+            addCellToArea(area, candidate)
         }
 
-        for (const val of neiAreaMap.values()) {
-            if (val.size < 3) {
-                completed = false
+        try {
+            const storeCount = getRandomNumberFromRange(MIN_AREA_SIZE, MAX_AREA_SIZE)
+
+            generateArea(store, area, storeCount)
+        } catch (e) {
+            continue
+        }
+
+        areas.push(area)
+    }
+}
+
+function generateArea(store: Store, area: Area, storeCount: number) {
+    while (area.cells.length < storeCount) {
+        const perimeter = getAreaPerimeter(area)
+
+        if (perimeter.length === 0) {
+            throw 'Cannot expand area'
+        }
+
+        const from = getCandidateFromPerimeter(perimeter)
+        const freeNeighborsCoords = getCellFreeNeighborsCoords(store, from)
+        const [x, y] = getRandomItemFromArray(freeNeighborsCoords)
+        const candidate = initCell(store, x, y)
+
+        addCellToArea(area, candidate)
+    }
+}
+
+function calculateNormalizations(areas: Area[]) {
+    let minX = NaN
+    let maxX = NaN
+    let minY = NaN
+    let maxY = NaN
+
+    for (const area of areas) {
+        for (const cell of area.cells) {
+            if (Number.isNaN(minX) || cell.x < minX) {
+                minX = cell.x
+            }
+            if (Number.isNaN(maxX) || cell.x > maxX) {
+                maxX = cell.x
+            }
+            if (Number.isNaN(minY) || cell.y < minY) {
+                minY = cell.y
+            }
+            if (Number.isNaN(maxY) || cell.y > maxY) {
+                maxY = cell.y
             }
         }
-    } while (!completed)
-
-    return cells
-}
-
-function setCellArea(cells: Cells, x: number, y: number, areaId: number) {
-    if (cells[x] === undefined) {
-        cells[x] = {}
     }
 
-    cells[x][y] = areaId
+    const width = maxX - minX + 1
+    const height = maxY - minY + 1
+    const offsetX = Math.floor((Math.abs(minX) - Math.abs(maxX)) / 2)
+    const rawOffsetY = Math.floor((Math.abs(minY) - Math.abs(maxY)) / 2)
+    const offsetY = rawOffsetY + (rawOffsetY % 2)
+
+    return [width, height, offsetX, offsetY]
 }
 
-function getCellArea(cells: Cells, x: number, y: number) {
-    if (cells[x] === undefined || cells[x][y] === undefined) {
-        return null
-    }
+/* Packer */
 
-    return cells[x][y]
+type PackedMap = {
+    width: number
+    height: number
+    cells: PackedCells
 }
 
-const DIRECTIONS = [
-    [+1, +0],
-    [+0, -1],
-    [-1, -1],
-    [-1, +0],
-    [-1, +1],
-    [+0, +1],
-]
+type PackedCells = {
+    [k: number]: { [k: number]: number }
+}
 
-function* neighbors(x: number, y: number) {
-    for (const [ox, oy] of DIRECTIONS) {
-        yield [x + ox, y + oy]
+function pack(areas: Area[]) {
+    const [width, height, offsetX, offsetY] = calculateNormalizations(areas)
+    const cells = packAreas(areas, offsetX, offsetY)
+
+    return { width, height, cells } as PackedMap
+}
+
+function packAreas(areas: Area[], offsetX: number, offsetY: number) {
+    const acc = {} as PackedCells
+
+    for (const area of areas) {
+        for (const cell of area.cells) {
+            const x = cell.x + offsetX
+            const y = cell.y + offsetY
+
+            if (acc[x] === undefined) {
+                acc[x] = {}
+            }
+
+            acc[x][y] = area.id
+        }
     }
+
+    return acc
 }
