@@ -17,159 +17,133 @@ const DIRECTIONS = [
     ],
 ]
 
-class Cell {
-    readonly x: number
-    readonly y: number
-    readonly world: World
+type Cell = {
+    x: number
+    y: number
+    freeNeighborsCount: number
+}
 
-    private freeNeighborsCount: number
+type Cells = { [k: number]: { [k: number]: Cell } }
 
-    constructor(world: World, x: number, y: number) {
-        this.x = x
-        this.y = y
-        this.world = world
-        this.freeNeighborsCount = 0
+function createCell(x: number, y: number) {
+    const freeNeighborsCount = 0
 
-        for (const [x, y] of this.neighbors()) {
-            const neighbor = world.getCell(x, y)
+    return { x, y, freeNeighborsCount } as Cell
+}
 
-            if (neighbor) {
-                neighbor.decrementFreeNeighborsCount()
-            } else {
-                this.freeNeighborsCount++
-            }
+let AREA_ID = 1
+
+type Area = {
+    id: number
+    cells: Cell[]
+}
+
+function createArea() {
+    const id = AREA_ID++
+    const cells = [] as Cell[]
+
+    return { id, cells } as Area
+}
+
+function initCell(cells: Cells, x: number, y: number) {
+    if (!(x in cells)) {
+        cells[x] = {}
+    }
+
+    const cell = createCell(x, y)
+
+    for (const [x, y] of cellNeighborsCoords(cell)) {
+        const neighbor = findCell(cells, x, y)
+
+        if (neighbor) {
+            neighbor.freeNeighborsCount--
+        } else {
+            cell.freeNeighborsCount++
         }
     }
 
-    decrementFreeNeighborsCount() {
-        this.freeNeighborsCount--
+    return (cells[x][y] = cell)
+}
+
+function findCell(cells: Cells, x: number, y: number) {
+    if (x in cells && y in cells[x]) {
+        return cells[x][y]
     }
 
-    hasFreeNeighbors() {
-        return this.freeNeighborsCount > 0
+    return null
+}
+
+function* cellNeighborsCoords(cell: Cell) {
+    const parity = cell.y & 1
+
+    for (const [ox, oy] of DIRECTIONS[parity]) {
+        yield [cell.x + ox, cell.y + oy]
     }
+}
 
-    getFreeNeighborsCount() {
-        return this.freeNeighborsCount
-    }
+function getCellFreeNeighborsCoords(cells: Cells, cell: Cell) {
+    const result = [] as [number, number][]
 
-    getFreeNeighborsCoords() {
-        const result = [] as [number, number][]
-
-        for (const [x, y] of this.neighbors()) {
-            if (!this.world.getCell(x, y)) {
-                result.push([x, y])
-            }
+    for (const [x, y] of cellNeighborsCoords(cell)) {
+        if (!findCell(cells, x, y)) {
+            result.push([x, y])
         }
-
-        return result
     }
 
-    get freeNeighborsCoords() {
-        return this.getFreeNeighborsCoords()
-    }
+    return result
+}
 
-    *neighbors() {
-        const parity = this.y & 1
+function isCellHasFreeNeighbors(cell: Cell) {
+    return cell.freeNeighborsCount > 0
+}
 
-        for (const [ox, oy] of DIRECTIONS[parity]) {
-            yield [this.x + ox, this.y + oy]
+function* iterateCells(cells: Cells) {
+    for (const nested of Object.values(cells)) {
+        for (const cell of Object.values(nested)) {
+            yield cell
         }
     }
 }
 
-class World {
-    readonly areas: Area[]
-    readonly cells: { [k: number]: { [k: number]: Cell } }
+function getWorldPerimeter(cells: Cells) {
+    const result = [] as Cell[]
 
-    constructor() {
-        this.areas = []
-        this.cells = {}
-    }
-
-    createCell(x: number, y: number) {
-        if (!this.cells[x]) {
-            this.cells[x] = {}
-        }
-
-        return (this.cells[x][y] = new Cell(this, x, y))
-    }
-
-    getCell(x: number, y: number) {
-        if (x in this.cells && y in this.cells[x]) {
-            return this.cells[x][y]
-        }
-
-        return null
-    }
-
-    *iterateCells() {
-        for (const nest of Object.values(this.cells)) {
-            for (const cell of Object.values(nest)) {
-                yield cell
-            }
+    for (const cell of iterateCells(cells)) {
+        if (isCellHasFreeNeighbors(cell)) {
+            result.push(cell)
         }
     }
 
-    getPerimeter() {
-        const result = [] as Cell[]
+    return result
+}
 
-        for (const cell of this.iterateCells()) {
-            if (cell.hasFreeNeighbors()) {
-                result.push(cell)
-            }
+function expandWorld(cells: Cells, areas: Area[], size: number) {
+    while (areas.length < size) {
+        const area = createArea()
+        const perimeter = getWorldPerimeter(cells)
+
+        if (perimeter.length === 0) {
+            const center = initCell(cells, 0, 0)
+
+            addCellToArea(area, center)
+        } else {
+            const from = getCandidateFromPerimeter(perimeter)
+            const freeNeighborsCoords = getCellFreeNeighborsCoords(cells, from)
+            const [x, y] = getRandomItemFromArray(freeNeighborsCoords)
+            const candidate = initCell(cells, x, y)
+
+            addCellToArea(area, candidate)
         }
 
-        return result
-    }
-
-    expand(size: number) {
-        while (this.areas.length < size) {
+        try {
             const size = getRandomNumberFromRange(10, 15)
-            const area = new Area(this)
-            const perimeter = this.getPerimeter()
 
-            if (perimeter.length === 0) {
-                const center = this.createCell(0, 0)
-
-                area.addCell(center)
-            } else {
-                const from = getCandidateFromPerimeter(perimeter)
-                const freeNeighborsCoords = from.getFreeNeighborsCoords()
-                const [x, y] = getRandomItemFromArray(freeNeighborsCoords)
-                const candidate = this.createCell(x, y)
-
-                area.addCell(candidate)
-            }
-
-            try {
-                area.expand(size)
-            } catch (e) {
-                continue
-            }
-
-            this.areas.push(area)
-        }
-    }
-
-    pack() {
-        const acc = {} as { [k: number]: { [k: number]: number } }
-        const [offsetX, offsetY] = calculateNormalizationOffsets(this.areas)
-
-        for (const area of this.areas) {
-            for (const cell of area.cells) {
-                const x = cell.x + offsetX
-                const y = cell.y + offsetY
-
-                if (acc[x] === undefined) {
-                    acc[x] = {}
-                }
-
-                acc[x][y] = area.id
-            }
+            expandArea(cells, area, size)
+        } catch (e) {
+            continue
         }
 
-        return acc
+        areas.push(area)
     }
 }
 
@@ -213,46 +187,33 @@ function getRandomItemFromArray<T>(array: T[]) {
     return array[index]
 }
 
-let AREA_ID = 1
+function expandArea(cells: Cells, area: Area, size: number) {
+    while (area.cells.length < size) {
+        const perimeter = getAreaPerimeter(area)
 
-class Area {
-    readonly id = AREA_ID++
-    readonly world: World
-    readonly cells: Cell[]
-
-    constructor(world: World) {
-        this.world = world
-        this.cells = []
-    }
-
-    getPerimeter() {
-        return this.cells.filter((cell) => cell.hasFreeNeighbors())
-    }
-
-    addCell(cell: Cell) {
-        this.cells.push(cell)
-    }
-
-    expand(size: number) {
-        while (this.cells.length < size) {
-            const perimeter = this.getPerimeter()
-
-            if (perimeter.length === 0) {
-                throw 'Cannot expand area'
-            }
-
-            const from = getCandidateFromPerimeter(perimeter)
-            const freeNeighborsCoords = from.getFreeNeighborsCoords()
-            const [x, y] = getRandomItemFromArray(freeNeighborsCoords)
-            const candidate = this.world.createCell(x, y)
-
-            this.addCell(candidate)
+        if (perimeter.length === 0) {
+            throw 'Cannot expand area'
         }
+
+        const from = getCandidateFromPerimeter(perimeter)
+        const freeNeighborsCoords = getCellFreeNeighborsCoords(cells, from)
+        const [x, y] = getRandomItemFromArray(freeNeighborsCoords)
+        const candidate = initCell(cells, x, y)
+
+        addCellToArea(area, candidate)
     }
 }
 
+function addCellToArea(area: Area, cell: Cell) {
+    area.cells.push(cell)
+}
+
+function getAreaPerimeter(area: Area) {
+    return area.cells.filter((cell) => isCellHasFreeNeighbors(cell))
+}
+
 function calculateCandidateWeight(candidate: Cell) {
-    return (6 - candidate.getFreeNeighborsCount()) ** 10
+    return (6 - candidate.freeNeighborsCount) ** 10
 }
 
 function getCandidateFromPerimeter(perimeter: Cell[]) {
@@ -272,10 +233,39 @@ function getCandidateFromPerimeter(perimeter: Cell[]) {
     throw 'error search perimeter candidate'
 }
 
+function pack(areas: Area[]) {
+    const acc = {} as { [k: number]: { [k: number]: number } }
+    const [offsetX, offsetY] = calculateNormalizationOffsets(areas)
+
+    for (const area of areas) {
+        for (const cell of area.cells) {
+            const x = cell.x + offsetX
+            const y = cell.y + offsetY
+
+            if (acc[x] === undefined) {
+                acc[x] = {}
+            }
+
+            acc[x][y] = area.id
+        }
+    }
+
+    return acc
+}
+
+function createCellsStore() {
+    return {} as Cells
+}
+
+function createAreasStore() {
+    return [] as Area[]
+}
+
 export function generateMap() {
-    const world = new World()
+    const cells = createCellsStore()
+    const areas = createAreasStore()
 
-    world.expand(24)
+    expandWorld(cells, areas, 24)
 
-    return world.pack()
+    return pack(areas)
 }
