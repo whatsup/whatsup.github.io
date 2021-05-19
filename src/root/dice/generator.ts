@@ -1,5 +1,5 @@
-const MIN_AREA_SIZE = 10
-const MAX_AREA_SIZE = 15
+const MIN_AREA_SIZE = 5
+const MAX_AREA_SIZE = 5
 const DIRECTIONS = [
     [
         [-1, -1],

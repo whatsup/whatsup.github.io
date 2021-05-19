@@ -48,17 +48,18 @@ class Path {
 
     private x: number
     private y: number
-    private startX: number
-    private startY: number
     private direction: number
 
     constructor(x: number, y: number) {
         this.x = x
         this.y = y
-        this.startX = x
-        this.startY = y
         this.points = []
         this.direction = 0
+    }
+
+    jump(x: number, y: number) {
+        this.x = x
+        this.y = y
     }
 
     move(x: number, y: number) {
@@ -68,8 +69,11 @@ class Path {
 
     addPoint() {
         const [ox, oy] = POINTS[this.direction]
-        const x = this.x + ox
-        const y = this.y + oy
+        const parity = this.y & 1
+        const tx = parity ? 0.5 : 0
+        //const ty = -0.3
+        const x = this.x + ox + tx
+        const y = this.y * 0.7 + oy //+ ty
 
         if (this.points.some((p) => p[0] === x && p[1] === y)) {
             debugger
@@ -79,30 +83,34 @@ class Path {
     }
 
     *draw() {
+        let start = null as null | [number, number, number]
         let i = 0
-        let start: [number, number, number] | null = null
 
         do {
-            const direction = this.direction
             const parity = this.y & 1
-            const [ox, oy] = DIRECTIONS[parity][direction]
+            const [ox, oy] = DIRECTIONS[parity][this.direction]
+            const oldX = this.x
+            const oldY = this.y
+            const oldDirection = this.direction
+
             const x = this.x + ox
             const y = this.y + oy
 
             yield [x, y]
 
             if (this.points.length === 1) {
-                start = [x - ox, y - oy, direction]
+                start = [oldX, oldY, oldDirection]
             }
 
-            if (i++ > 70) {
+            if (i >= 17) {
+                debugger
+            }
+
+            if (i++ > 50) {
                 console.log('breaked')
                 break
             }
-
-            //console.log('>', this.x !== startX && this.y !== startY && this.direction !== startD)
         } while (!start || this.x !== start[0] || this.y !== start[1] || this.direction !== start[2])
-        // console.log('break')
     }
 
     rotateRight() {
@@ -155,6 +163,7 @@ function generateAreaShape(map: CellAreaMap, startX: number, startY: number) {
             if (path.points.length) {
                 path.addPoint()
                 path.move(x, y)
+                path.rotateLeft()
                 path.rotateLeft()
             } else {
                 path.move(x, y)

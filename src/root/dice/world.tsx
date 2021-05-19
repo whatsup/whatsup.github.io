@@ -1,4 +1,4 @@
-import { Cause, Context, Fractal } from 'whatsup'
+import { Cause, conse, Context, Fractal } from 'whatsup'
 import { render } from '@whatsup/jsx'
 import { generateMap } from './generator'
 import _ from './world.scss'
@@ -12,6 +12,7 @@ class World extends Cause<JSX.Element> {
     readonly viewBox: string
     readonly cells: Cell[]
     readonly data: any
+    readonly polygon = conse<any>(null)
 
     constructor() {
         super()
@@ -36,11 +37,18 @@ class World extends Cause<JSX.Element> {
         this.cells = []
 
         const map = generateMap(24)
-        const areas = generateAreas(map.cells)
 
         this.data = map.cells
 
-        console.log(map, areas)
+        console.log(map.cells)
+
+        window.run = () => {
+            const gen = generateAreas(map.cells)
+            this.polygon.set(gen)
+            console.log(gen[0].shape)
+        }
+
+        setTimeout(window.run, 500)
 
         for (let x = offsetX; x < offsetX + width; x++) {
             for (let y = offsetY; y < offsetY + height; y++) {
@@ -54,6 +62,8 @@ class World extends Cause<JSX.Element> {
     *whatsUp(ctx: Context) {
         ctx.share(this)
 
+        const area = new Area()
+
         while (true) {
             const cells = [] as JSX.Element[]
 
@@ -61,7 +71,43 @@ class World extends Cause<JSX.Element> {
                 cells.push(yield* cell)
             }
 
-            yield <_World viewBox={this.viewBox}>{cells}</_World>
+            yield (
+                <_World viewBox={this.viewBox}>
+                    {cells}
+                    {yield* area}
+                </_World>
+            )
+        }
+    }
+}
+
+class Area extends Fractal<JSX.Element | null> {
+    *whatsUp(ctx: Context) {
+        const world = ctx.get(World)
+        const { polygon, cellSize } = world
+
+        while (true) {
+            const areas = yield* polygon
+
+            if (areas) {
+                const acc = []
+
+                for (let i = 0; i < areas.length; i++) {
+                    const area = areas[i]
+                    const polygonStyle = {
+                        fill: `rgb(0 0 241 / 25%)`,
+                        stroke: 'black',
+                    }
+
+                    const points = area.shape.map(([x, y]) => [x * cellSize, y * cellSize]).join(' ')
+
+                    acc.push(<polygon points={points} style={polygonStyle}></polygon>)
+                }
+
+                yield acc
+            } else {
+                yield null
+            }
         }
     }
 }
@@ -136,7 +182,7 @@ function _Cell({ x, y, size, color, onClick }: _CellProps) {
     const textStyle = {
         fontSize: '8px',
         pointerEvents: 'none',
-        display: 'none',
+        // display: 'none',
     }
 
     return (

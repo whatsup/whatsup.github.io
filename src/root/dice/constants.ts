@@ -1,5 +1,5 @@
-export const MIN_WORLD_WIDTH = 40 // Cells
-export const MIN_WORLD_HEIGHT = 40 // Cells
+export const MIN_WORLD_WIDTH = 5 // Cells
+export const MIN_WORLD_HEIGHT = 5 // Cells
 export const MIN_WORLD_BORDER = 2 // Cells
 export const MAX_CELL_SIZE = 60 // px
 export const CELL_GAP = 0 // px
