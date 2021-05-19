@@ -3,6 +3,7 @@ import { render } from '@whatsup/jsx'
 import { generateMap } from './generator'
 import _ from './world.scss'
 import { MIN_WORLD_WIDTH, MIN_WORLD_BORDER, MAX_CELL_SIZE, CELL_GAP } from './constants'
+import { generateAreas } from './painter'
 
 class World extends Cause<JSX.Element> {
     readonly cellSize: number
@@ -35,10 +36,11 @@ class World extends Cause<JSX.Element> {
         this.cells = []
 
         const map = generateMap(24)
+        const areas = generateAreas(map.cells)
 
         this.data = map.cells
 
-        console.log(map)
+        console.log(map, areas)
 
         for (let x = offsetX; x < offsetX + width; x++) {
             for (let y = offsetY; y < offsetY + height; y++) {

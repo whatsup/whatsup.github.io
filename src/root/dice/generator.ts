@@ -32,7 +32,11 @@ type Area = {
     cells: Cell[]
 }
 
-type Store = { [k: number]: { [k: number]: Cell } }
+type Store = {
+    [k: number]: {
+        [k: number]: Cell
+    }
+}
 
 /* Cell */
 
@@ -274,7 +278,9 @@ type PackedMap = {
 }
 
 type PackedCells = {
-    [k: number]: { [k: number]: number }
+    [k: number]: {
+        [k: number]: number
+    }
 }
 
 function pack(areas: Area[]) {
