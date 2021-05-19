@@ -102,10 +102,6 @@ class Path {
                 start = [oldX, oldY, oldDirection]
             }
 
-            if (i >= 17) {
-                debugger
-            }
-
             if (i++ > 50) {
                 console.log('breaked')
                 break
@@ -160,13 +156,11 @@ function generateAreaShape(map: CellAreaMap, startX: number, startY: number) {
         const neighbor = getCellArea(map, x, y)
 
         if (neighbor === areaId) {
+            path.move(x, y)
+
             if (path.points.length) {
-                path.addPoint()
-                path.move(x, y)
                 path.rotateLeft()
                 path.rotateLeft()
-            } else {
-                path.move(x, y)
             }
         } else {
             path.addPoint()

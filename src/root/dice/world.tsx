@@ -36,7 +36,7 @@ class World extends Cause<JSX.Element> {
         this.viewBox = `${viewBoxX},${viewBoxY} ${screenWidth},${screenHeight}`
         this.cells = []
 
-        const map = generateMap(24)
+        const map = generateMap(5)
 
         this.data = map.cells
 
@@ -45,7 +45,7 @@ class World extends Cause<JSX.Element> {
         window.run = () => {
             const gen = generateAreas(map.cells)
             this.polygon.set(gen)
-            console.log(gen[0].shape)
+            console.log(gen)
         }
 
         setTimeout(window.run, 500)
