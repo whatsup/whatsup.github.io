@@ -36,7 +36,7 @@ class World extends Cause<JSX.Element> {
         this.viewBox = `${viewBoxX},${viewBoxY} ${screenWidth},${screenHeight}`
         this.cells = []
 
-        const map = generateMap(5)
+        const map = generateMap(24)
 
         this.data = map.cells
 
@@ -97,6 +97,7 @@ class Area extends Fractal<JSX.Element | null> {
                     const polygonStyle = {
                         fill: `rgb(0 0 241 / 25%)`,
                         stroke: 'black',
+                        strokeWidth: 2,
                     }
 
                     const points = area.shape.map(([x, y]) => [x * cellSize, y * cellSize]).join(' ')
