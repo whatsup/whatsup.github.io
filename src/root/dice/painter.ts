@@ -21,12 +21,12 @@ const DIRECTIONS = [
 
 //prettier-ignore
 const POINTS = [
+    [-0.5, -0.2],
     [   0, -0.5],
     [ 0.5, -0.2],
     [ 0.5,  0.2],
     [   0,  0.5],
     [-0.5,  0.2],
-    [-0.5, -0.2],
 ]
 
 type CellAreaMap = {
@@ -85,7 +85,6 @@ class Path {
 
     *draw() {
         let start = null as null | [number, number, number]
-        let i = 0
 
         do {
             const parity = this.y & 1
@@ -101,11 +100,6 @@ class Path {
 
             if (this.points.length === 1) {
                 start = [oldX, oldY, oldDirection]
-            }
-
-            if (i++ > 50) {
-                console.log('breaked')
-                break
             }
         } while (!start || this.x !== start[0] || this.y !== start[1] || this.direction !== start[2])
     }
