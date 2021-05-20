@@ -157,7 +157,7 @@ function getRandomItemFromArray<T>(array: T[]) {
 }
 
 function calculateCandidateWeight(candidate: Cell) {
-    return (6 - candidate.freeNeighborsCount) ** 1
+    return (6 - candidate.freeNeighborsCount) ** 5
 }
 
 function getCandidateFromPerimeter(perimeter: Cell[]) {

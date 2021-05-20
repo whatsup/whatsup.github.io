@@ -57,11 +57,6 @@ class Path {
         this.direction = 0
     }
 
-    jump(x: number, y: number) {
-        this.x = x
-        this.y = y
-    }
-
     move(x: number, y: number) {
         this.x = x
         this.y = y
@@ -71,54 +66,35 @@ class Path {
         const [ox, oy] = POINTS[this.direction]
         const parity = this.y & 1
         const tx = parity ? 0.5 : 0
-        //const ty = -0.3
+        const x = this.x + ox + tx
+        const y = this.y * 0.7 + oy
 
-        const x1 = this.x + ox + tx
-        const y1 = this.y * 0.7 + oy //+ ty
-
-        // if (this.points.some((p) => p[0] === x && p[1] === y)) {
-        //     debugger
-        // }
-
-        this.points.push([x1, y1])
+        this.points.push([x, y])
     }
 
     *draw() {
         let start = null as null | [number, number, number]
 
         do {
-            const parity = this.y & 1
-            const [ox, oy] = DIRECTIONS[parity][this.direction]
-            const oldX = this.x
-            const oldY = this.y
-            const oldDirection = this.direction
+            const { x, y, direction } = this
+            const parity = y & 1
+            const [ox, oy] = DIRECTIONS[parity][direction]
 
-            const x = this.x + ox
-            const y = this.y + oy
-
-            yield [x, y]
+            yield [x + ox, y + oy]
 
             if (this.points.length === 1) {
-                start = [oldX, oldY, oldDirection]
+                start = [x, y, direction]
             }
         } while (!start || this.x !== start[0] || this.y !== start[1] || this.direction !== start[2])
     }
 
-    rotate(angle: number) {
-        this.direction += angle
+    turn(offset: number) {
+        this.direction += offset
         this.direction %= 6
 
         if (this.direction < 0) {
             this.direction += 6
         }
-    }
-
-    rotateRight() {
-        this.direction = this.direction === 5 ? 0 : this.direction + 1
-    }
-
-    rotateLeft() {
-        this.direction = this.direction === 0 ? 5 : this.direction - 1
     }
 }
 
@@ -163,12 +139,12 @@ function generateAreaShape(map: CellAreaMap, startX: number, startY: number) {
             path.move(x, y)
 
             if (path.points.length) {
-                path.rotate(-2)
+                path.turn(-2)
                 // path.rotateLeft()
             }
         } else {
             path.addPoint()
-            path.rotate(1)
+            path.turn(1)
         }
     }
 
