@@ -43,7 +43,7 @@ function getCellArea(map: CellAreaMap, x: number, y: number) {
     return null
 }
 
-class Path {
+class AreaTracer {
     readonly points: [number, number][]
 
     private x: number
@@ -72,7 +72,7 @@ class Path {
         this.points.push([x, y])
     }
 
-    *draw() {
+    *go() {
         let start = null as null | [number, number, number]
 
         do {
@@ -130,23 +130,22 @@ export function generateAreas(map: CellAreaMap) {
 
 function generateAreaShape(map: CellAreaMap, startX: number, startY: number) {
     const areaId = getCellArea(map, startX, startY)
-    const path = new Path(startX, startY)
+    const tracer = new AreaTracer(startX, startY)
 
-    for (const [x, y] of path.draw()) {
+    for (const [x, y] of tracer.go()) {
         const neighbor = getCellArea(map, x, y)
 
         if (neighbor === areaId) {
-            path.move(x, y)
+            tracer.move(x, y)
 
-            if (path.points.length) {
-                path.turn(-2)
-                // path.rotateLeft()
+            if (tracer.points.length) {
+                tracer.turn(-2)
             }
         } else {
-            path.addPoint()
-            path.turn(1)
+            tracer.addPoint()
+            tracer.turn(1)
         }
     }
 
-    return path.points
+    return tracer.points
 }
