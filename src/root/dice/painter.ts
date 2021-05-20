@@ -21,12 +21,12 @@ const DIRECTIONS = [
 
 //prettier-ignore
 const POINTS = [
-    [-0.5, -0.2],
     [   0, -0.5],
     [ 0.5, -0.2],
     [ 0.5,  0.2],
     [   0,  0.5],
     [-0.5,  0.2],
+    [-0.5, -0.2],
 ]
 
 type CellAreaMap = {
@@ -72,14 +72,15 @@ class Path {
         const parity = this.y & 1
         const tx = parity ? 0.5 : 0
         //const ty = -0.3
-        const x = this.x + ox + tx
-        const y = this.y * 0.7 + oy //+ ty
 
-        if (this.points.some((p) => p[0] === x && p[1] === y)) {
-            debugger
-        }
+        const x1 = this.x + ox + tx
+        const y1 = this.y * 0.7 + oy //+ ty
 
-        this.points.push([x, y])
+        // if (this.points.some((p) => p[0] === x && p[1] === y)) {
+        //     debugger
+        // }
+
+        this.points.push([x1, y1])
     }
 
     *draw() {

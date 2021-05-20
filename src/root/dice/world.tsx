@@ -71,17 +71,12 @@ class World extends Cause<JSX.Element> {
                 cells.push(yield* cell)
             }
 
-            yield (
-                <_World viewBox={this.viewBox}>
-                    {cells}
-                    {yield* area}
-                </_World>
-            )
+            yield <_World viewBox={this.viewBox}>{yield* area}</_World>
         }
     }
 }
 
-class Area extends Fractal<JSX.Element | null> {
+class Area extends Fractal<JSX.Element[] | null> {
     *whatsUp(ctx: Context) {
         const world = ctx.get(World)
         const { polygon, cellSize } = world
@@ -96,13 +91,17 @@ class Area extends Fractal<JSX.Element | null> {
                     const area = areas[i]
                     const polygonStyle = {
                         fill: `rgb(0 0 241 / 25%)`,
-                        stroke: 'black',
-                        strokeWidth: 2,
+                        stroke: `rgb(50 50 50 / 100%)`,
+                        strokeWidth: 0.1,
+                        strokeLinejoin: 'round',
+                        shapeRendering: 'geometricprecision',
+                        pointerEvents: 'visiblefill',
+                        cursor: 'pointer',
                     }
 
-                    const points = area.shape.map(([x, y]) => [x * cellSize, y * cellSize]).join(' ')
+                    const points = area.shape.join(' ')
 
-                    acc.push(<polygon points={points} style={polygonStyle}></polygon>)
+                    acc.push(<path d={`M ${points} z`} onClick={() => console.log(area)} style={polygonStyle}></path>)
                 }
 
                 yield acc
@@ -118,6 +117,7 @@ interface _WorldProps extends JSX.IntrinsicAttributes {
 }
 
 function _World({ viewBox, children }: _WorldProps) {
+    return <svg viewBox={'-15,-15 30,30'}>{children}</svg>
     return <svg viewBox={viewBox}>{children}</svg>
 }
 

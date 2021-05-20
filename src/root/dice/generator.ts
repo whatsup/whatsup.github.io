@@ -1,5 +1,5 @@
-const MIN_AREA_SIZE = 5
-const MAX_AREA_SIZE = 5
+const MIN_AREA_SIZE = 7
+const MAX_AREA_SIZE = 11
 const DIRECTIONS = [
     [
         [-1, -1],
@@ -157,7 +157,7 @@ function getRandomItemFromArray<T>(array: T[]) {
 }
 
 function calculateCandidateWeight(candidate: Cell) {
-    return (6 - candidate.freeNeighborsCount) ** 10
+    return (6 - candidate.freeNeighborsCount) ** 1
 }
 
 function getCandidateFromPerimeter(perimeter: Cell[]) {
