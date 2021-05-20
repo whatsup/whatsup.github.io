@@ -109,6 +109,15 @@ class Path {
         } while (!start || this.x !== start[0] || this.y !== start[1] || this.direction !== start[2])
     }
 
+    rotate(angle: number) {
+        this.direction += angle
+        this.direction %= 6
+
+        if (this.direction < 0) {
+            this.direction += 6
+        }
+    }
+
     rotateRight() {
         this.direction = this.direction === 5 ? 0 : this.direction + 1
     }
@@ -159,12 +168,12 @@ function generateAreaShape(map: CellAreaMap, startX: number, startY: number) {
             path.move(x, y)
 
             if (path.points.length) {
-                path.rotateLeft()
-                path.rotateLeft()
+                path.rotate(-2)
+                // path.rotateLeft()
             }
         } else {
             path.addPoint()
-            path.rotateRight()
+            path.rotate(1)
         }
     }
 
