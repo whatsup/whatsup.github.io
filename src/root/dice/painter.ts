@@ -131,6 +131,8 @@ export function generateAreas(map: CellAreaMap) {
 function generateAreaShape(map: CellAreaMap, startX: number, startY: number) {
     const areaId = getCellArea(map, startX, startY)
     const tracer = new AreaTracer(startX, startY)
+    const neighbors = [] as number[]
+    const perimeter = [] as [number, number][]
 
     for (const [x, y] of tracer.go()) {
         const neighbor = getCellArea(map, x, y)
@@ -142,10 +144,27 @@ function generateAreaShape(map: CellAreaMap, startX: number, startY: number) {
                 tracer.turn(-2)
             }
         } else {
+            if (neighbor) {
+                neighbors.push(neighbor)
+            }
+
+            //perimeter.push([x, y])
             tracer.addPoint()
             tracer.turn(1)
         }
     }
 
+    //const shape = createAreaShape(perimeter)
+
     return tracer.points
 }
+
+// function createAreaShape(perimeter: [number, number][]) {
+//     return perimeter.map(([x, y]) => {
+//         const [ox, oy] = POINTS[this.direction]
+//         const parity = this.y & 1
+//         const tx = parity ? 0.5 : 0
+//         const x = this.x + ox + tx
+//         const y = this.y * 0.7 + oy
+//     })
+// }
