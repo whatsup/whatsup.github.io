@@ -21,6 +21,8 @@ const DIRECTIONS = [
 
 /* Types */
 
+class FewFreeCellsToCreateAnArea extends Error {}
+
 type Cell = {
     x: number
     y: number
@@ -112,10 +114,6 @@ function createStore() {
     return {} as Store
 }
 
-function createAreasStore() {
-    return [] as Area[]
-}
-
 function findCell(store: Store, x: number, y: number) {
     if (x in store && y in store[x]) {
         return store[x][y]
@@ -157,7 +155,7 @@ function getRandomItemFromArray<T>(array: T[]) {
 }
 
 function calculateCandidateWeight(candidate: Cell) {
-    return (6 - candidate.freeNeighborsCount) ** 7
+    return (6 - candidate.freeNeighborsCount) ** 10
 }
 
 function getCandidateFromPerimeter(perimeter: Cell[]) {
@@ -181,14 +179,14 @@ function getCandidateFromPerimeter(perimeter: Cell[]) {
 
 export function generateMap(size: number) {
     const store = createStore()
-    const areas = createAreasStore()
-
-    generateAreas(store, areas, size)
+    const areas = generateAreas(store, size)
 
     return pack(areas)
 }
 
-function generateAreas(store: Store, areas: Area[], areasCount: number) {
+function generateAreas(store: Store, areasCount: number) {
+    const areas = [] as Area[]
+
     let nextAreaId = 1
 
     while (areas.length < areasCount) {
@@ -209,23 +207,30 @@ function generateAreas(store: Store, areas: Area[], areasCount: number) {
         }
 
         try {
-            const storeCount = getRandomNumberFromRange(MIN_AREA_SIZE, MAX_AREA_SIZE)
+            const areaSize = getRandomNumberFromRange(MIN_AREA_SIZE, MAX_AREA_SIZE)
 
-            generateArea(store, area, storeCount)
+            generateArea(store, area, areaSize)
         } catch (e) {
-            continue
+            if (e instanceof FewFreeCellsToCreateAnArea) {
+                nextAreaId--
+                continue
+            }
+
+            throw e
         }
 
         areas.push(area)
     }
+
+    return areas
 }
 
-function generateArea(store: Store, area: Area, storeCount: number) {
-    while (area.cells.length < storeCount) {
+function generateArea(store: Store, area: Area, areaSize: number) {
+    while (area.cells.length < areaSize) {
         const perimeter = getAreaPerimeter(area)
 
         if (perimeter.length === 0) {
-            throw 'Cannot expand area'
+            throw new FewFreeCellsToCreateAnArea()
         }
 
         const from = getCandidateFromPerimeter(perimeter)
