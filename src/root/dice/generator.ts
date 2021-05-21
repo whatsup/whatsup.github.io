@@ -1,5 +1,5 @@
-const MIN_AREA_SIZE = 7
-const MAX_AREA_SIZE = 11
+const MIN_AREA_SIZE = 9
+const MAX_AREA_SIZE = 15
 const DIRECTIONS = [
     [
         [-1, -1],
@@ -157,7 +157,7 @@ function getRandomItemFromArray<T>(array: T[]) {
 }
 
 function calculateCandidateWeight(candidate: Cell) {
-    return (6 - candidate.freeNeighborsCount) ** 5
+    return (6 - candidate.freeNeighborsCount) ** 7
 }
 
 function getCandidateFromPerimeter(perimeter: Cell[]) {
@@ -260,11 +260,12 @@ function calculateNormalizations(areas: Area[]) {
         }
     }
 
-    const width = maxX - minX + 1
-    const height = maxY - minY + 1
-    const offsetX = Math.floor((Math.abs(minX) - Math.abs(maxX)) / 2)
-    const rawOffsetY = Math.floor((Math.abs(minY) - Math.abs(maxY)) / 2)
-    const offsetY = rawOffsetY + (rawOffsetY % 2)
+    minY += minY % 2
+
+    const width = maxX - minX
+    const height = maxY - minY
+    const offsetX = minX
+    const offsetY = minY
 
     return [width, height, offsetX, offsetY]
 }
@@ -295,8 +296,8 @@ function packAreas(areas: Area[], offsetX: number, offsetY: number) {
 
     for (const area of areas) {
         for (const cell of area.cells) {
-            const x = cell.x + offsetX
-            const y = cell.y + offsetY
+            const x = cell.x - offsetX
+            const y = cell.y - offsetY
 
             if (acc[x] === undefined) {
                 acc[x] = {}

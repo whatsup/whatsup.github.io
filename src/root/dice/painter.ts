@@ -106,13 +106,13 @@ function* iterateCells(map: CellAreaMap) {
     }
 }
 
-type Area = {
+export type AreaData = {
     id: number
-    shape: [number, number][]
+    shape: string
 }
 
 export function generateAreas(map: CellAreaMap) {
-    const completed = new Map<number, Area>()
+    const completed = new Map<number, AreaData>()
 
     for (const [x, y, id] of iterateCells(map)) {
         if (completed.has(id)) {
@@ -148,5 +148,5 @@ function generateAreaShape(map: CellAreaMap, startX: number, startY: number) {
         }
     }
 
-    return path.points
+    return `M ${path.points} z`
 }
