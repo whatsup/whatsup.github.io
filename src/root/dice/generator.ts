@@ -94,8 +94,8 @@ function isCellHasFreeNeighbors(cell: Cell) {
 
 /* Area */
 
-function createArea(id: number) {
-    const cells = [] as Cell[]
+function createArea(id: number, start: Cell) {
+    const cells = [start] as Cell[]
 
     return { id, cells } as Area
 }
@@ -184,32 +184,34 @@ export function generateMap(size: number) {
     return pack(areas)
 }
 
+function findStartAreaCell(store: Store) {
+    const perimeter = getMapPerimeter(store)
+
+    if (perimeter.length === 0) {
+        return initCell(store, 0, 0)
+    }
+
+    const from = getCandidateFromPerimeter(perimeter)
+    const freeNeighborsCoords = getCellFreeNeighborsCoords(store, from)
+    const [x, y] = getRandomItemFromArray(freeNeighborsCoords)
+
+    return initCell(store, x, y)
+}
+
 function generateAreas(store: Store, areasCount: number) {
     const areas = [] as Area[]
 
     let nextAreaId = 1
 
     while (areas.length < areasCount) {
-        const area = createArea(nextAreaId++)
-        const perimeter = getMapPerimeter(store)
-
-        if (perimeter.length === 0) {
-            const center = initCell(store, 0, 0)
-
-            addCellToArea(area, center)
-        } else {
-            const from = getCandidateFromPerimeter(perimeter)
-            const freeNeighborsCoords = getCellFreeNeighborsCoords(store, from)
-            const [x, y] = getRandomItemFromArray(freeNeighborsCoords)
-            const candidate = initCell(store, x, y)
-
-            addCellToArea(area, candidate)
-        }
+        const start = findStartAreaCell(store)
 
         try {
-            const areaSize = getRandomNumberFromRange(MIN_AREA_SIZE, MAX_AREA_SIZE)
+            const id = nextAreaId++
+            const size = getRandomNumberFromRange(MIN_AREA_SIZE, MAX_AREA_SIZE)
+            const area = generateArea(store, id, start, size)
 
-            generateArea(store, area, areaSize)
+            areas.push(area)
         } catch (e) {
             if (e instanceof FewFreeCellsToCreateAnArea) {
                 nextAreaId--
@@ -218,15 +220,15 @@ function generateAreas(store: Store, areasCount: number) {
 
             throw e
         }
-
-        areas.push(area)
     }
 
     return areas
 }
 
-function generateArea(store: Store, area: Area, areaSize: number) {
-    while (area.cells.length < areaSize) {
+function generateArea(store: Store, id: number, start: Cell, size: number) {
+    const area = createArea(id, start)
+
+    while (area.cells.length < size) {
         const perimeter = getAreaPerimeter(area)
 
         if (perimeter.length === 0) {
@@ -240,6 +242,8 @@ function generateArea(store: Store, area: Area, areaSize: number) {
 
         addCellToArea(area, candidate)
     }
+
+    return area
 }
 
 function calculateNormalizations(areas: Area[]) {
