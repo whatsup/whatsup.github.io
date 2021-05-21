@@ -1,4 +1,5 @@
-import { DIRECTIONS, MAX_AREA_SIZE, MIN_AREA_SIZE } from './constants'
+import { DIRECTIONS, MAX_AREA_SIZE, MIN_AREA_SIZE } from '../constants'
+import { getRandomNumberFromRange, getRandomItemFromArray } from './utils'
 
 /* Types */
 
@@ -142,18 +143,8 @@ function getMapPerimeter(store: Store) {
 
 /* Utils */
 
-function getRandomNumberFromRange(start: number, end: number) {
-    return start + Math.round(Math.random() * (end - start))
-}
-
-function getRandomItemFromArray<T>(array: T[]) {
-    const index = getRandomNumberFromRange(0, array.length - 1)
-
-    return array[index]
-}
-
 function calculateCandidateWeight(candidate: Cell) {
-    return (6 - candidate.freeNeighborsCount) ** 10
+    return (6 - candidate.freeNeighborsCount) ** 7
 }
 
 function getCandidateFromPerimeter(perimeter: Cell[]) {
@@ -281,19 +272,19 @@ function calculateNormalizations(areas: Area[]) {
 
 /* Packer */
 
-export type PackedMap = {
+export type MapData = {
     width: number
     height: number
-    areas: PackedArea[]
+    areas: AreaData[]
 }
 
-export type PackedArea = {
+export type AreaData = {
     id: number
     neighbors: number[]
-    cells: PackedAreaCells
+    cells: AreaCellsData
 }
 
-export type PackedAreaCells = {
+export type AreaCellsData = {
     [k: number]: number[]
 }
 
@@ -301,7 +292,7 @@ function pack(areas: Area[]) {
     const [width, height, offsetX, offsetY] = calculateNormalizations(areas)
     const packedAreas = areas.map((area) => packArea(area, offsetX, offsetY))
 
-    return { width, height, areas: packedAreas } as PackedMap
+    return { width, height, areas: packedAreas } as MapData
 }
 
 function packArea(area: Area, offsetX: number, offsetY: number) {
@@ -309,11 +300,11 @@ function packArea(area: Area, offsetX: number, offsetY: number) {
     const neighbors = packAreaNeighbors(area)
     const cells = packAreaCells(area, offsetX, offsetY)
 
-    return { id, neighbors, cells } as PackedArea
+    return { id, neighbors, cells } as AreaData
 }
 
 function packAreaCells(area: Area, offsetX: number, offsetY: number) {
-    const cells = {} as PackedAreaCells
+    const cells = {} as AreaCellsData
 
     for (const cell of area.cells) {
         const x = cell.x - offsetX

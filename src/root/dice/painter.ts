@@ -1,5 +1,5 @@
 import { DIRECTIONS } from './constants'
-import { PackedAreaCells } from './generator'
+import { AreaCellsData } from './generators/map'
 
 //prettier-ignore
 const POINTS = [
@@ -11,7 +11,7 @@ const POINTS = [
     [-0.5,  0.2],
 ]
 
-function isCoordsBelongsToArea(cells: PackedAreaCells, x: number, y: number) {
+function isCoordsBelongsToArea(cells: AreaCellsData, x: number, y: number) {
     if (!(x in cells)) {
         return false
     }
@@ -37,7 +37,7 @@ function turn(direction: number, angle: number) {
     return direction
 }
 
-export function generateAreaShape(cells: PackedAreaCells) {
+export function generateAreaShape(cells: AreaCellsData) {
     const points = [] as string[]
 
     let x = parseInt(Object.keys(cells)[0])
