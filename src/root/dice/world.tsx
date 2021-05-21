@@ -38,6 +38,29 @@ class World extends Cause<JSX.Element> {
     }
 }
 
+interface _WorldProps extends JSX.IntrinsicAttributes {
+    width: number
+    height: number
+}
+
+function _World({ width, height, children }: _WorldProps) {
+    const sx = -1
+    const sy = -1
+    const dx = width + 2.5
+    const dy = height * 0.7 + 2
+    const viewBox = `${sx},${sy} ${dx},${dy}`
+    const style = {
+        maxWidth: '100vw',
+        maxHeight: '100vh',
+    }
+
+    return (
+        <svg viewBox={viewBox} style={style}>
+            {children}
+        </svg>
+    )
+}
+
 class Area extends Fractal<JSX.Element> {
     readonly id: number
     readonly neighbors: Set<number>
@@ -65,29 +88,6 @@ class Area extends Fractal<JSX.Element> {
             yield <path d={this.shape} onClick={() => console.log(this)} style={polygonStyle}></path>
         }
     }
-}
-
-interface _WorldProps extends JSX.IntrinsicAttributes {
-    width: number
-    height: number
-}
-
-function _World({ width, height, children }: _WorldProps) {
-    const sx = -1
-    const sy = -1
-    const dx = width + 2.5
-    const dy = height * 0.7 + 2
-    const viewBox = `${sx},${sy} ${dx},${dy}`
-    const style = {
-        maxWidth: '100vw',
-        maxHeight: '100vh',
-    }
-
-    return (
-        <svg viewBox={viewBox} style={style}>
-            {children}
-        </svg>
-    )
 }
 
 const colors = [

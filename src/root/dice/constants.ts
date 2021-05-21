@@ -1,9 +1,20 @@
-export const MIN_WORLD_WIDTH = 5 // Cells
-export const MIN_WORLD_HEIGHT = 5 // Cells
-export const MIN_WORLD_BORDER = 2 // Cells
-export const MAX_CELL_SIZE = 60 // px
-export const CELL_GAP = 0 // px
-export const BOUNDS_MIN_X = Math.floor(MIN_WORLD_WIDTH / 2)
-export const BOUNDS_MAX_X = BOUNDS_MIN_X + MIN_WORLD_WIDTH
-export const BOUNDS_MIN_Y = Math.floor(MIN_WORLD_HEIGHT / 2)
-export const BOUNDS_MAX_Y = BOUNDS_MIN_Y + MIN_WORLD_HEIGHT
+export const MIN_AREA_SIZE = 9
+export const MAX_AREA_SIZE = 15
+export const DIRECTIONS = [
+    [
+        [-1, -1],
+        [+0, -1],
+        [+1, +0],
+        [+0, +1],
+        [-1, +1],
+        [-1, +0],
+    ],
+    [
+        [+0, -1],
+        [+1, -1],
+        [+1, +0],
+        [+1, +1],
+        [+0, +1],
+        [-1, +0],
+    ],
+]

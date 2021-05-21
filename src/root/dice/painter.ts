@@ -1,25 +1,5 @@
-/* Path */
-
+import { DIRECTIONS } from './constants'
 import { PackedAreaCells } from './generator'
-
-const DIRECTIONS = [
-    [
-        [-1, -1],
-        [+0, -1],
-        [+1, +0],
-        [+0, +1],
-        [-1, +1],
-        [-1, +0],
-    ],
-    [
-        [+0, -1],
-        [+1, -1],
-        [+1, +0],
-        [+1, +1],
-        [+0, +1],
-        [-1, +0],
-    ],
-]
 
 //prettier-ignore
 const POINTS = [
@@ -30,20 +10,6 @@ const POINTS = [
     [   0,  0.5],
     [-0.5,  0.2],
 ]
-
-type CellAreaMap = {
-    [k: number]: {
-        [k: number]: number
-    }
-}
-
-function getCellArea(map: CellAreaMap, x: number, y: number) {
-    if (x in map && y in map[x]) {
-        return map[x][y]
-    }
-
-    return null
-}
 
 class Path {
     readonly points: [number, number][]

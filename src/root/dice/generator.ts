@@ -1,23 +1,4 @@
-const MIN_AREA_SIZE = 9
-const MAX_AREA_SIZE = 15
-const DIRECTIONS = [
-    [
-        [-1, -1],
-        [+0, -1],
-        [+1, +0],
-        [+0, +1],
-        [-1, +1],
-        [-1, +0],
-    ],
-    [
-        [+0, -1],
-        [+1, -1],
-        [+1, +0],
-        [+1, +1],
-        [+0, +1],
-        [-1, +0],
-    ],
-]
+import { DIRECTIONS, MAX_AREA_SIZE, MIN_AREA_SIZE } from './constants'
 
 /* Types */
 
