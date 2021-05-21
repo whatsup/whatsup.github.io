@@ -1,9 +1,8 @@
 import { Cause, conse, Context, Fractal } from 'whatsup'
 import { render } from '@whatsup/jsx'
-import { generateMap } from './generator'
+import { generateMap, PackedArea } from './generator'
 import _ from './world.scss'
-import { MIN_WORLD_WIDTH, MIN_WORLD_BORDER, MAX_CELL_SIZE, CELL_GAP } from './constants'
-import { AreaData, generateAreas } from './painter'
+import { generateAreaShape } from './painter'
 
 class World extends Cause<JSX.Element> {
     readonly width: number
@@ -13,11 +12,11 @@ class World extends Cause<JSX.Element> {
     constructor() {
         super()
 
-        const { width, height, cells } = generateMap(36)
+        const { width, height, areas } = generateMap(100)
 
         this.width = width
         this.height = height
-        this.areas = generateAreas(cells).map((data) => new Area(data))
+        this.areas = areas.map((data) => new Area(data))
     }
 
     *whatsUp(ctx: Context) {
@@ -41,12 +40,14 @@ class World extends Cause<JSX.Element> {
 
 class Area extends Fractal<JSX.Element> {
     readonly id: number
+    readonly neighbors: Set<number>
     readonly shape: string
 
-    constructor({ id, shape }: AreaData) {
+    constructor({ id, neighbors, cells }: PackedArea) {
         super()
         this.id = id
-        this.shape = shape
+        this.neighbors = new Set(neighbors)
+        this.shape = generateAreaShape(cells)
     }
 
     *whatsUp(ctx: Context) {

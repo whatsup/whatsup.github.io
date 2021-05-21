@@ -33,7 +33,7 @@ type Cell = {
 type Area = {
     id: number
     cells: Cell[]
-    neighbors: Area[]
+    neighbors: Set<Area>
 }
 
 type Store = {
@@ -99,7 +99,7 @@ function isCellHasFreeNeighbors(cell: Cell) {
 
 function createArea(id: number) {
     const cells = [] as Cell[]
-    const neighbors = [] as Area[]
+    const neighbors = new Set<Area>()
 
     return { id, cells, neighbors } as Area
 }
@@ -113,17 +113,16 @@ function getAreaPerimeter(area: Area) {
 }
 
 function setAreaRelations(one: Area, two: Area) {
-    one.neighbors.push(two)
-    two.neighbors.push(one)
+    one.neighbors.add(two)
+    two.neighbors.add(one)
 }
 
 function destroyAreaRelation(area: Area) {
     for (const neighbor of area.neighbors) {
-        const index = neighbor.neighbors.indexOf(area)
-        neighbor.neighbors.splice(index, 1)
+        neighbor.neighbors.delete(area)
     }
 
-    area.neighbors.length = 0
+    area.neighbors.clear()
 }
 
 /* Store */
@@ -301,48 +300,27 @@ function calculateNormalizations(areas: Area[]) {
 
 /* Packer */
 
-type PackedMap = {
+export type PackedMap = {
     width: number
     height: number
-    cells: PackedCells
+    areas: PackedArea[]
 }
 
-type PackedCells = {
-    [k: number]: {
-        [k: number]: number
-    }
+export type PackedArea = {
+    id: number
+    neighbors: number[]
+    cells: PackedAreaCells
+}
+
+export type PackedAreaCells = {
+    [k: number]: number[]
 }
 
 function pack(areas: Area[]) {
     const [width, height, offsetX, offsetY] = calculateNormalizations(areas)
-    const cells = packAreas(areas, offsetX, offsetY)
+    const packedAreas = areas.map((area) => packArea(area, offsetX, offsetY))
 
-    return { width, height, cells } as PackedMap
-}
-
-function packAreas(areas: Area[], offsetX: number, offsetY: number) {
-    const acc = {} as PackedCells
-
-    for (const area of areas) {
-        for (const cell of area.cells) {
-            const x = cell.x - offsetX
-            const y = cell.y - offsetY
-
-            if (acc[x] === undefined) {
-                acc[x] = {}
-            }
-
-            acc[x][y] = area.id
-        }
-    }
-
-    return acc
-}
-
-type PackedArea = {
-    id: number
-    neighbors: number[]
-    cells: PackedAreaCells
+    return { width, height, areas: packedAreas } as PackedMap
 }
 
 function packArea(area: Area, offsetX: number, offsetY: number) {
@@ -351,10 +329,6 @@ function packArea(area: Area, offsetX: number, offsetY: number) {
     const cells = packAreaCells(area, offsetX, offsetY)
 
     return { id, neighbors, cells } as PackedArea
-}
-
-type PackedAreaCells = {
-    [k: number]: number[]
 }
 
 function packAreaCells(area: Area, offsetX: number, offsetY: number) {
@@ -368,12 +342,18 @@ function packAreaCells(area: Area, offsetX: number, offsetY: number) {
             cells[x] = []
         }
 
-        cells[x][y] = area.id
+        cells[x].push(y)
     }
 
     return cells
 }
 
 function packAreaNeighbors(area: Area) {
-    return area.neighbors.map((neighbor) => neighbor.id)
+    const neighbors = [] as number[]
+
+    for (const neighbor of area.neighbors) {
+        neighbors.push(neighbor.id)
+    }
+
+    return neighbors
 }

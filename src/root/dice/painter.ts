@@ -1,5 +1,7 @@
 /* Path */
 
+import { PackedAreaCells } from './generator'
+
 const DIRECTIONS = [
     [
         [-1, -1],
@@ -98,49 +100,25 @@ class Path {
     }
 }
 
-function* iterateCells(map: CellAreaMap) {
-    for (const [x, submap] of Object.entries(map)) {
-        for (const [y, areaId] of Object.entries(submap)) {
-            yield [parseInt(x), parseInt(y), areaId]
-        }
+function isCoordsBelongsToArea(cells: PackedAreaCells, x: number, y: number) {
+    if (!(x in cells)) {
+        return false
     }
+    return cells[x].includes(y)
 }
 
-export type AreaData = {
-    id: number
-    shape: string
-}
+export function generateAreaShape(cells: PackedAreaCells) {
+    const startX = parseInt(Object.keys(cells)[0])
+    const startY = cells[startX][0]
 
-export function generateAreas(map: CellAreaMap) {
-    const completed = new Map<number, AreaData>()
-
-    for (const [x, y, id] of iterateCells(map)) {
-        if (completed.has(id)) {
-            continue
-        }
-
-        const shape = generateAreaShape(map, x, y)
-        const area = { id, shape }
-
-        completed.set(id, area)
-    }
-
-    return [...completed.values()]
-}
-
-function generateAreaShape(map: CellAreaMap, startX: number, startY: number) {
-    const areaId = getCellArea(map, startX, startY)
     const path = new Path(startX, startY)
 
     for (const [x, y] of path.draw()) {
-        const neighbor = getCellArea(map, x, y)
-
-        if (neighbor === areaId) {
+        if (isCoordsBelongsToArea(cells, x, y)) {
             path.move(x, y)
 
             if (path.points.length) {
                 path.turn(-2)
-                // path.rotateLeft()
             }
         } else {
             path.addPoint()
@@ -148,5 +126,5 @@ function generateAreaShape(map: CellAreaMap, startX: number, startY: number) {
         }
     }
 
-    return `M ${path.points} z`
+    return `M ${path.points.join(' ')} z`
 }
