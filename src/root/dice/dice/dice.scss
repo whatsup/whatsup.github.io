@@ -1,43 +1,43 @@
 .dice {
-    transform: matrix(0.003, 0, 0, 0.003, 20, 20);
+    transform: matrix(1, 0, 0, 1, 50, 50);
 }
 
 .red {
-    &.side {
-        &.top {
+    .side {
+        .top {
             fill: hsl(0, 73%, 53%);
         }
-        &.left {
+        .left {
             fill: hsl(0, 73%, 47%);
         }
-        &.right {
+        .right {
             fill: hsl(0, 73%, 41%);
         }
     }
-    &.corner {
-        &.center {
+    .corner {
+        .center {
             fill: hsl(0, 73%, 57%);
         }
-        &.left {
+        .left {
             fill: hsl(0, 73%, 50%);
         }
-        &.right {
+        .right {
             fill: hsl(0, 73%, 44%);
         }
-        &.bottom {
+        .bottom {
             fill: hsl(0, 73%, 40%);
         }
     }
 }
 
 .number {
-    &.top {
+    .top {
         fill: #fff;
     }
-    &.left {
+    .left {
         fill: #ddd;
     }
-    &.right {
+    .right {
         fill: #bbb;
     }
 }

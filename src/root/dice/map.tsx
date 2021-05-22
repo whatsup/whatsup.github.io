@@ -3,6 +3,7 @@ import { Fractal, Context } from 'whatsup'
 import { MapData } from './generators/map'
 import { Area } from './area'
 import { _Dice } from './dice'
+import { SCALE_X, SCALE_Y } from './constants'
 
 export class GameMap extends Fractal<JSX.Element> {
     readonly width: number
@@ -18,7 +19,7 @@ export class GameMap extends Fractal<JSX.Element> {
     }
 
     *whatsUp(ctx: Context) {
-        ctx.share(this)
+        //ctx.share(this)
 
         while (true) {
             const areas = [] as JSX.Element[]
@@ -30,7 +31,7 @@ export class GameMap extends Fractal<JSX.Element> {
             yield (
                 <_GameMap width={this.width} height={this.height}>
                     {areas}
-                    <_Dice value={3} color="red" />
+                    <_Dice value={4} color="red" />
                 </_GameMap>
             )
         }
@@ -43,10 +44,10 @@ interface _GameMapProps extends JSX.IntrinsicAttributes {
 }
 
 function _GameMap({ width, height, children }: _GameMapProps) {
-    const sx = -1
-    const sy = -1
-    const dx = width + 2.5
-    const dy = height * 0.7 + 2
+    const sx = -1 * SCALE_X
+    const sy = -1 * SCALE_Y
+    const dx = (width + 2.5) * SCALE_X
+    const dy = (height * 0.7 + 2) * SCALE_Y
     const viewBox = `${sx},${sy} ${dx},${dy}`
     const style = {
         maxWidth: '100vw',
@@ -59,125 +60,3 @@ function _GameMap({ width, height, children }: _GameMapProps) {
         </svg>
     )
 }
-
-// const colors = [
-//     'aqua',
-//     'aquamarine',
-//     'blue',
-//     'brown',
-//     'saddlebrown',
-//     'sandybrown',
-//     'slateblue',
-//     'tomato',
-//     'yellow',
-//     'yellowgreen',
-//     'khaki',
-//     'indigo',
-//     'lightblue',
-//     'lightsalmon',
-//     'maroon',
-//     'midnightblue',
-//     'olive',
-//     'palegreen',
-//     'rebeccapurple',
-//     'sandybrown',
-//     'royalblue',
-//     'salmon',
-//     'coral',
-//     'aqua',
-//     'aquamarine',
-//     'blue',
-//     'brown',
-//     'saddlebrown',
-//     'sandybrown',
-//     'slateblue',
-//     'tomato',
-//     'yellow',
-//     'yellowgreen',
-//     'khaki',
-//     'indigo',
-//     'lightblue',
-//     'lightsalmon',
-//     'maroon',
-//     'midnightblue',
-//     'olive',
-//     'palegreen',
-//     'rebeccapurple',
-//     'sandybrown',
-//     'royalblue',
-//     'salmon',
-//     'coral',
-//     'aqua',
-//     'aquamarine',
-//     'blue',
-//     'brown',
-//     'saddlebrown',
-//     'sandybrown',
-//     'slateblue',
-//     'tomato',
-//     'yellow',
-//     'yellowgreen',
-//     'khaki',
-//     'indigo',
-//     'lightblue',
-//     'lightsalmon',
-//     'maroon',
-//     'midnightblue',
-//     'olive',
-//     'palegreen',
-//     'rebeccapurple',
-//     'sandybrown',
-//     'royalblue',
-//     'salmon',
-//     'coral',
-//     'aqua',
-//     'aquamarine',
-//     'blue',
-//     'brown',
-//     'saddlebrown',
-//     'sandybrown',
-//     'slateblue',
-//     'tomato',
-//     'yellow',
-//     'yellowgreen',
-//     'khaki',
-//     'indigo',
-//     'lightblue',
-//     'lightsalmon',
-//     'maroon',
-//     'midnightblue',
-//     'olive',
-//     'palegreen',
-//     'rebeccapurple',
-//     'sandybrown',
-//     'royalblue',
-//     'salmon',
-//     'coral',
-//     'salmon',
-//     'coral',
-//     'aqua',
-//     'aquamarine',
-//     'blue',
-//     'brown',
-//     'saddlebrown',
-//     'sandybrown',
-//     'slateblue',
-//     'tomato',
-//     'yellow',
-//     'yellowgreen',
-//     'khaki',
-//     'indigo',
-//     'lightblue',
-//     'lightsalmon',
-//     'maroon',
-//     'midnightblue',
-//     'olive',
-//     'palegreen',
-//     'rebeccapurple',
-//     'sandybrown',
-//     'royalblue',
-//     'salmon',
-//     'coral',
-// ]
-
-// render(new World())

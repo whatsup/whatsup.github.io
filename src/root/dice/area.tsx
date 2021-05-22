@@ -36,7 +36,7 @@ export class Area extends Fractal<JSX.Element> {
             const polygonStyle = {
                 fill: yield* color,
                 stroke: `#333`,
-                strokeWidth: 0.1,
+                strokeWidth: 1,
                 strokeLinejoin: 'round',
                 shapeRendering: 'geometricprecision',
                 pointerEvents: 'visiblefill',

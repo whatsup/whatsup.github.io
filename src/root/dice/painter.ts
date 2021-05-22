@@ -1,4 +1,4 @@
-import { DIRECTIONS } from './constants'
+import { DIRECTIONS, SCALE_X, SCALE_Y } from './constants'
 import { AreaCellsData } from './generators/map'
 
 //prettier-ignore
@@ -20,8 +20,8 @@ function isCoordsBelongsToArea(cells: AreaCellsData, x: number, y: number) {
 
 function createPoint(x: number, y: number, direction: number): string {
     const [ox, oy] = POINTS[direction]
-    const px = x + ox + (y % 2) * 0.5
-    const py = y * 0.7 + oy
+    const px = (x + ox + (y % 2) * 0.5) * SCALE_X
+    const py = (y * 0.7 + oy) * SCALE_Y
 
     return `${px},${py}`
 }
