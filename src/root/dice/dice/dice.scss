@@ -1,34 +1,5 @@
-// .red {
-//     transform: matrix(0.05, 0, 0, 0.05, 20, 20);
-
-//     &.side {
-//         &.top {
-//             fill: #d32f2f;
-//         }
-//         &.left {
-//             fill: #c62828;
-//         }
-//         &.right {
-//             fill: #b71c1c;
-//         }
-//     }
-//     &.corner {
-//         &.center {
-//             fill: #e53935;
-//         }
-//         &.left {
-//             fill: #c62828;
-//         }
-//         &.right {
-//             fill: #c62828;
-//         }
-//         &.bottom {
-//             fill: #b71c1c;
-//         }
-//     }
-// }
 .dice {
-    transform: matrix(0.03, 0, 0, 0.03, 20, 20);
+    transform: matrix(0.003, 0, 0, 0.003, 20, 20);
 }
 
 .red {
