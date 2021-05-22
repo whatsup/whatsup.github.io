@@ -20,10 +20,21 @@ export const DIRECTIONS = [
 ]
 
 export const COLORS = [
-    '#e91e63', // pink
-    '#00bcd4', // cyan
-    '#4caf50', // green
-    '#8bc34a', // lime
-    '#ff9800', // orange
-    '#795548', // brown
+    '#f06292',
+    '#9575cd',
+    '#64b5f6',
+    '#4dd0e1',
+    '#4db6ac',
+    '#dce775',
+    '#aed581',
+    '#fff176',
+    '#ffd54f',
+    '#ff8a65',
+    '#a1887f',
+    // '#e91e63', // pink
+    // '#00bcd4', // cyan
+    // '#4caf50', // green
+    // '#8bc34a', // lime
+    // '#ff9800', // orange
+    // '#795548', // brown
 ]
