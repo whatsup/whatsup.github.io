@@ -2,6 +2,7 @@ import _ from './world.scss'
 import { Fractal, Context } from 'whatsup'
 import { MapData } from './generators/map'
 import { Area } from './area'
+import { _Dice } from './dice'
 
 export class GameMap extends Fractal<JSX.Element> {
     readonly width: number
@@ -29,6 +30,7 @@ export class GameMap extends Fractal<JSX.Element> {
             yield (
                 <_GameMap width={this.width} height={this.height}>
                     {areas}
+                    <_Dice value={3} color="red" />
                 </_GameMap>
             )
         }

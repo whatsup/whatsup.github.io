@@ -1,0 +1,72 @@
+// .red {
+//     transform: matrix(0.05, 0, 0, 0.05, 20, 20);
+
+//     &.side {
+//         &.top {
+//             fill: #d32f2f;
+//         }
+//         &.left {
+//             fill: #c62828;
+//         }
+//         &.right {
+//             fill: #b71c1c;
+//         }
+//     }
+//     &.corner {
+//         &.center {
+//             fill: #e53935;
+//         }
+//         &.left {
+//             fill: #c62828;
+//         }
+//         &.right {
+//             fill: #c62828;
+//         }
+//         &.bottom {
+//             fill: #b71c1c;
+//         }
+//     }
+// }
+.dice {
+    transform: matrix(0.03, 0, 0, 0.03, 20, 20);
+}
+
+.red {
+    &.side {
+        &.top {
+            fill: hsl(0, 73%, 53%);
+        }
+        &.left {
+            fill: hsl(0, 73%, 47%);
+        }
+        &.right {
+            fill: hsl(0, 73%, 41%);
+        }
+    }
+    &.corner {
+        &.center {
+            fill: hsl(0, 73%, 57%);
+        }
+        &.left {
+            fill: hsl(0, 73%, 50%);
+        }
+        &.right {
+            fill: hsl(0, 73%, 44%);
+        }
+        &.bottom {
+            fill: hsl(0, 73%, 40%);
+        }
+    }
+}
+
+.number {
+    &.top {
+        fill: #fff;
+    }
+    &.left {
+        fill: #ddd;
+    }
+    &.right {
+        fill: #bbb;
+    }
+}
