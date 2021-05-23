@@ -81,7 +81,7 @@ function* iterateCellNeighborsCoords(x: number, y: number) {
     }
 }
 
-export function calculateAreaCenter(cells: AreaCellsData, log = false): [number, number] {
+export function calculateAreaCenter(cells: AreaCellsData): [number, number] {
     let centerX = NaN
     let centerY = NaN
     let centerW = NaN
@@ -92,20 +92,12 @@ export function calculateAreaCenter(cells: AreaCellsData, log = false): [number,
         for (const y of value) {
             const weight = calculateAreaCellWeight(cells, x, y)
 
-            if (Number.isNaN(centerW) || centerW <= weight) {
+            if (Number.isNaN(centerW) || centerW < weight) {
                 centerX = x
                 centerY = y
                 centerW = weight
             }
-
-            if (log) {
-                console.log(x, y, weight)
-            }
         }
-    }
-
-    if (log) {
-        console.log(centerX, centerY)
     }
 
     const x = (centerX + (centerY % 2) * 0.5) * SCALE_X
@@ -114,28 +106,36 @@ export function calculateAreaCenter(cells: AreaCellsData, log = false): [number,
     return [x, y]
 }
 
+function coordsToString(x: number, y: number) {
+    return `${x} ${y}`
+}
+
 function calculateAreaCellWeight(
     cells: AreaCellsData,
     x: number,
     y: number,
-    visited = new Map<number, Set<number>>(),
+    visited = [coordsToString(x, y)],
     depth = 1
 ) {
     let result = 1
 
-    if (!visited.has(x)) {
-        visited.set(x, new Set())
-    }
-
-    visited.get(x)!.add(y)
+    const candidates = [] as [number, number][]
 
     for (const [nx, ny] of iterateCellNeighborsCoords(x, y)) {
         if (!isCoordsBelongsToArea(cells, nx, ny)) {
             continue
         }
-        if (!visited.has(nx) || !visited.get(nx)!.has(ny)) {
-            result += calculateAreaCellWeight(cells, nx, ny, visited, depth + 1) * depth
+
+        const strCoords = coordsToString(nx, ny)
+
+        if (!visited.includes(strCoords)) {
+            visited.push(strCoords)
+            candidates.push([nx, ny])
         }
+    }
+
+    for (const [x, y] of candidates) {
+        result += calculateAreaCellWeight(cells, x, y, visited, depth + 1) / depth
     }
 
     return result

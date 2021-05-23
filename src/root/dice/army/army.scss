@@ -1,28 +1,26 @@
 .army {
-    transform: matrix(1, 0, 0, 1, 50, 50);
-
     .slot-1 {
-        transform: matrix(1, 0, 0, 1, 0, 0);
+        transform: matrix(1, 0, 0, 1, 3.5, 0);
     }
     .slot-2 {
-        transform: matrix(1, 0, 0, 1, 0, -4.9);
+        transform: matrix(1, 0, 0, 1, 3.5, -4.9);
     }
     .slot-3 {
-        transform: matrix(1, 0, 0, 1, 0, -9.8);
+        transform: matrix(1, 0, 0, 1, 3.5, -9.8);
     }
     .slot-4 {
-        transform: matrix(1, 0, 0, 1, 0, -14.7);
+        transform: matrix(1, 0, 0, 1, 3.5, -14.7);
     }
     .slot-5 {
-        transform: matrix(1, 0, 0, 1, -5.8, -4);
+        transform: matrix(1, 0, 0, 1, -2.3, -4);
     }
     .slot-6 {
-        transform: matrix(1, 0, 0, 1, -5.8, -8.9);
+        transform: matrix(1, 0, 0, 1, -2.3, -8.9);
     }
     .slot-7 {
-        transform: matrix(1, 0, 0, 1, -5.8, -13.8);
+        transform: matrix(1, 0, 0, 1, -2.3, -13.8);
     }
     .slot-8 {
-        transform: matrix(1, 0, 0, 1, -5.8, -18.7);
+        transform: matrix(1, 0, 0, 1, -2.3, -18.7);
     }
 }

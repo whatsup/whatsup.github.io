@@ -1,7 +1,7 @@
 import { Fractal, Context, fractal } from 'whatsup'
 import { _Army } from './army/army'
 import { Game } from './game'
-import { AreaCellsData, AreaData } from './generators/map'
+import { AreaData } from './generators/map'
 import { calculateAreaCenter, generateAreaShape } from './painter'
 
 export class Area extends Fractal<JSX.Element> {
@@ -16,7 +16,6 @@ export class Area extends Fractal<JSX.Element> {
         this.neighbors = new Set(neighbors)
         this.shape = generateAreaShape(cells)
         this.center = calculateAreaCenter(cells)
-        this.cells = cells
     }
 
     *whatsUp(ctx: Context) {
@@ -53,11 +52,10 @@ export class Area extends Fractal<JSX.Element> {
                         d={this.shape}
                         onClick={() => {
                             console.log(this)
-                            console.log(calculateAreaCenter(this.cells, true))
                         }}
                         style={polygonStyle}
                     ></path>
-                    <circle cx={this.center[0]} cy={this.center[1]} r="2" />
+                    <_Army coords={this.center} color="red" size={6} number={2} />
                 </g>
             )
         }
