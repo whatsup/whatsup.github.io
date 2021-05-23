@@ -2,9 +2,7 @@ import { Fractal, Context, fractal, conse, Conse } from 'whatsup'
 import { Army, _Army } from '../army'
 import { COLORS } from '../constants'
 import { Game } from '../game'
-import { ArmyData } from '../generators'
 import { AreaData } from '../generators/map'
-import { Player } from '../player'
 import { calculateAreaCenter, generateAreaShape } from './utils'
 
 function style(path: string) {
@@ -35,7 +33,7 @@ export class Area extends Fractal<JSX.Element> {
 
         while (true) {
             const { number } = yield* game.getPlayerByAreaId(this.id)
-            const color = COLORS[number]
+            const color = COLORS[number - 1]
 
             yield <_Area shape={this.shape} color={color} />
         }

@@ -7,6 +7,10 @@ import { SCALE_X, SCALE_Y } from './constants'
 import { _Army } from './army/army'
 import { ArmyData } from './generators'
 
+function coord(x: number, y: number) {
+    return x * 10000000 + y
+}
+
 export class GameMap extends Fractal<JSX.Element> {
     readonly width: number
     readonly height: number
@@ -17,7 +21,7 @@ export class GameMap extends Fractal<JSX.Element> {
 
         this.width = width
         this.height = height
-        this.areas = areas.map((data) => new Area(data))
+        this.areas = areas.map((data) => new Area(data)).sort((a, b) => coord(...a.center) - coord(...b.center))
     }
 
     *whatsUp(ctx: Context) {
