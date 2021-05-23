@@ -72,3 +72,71 @@ export function generateAreaShape(cells: AreaCellsData) {
 
     return `M ${points.join(' ')} z`
 }
+
+function* iterateCellNeighborsCoords(x: number, y: number) {
+    const parity = y & 1
+
+    for (const [ox, oy] of DIRECTIONS[parity]) {
+        yield [x + ox, y + oy]
+    }
+}
+
+export function calculateAreaCenter(cells: AreaCellsData, log = false): [number, number] {
+    let centerX = NaN
+    let centerY = NaN
+    let centerW = NaN
+
+    for (const [key, value] of Object.entries(cells)) {
+        const x = parseInt(key)
+
+        for (const y of value) {
+            const weight = calculateAreaCellWeight(cells, x, y)
+
+            if (Number.isNaN(centerW) || centerW <= weight) {
+                centerX = x
+                centerY = y
+                centerW = weight
+            }
+
+            if (log) {
+                console.log(x, y, weight)
+            }
+        }
+    }
+
+    if (log) {
+        console.log(centerX, centerY)
+    }
+
+    const x = (centerX + (centerY % 2) * 0.5) * SCALE_X
+    const y = centerY * 0.7 * SCALE_Y
+
+    return [x, y]
+}
+
+function calculateAreaCellWeight(
+    cells: AreaCellsData,
+    x: number,
+    y: number,
+    visited = new Map<number, Set<number>>(),
+    depth = 1
+) {
+    let result = 1
+
+    if (!visited.has(x)) {
+        visited.set(x, new Set())
+    }
+
+    visited.get(x)!.add(y)
+
+    for (const [nx, ny] of iterateCellNeighborsCoords(x, y)) {
+        if (!isCoordsBelongsToArea(cells, nx, ny)) {
+            continue
+        }
+        if (!visited.has(nx) || !visited.get(nx)!.has(ny)) {
+            result += calculateAreaCellWeight(cells, nx, ny, visited, depth + 1) * depth
+        }
+    }
+
+    return result
+}

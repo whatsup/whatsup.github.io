@@ -11,10 +11,15 @@ interface _ArmyProps extends JSX.IntrinsicAttributes {
     number: 1 | 2 | 3 | 4 | 5 | 6
     color: string
     size: number
+    coords: [number, number]
 }
 
-export function _Army({ number, color, size }: _ArmyProps) {
+export function _Army({ number, color, size, coords }: _ArmyProps) {
     const dices = [] as JSX.Element[]
+    const [x, y] = coords
+    const style = {
+        transform: `matrix(1, 0, 0, 1, ${x}, ${y})`,
+    }
 
     for (const i of [5, 6, 7, 8, 1, 2, 3, 4]) {
         if (i <= size) {
@@ -26,5 +31,9 @@ export function _Army({ number, color, size }: _ArmyProps) {
         }
     }
 
-    return <g className={_('army')}>{dices}</g>
+    return (
+        <g className={_('army')} style={style}>
+            {dices}
+        </g>
+    )
 }

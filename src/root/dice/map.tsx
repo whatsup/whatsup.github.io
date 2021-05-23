@@ -32,7 +32,6 @@ export class GameMap extends Fractal<JSX.Element> {
             yield (
                 <_GameMap width={this.width} height={this.height}>
                     {areas}
-                    <_Army number={2} color="red" size={8} />
                 </_GameMap>
             )
         }
