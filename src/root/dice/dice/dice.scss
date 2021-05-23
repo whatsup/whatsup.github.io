@@ -5,27 +5,167 @@
 .red {
     .side {
         .top {
-            fill: hsl(0, 73%, 53%);
+            fill: hsl(334, 79%, 50%);
         }
         .left {
-            fill: hsl(0, 73%, 47%);
+            fill: hsl(334, 79%, 44%);
         }
         .right {
-            fill: hsl(0, 73%, 41%);
+            fill: hsl(334, 79%, 38%);
         }
     }
     .corner {
         .center {
-            fill: hsl(0, 73%, 57%);
+            fill: hsl(334, 79%, 56%);
         }
         .left {
-            fill: hsl(0, 73%, 50%);
+            fill: hsl(334, 79%, 47%);
         }
         .right {
-            fill: hsl(0, 73%, 44%);
+            fill: hsl(334, 79%, 44%);
         }
         .bottom {
-            fill: hsl(0, 73%, 40%);
+            fill: hsl(334, 79%, 34%);
+        }
+    }
+}
+
+.green {
+    .side {
+        .top {
+            fill: hsl(123, 46%, 46%);
+        }
+        .left {
+            fill: hsl(123, 46%, 40%);
+        }
+        .right {
+            fill: hsl(123, 46%, 34%);
+        }
+    }
+    .corner {
+        .center {
+            fill: hsl(123, 46%, 52%);
+        }
+        .left {
+            fill: hsl(123, 46%, 43%);
+        }
+        .right {
+            fill: hsl(123, 46%, 40%);
+        }
+        .bottom {
+            fill: hsl(123, 46%, 30%);
+        }
+    }
+}
+
+.blue {
+    .side {
+        .top {
+            fill: hsl(212, 80%, 54%);
+        }
+        .left {
+            fill: hsl(212, 80%, 48%);
+        }
+        .right {
+            fill: hsl(212, 80%, 42%);
+        }
+    }
+    .corner {
+        .center {
+            fill: hsl(212, 80%, 60%);
+        }
+        .left {
+            fill: hsl(212, 80%, 51%);
+        }
+        .right {
+            fill: hsl(212, 80%, 48%);
+        }
+        .bottom {
+            fill: hsl(212, 80%, 38%);
+        }
+    }
+}
+
+.yellow {
+    .side {
+        .top {
+            fill: hsl(54, 70%, 42%);
+        }
+        .left {
+            fill: hsl(54, 70%, 36%);
+        }
+        .right {
+            fill: hsl(54, 70%, 30%);
+        }
+    }
+    .corner {
+        .center {
+            fill: hsl(54, 70%, 48%);
+        }
+        .left {
+            fill: hsl(54, 70%, 39%);
+        }
+        .right {
+            fill: hsl(54, 70%, 36%);
+        }
+        .bottom {
+            fill: hsl(54, 70%, 26%);
+        }
+    }
+}
+
+.brown {
+    .side {
+        .top {
+            fill: hsl(11, 26%, 36%);
+        }
+        .left {
+            fill: hsl(11, 26%, 30%);
+        }
+        .right {
+            fill: hsl(11, 26%, 24%);
+        }
+    }
+    .corner {
+        .center {
+            fill: hsl(11, 26%, 42%);
+        }
+        .left {
+            fill: hsl(11, 26%, 33%);
+        }
+        .right {
+            fill: hsl(11, 26%, 30%);
+        }
+        .bottom {
+            fill: hsl(11, 26%, 20%);
+        }
+    }
+}
+
+.violet {
+    .side {
+        .top {
+            fill: hsl(277, 70%, 47%);
+        }
+        .left {
+            fill: hsl(277, 70%, 41%);
+        }
+        .right {
+            fill: hsl(277, 70%, 35%);
+        }
+    }
+    .corner {
+        .center {
+            fill: hsl(277, 70%, 53%);
+        }
+        .left {
+            fill: hsl(277, 70%, 44%);
+        }
+        .right {
+            fill: hsl(277, 70%, 41%);
+        }
+        .bottom {
+            fill: hsl(277, 70%, 31%);
         }
     }
 }

@@ -26,7 +26,7 @@ export class Army extends Fractal<JSX.Element> {
         while (true) {
             const { number } = yield* game.getPlayerByAreaId(this.area.id)
             const size = yield* game.getArmySizeByAreaId(this.area.id)
-            const color = COLORS[number]
+            const color = COLORS[number - 1]
 
             yield <_Army position={this.area.center} color={color} size={size} number={number} />
         }

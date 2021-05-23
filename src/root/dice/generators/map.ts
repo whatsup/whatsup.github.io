@@ -146,7 +146,7 @@ function getMapPerimeter(store: Store) {
 /* Utils */
 
 function calculateCandidateWeight(candidate: Cell) {
-    return (6 - candidate.freeNeighborsCount) ** 7
+    return (6 - candidate.freeNeighborsCount) ** 10
 }
 
 function getCandidateFromPerimeter(perimeter: Cell[]) {
