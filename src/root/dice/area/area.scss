@@ -1,0 +1,12 @@
+.area {
+    stroke: #333;
+    strokewidth: 1;
+    strokelinejoin: round;
+    shaperendering: geometricprecision;
+    pointerevents: visiblefill;
+    cursor: pointer;
+
+    .red {
+        fill: #ffcdd2;
+    }
+}

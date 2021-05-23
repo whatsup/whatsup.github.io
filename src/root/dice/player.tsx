@@ -3,13 +3,13 @@ import { PlayerData } from './generators'
 
 export class Player extends Fractal<JSX.Element> {
     readonly id: number
-    readonly color: string
+    readonly number: 1 | 2 | 3 | 4 | 5 | 6
     readonly areas: List<number>
 
-    constructor({ id, areas }: PlayerData, color: string) {
+    constructor({ id, areas }: PlayerData, number: 1 | 2 | 3 | 4 | 5 | 6) {
         super()
         this.id = id
-        this.color = color
+        this.number = number
         this.areas = list(areas)
     }
 

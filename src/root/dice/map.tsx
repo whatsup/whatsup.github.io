@@ -1,10 +1,11 @@
 import _ from './world.scss'
 import { Fractal, Context } from 'whatsup'
 import { MapData } from './generators/map'
-import { Area } from './area'
+import { Area } from './area/area'
 import { _Dice } from './dice'
 import { SCALE_X, SCALE_Y } from './constants'
 import { _Army } from './army/army'
+import { ArmyData } from './generators'
 
 export class GameMap extends Fractal<JSX.Element> {
     readonly width: number
@@ -23,15 +24,18 @@ export class GameMap extends Fractal<JSX.Element> {
         //ctx.share(this)
 
         while (true) {
+            const armies = [] as JSX.Element[]
             const areas = [] as JSX.Element[]
 
             for (const area of this.areas) {
                 areas.push(yield* area)
+                armies.push(yield* area.army)
             }
 
             yield (
                 <_GameMap width={this.width} height={this.height}>
                     {areas}
+                    {armies}
                 </_GameMap>
             )
         }

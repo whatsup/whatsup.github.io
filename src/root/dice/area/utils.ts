@@ -1,5 +1,5 @@
-import { DIRECTIONS, SCALE_X, SCALE_Y } from './constants'
-import { AreaCellsData } from './generators/map'
+import { DIRECTIONS, SCALE_X, SCALE_Y } from '../constants'
+import { AreaCellsData } from '../generators/map'
 
 //prettier-ignore
 const POINTS = [

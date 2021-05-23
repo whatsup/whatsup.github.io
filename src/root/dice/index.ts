@@ -15,7 +15,7 @@ try {
 
 console.log(data)
 
-const gameData = generateGame(COLORS.length, 110)
+const gameData = generateGame(6, 110)
 const game = new Game(gameData)
 
 render(game)
