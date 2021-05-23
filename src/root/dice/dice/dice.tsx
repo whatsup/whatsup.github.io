@@ -1,13 +1,13 @@
-import { side, corner, number } from './shape'
+import { side, corner, marking } from './shape'
 
 const _ = style('dice')
 
 interface _DiceProps extends JSX.IntrinsicAttributes {
-    value: 1 | 2 | 3 | 4 | 5 | 6
+    number: 1 | 2 | 3 | 4 | 5 | 6
     color: string
 }
 
-export function _Dice({ value, color }: _DiceProps) {
+export function _Dice({ number, color }: _DiceProps) {
     return (
         <g className={_('dice', color)}>
             <g className={_('side')}>
@@ -21,10 +21,10 @@ export function _Dice({ value, color }: _DiceProps) {
                 <path className={_('right')} d={corner.right} />
                 <path className={_('bottom')} d={corner.bottom} />
             </g>
-            <g className={_('number')}>
-                <path className={_('right')} d={number[value].right} />
-                <path className={_('left')} d={number[value].left} />
-                <path className={_('top')} d={number[value].top} />
+            <g className={_('marking')}>
+                <path className={_('right')} d={marking[number].right} />
+                <path className={_('left')} d={marking[number].left} />
+                <path className={_('top')} d={marking[number].top} />
             </g>
         </g>
     )

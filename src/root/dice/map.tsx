@@ -4,6 +4,7 @@ import { MapData } from './generators/map'
 import { Area } from './area'
 import { _Dice } from './dice'
 import { SCALE_X, SCALE_Y } from './constants'
+import { _Army } from './army/army'
 
 export class GameMap extends Fractal<JSX.Element> {
     readonly width: number
@@ -31,7 +32,7 @@ export class GameMap extends Fractal<JSX.Element> {
             yield (
                 <_GameMap width={this.width} height={this.height}>
                     {areas}
-                    <_Dice value={4} color="red" />
+                    <_Army number={2} color="red" size={8} />
                 </_GameMap>
             )
         }
