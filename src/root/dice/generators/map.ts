@@ -43,7 +43,9 @@ function initCell(store: Store, x: number, y: number, area: Area) {
         const neighbor = findCell(store, x, y)
 
         if (neighbor) {
-            setAreaRelations(area, neighbor.area)
+            if (neighbor.area !== area) {
+                setAreaRelations(area, neighbor.area)
+            }
             neighbor.freeNeighborsCount--
         } else {
             cell.freeNeighborsCount++
