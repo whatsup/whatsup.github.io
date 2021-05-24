@@ -3,7 +3,7 @@ import { Area } from '../area/area'
 import { COLORS } from '../constants'
 import { _Dice } from '../dice'
 import { Game } from '../game'
-import { ArmyData } from '../generators'
+import { shadow } from './shape'
 
 function style(path: string) {
     const styles = require(`./${path}.scss`).default
@@ -43,6 +43,7 @@ interface _ArmyProps extends JSX.IntrinsicAttributes {
 export function _Army({ number, color, size, position }: _ArmyProps) {
     const dices = [] as JSX.Element[]
     const [x, y] = position
+    const shadowLength = (size >= 4 ? 4 : size) as 1 | 2 | 3 | 4
     const style = {
         transform: `matrix(1, 0, 0, 1, ${x}, ${y})`,
     }
@@ -59,6 +60,7 @@ export function _Army({ number, color, size, position }: _ArmyProps) {
 
     return (
         <g className={_('army')} style={style}>
+            <path d={shadow[shadowLength]} className={_('shadow')} />
             {dices}
         </g>
     )

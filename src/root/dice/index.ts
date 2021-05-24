@@ -15,7 +15,7 @@ try {
 
 console.log(data)
 
-const gameData = generateGame(6, 50)
+const gameData = generateGame(6, 11)
 const game = new Game(gameData)
 
 render(game)

@@ -8,7 +8,7 @@ import { _Army } from './army/army'
 import { ArmyData } from './generators'
 
 function coord(x: number, y: number) {
-    return x * 10000000 + y
+    return x + y * 10000000
 }
 
 export class GameMap extends Fractal<JSX.Element> {
