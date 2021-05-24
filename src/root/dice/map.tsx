@@ -52,10 +52,10 @@ interface _GameMapProps extends JSX.IntrinsicAttributes {
 }
 
 function _GameMap({ width, height, children }: _GameMapProps) {
-    const sx = -1 * SCALE_X
-    const sy = -1 * SCALE_Y
-    const dx = (width + 2.5) * SCALE_X
-    const dy = (height * 0.7 + 2) * SCALE_Y
+    const sx = -2 * SCALE_X
+    const sy = -2 * SCALE_Y
+    const dx = (width + 4.5) * SCALE_X
+    const dy = (height * 0.7 + 4) * SCALE_Y
     const viewBox = `${sx},${sy} ${dx},${dy}`
     const style = {
         maxWidth: '100vw',
