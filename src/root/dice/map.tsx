@@ -60,6 +60,7 @@ function _GameMap({ width, height, children }: _GameMapProps) {
     const style = {
         maxWidth: '100vw',
         maxHeight: '100vh',
+        backgroundColor: '#263238',
     }
 
     return (
