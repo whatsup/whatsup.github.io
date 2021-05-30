@@ -48,9 +48,10 @@ export class Area extends Fractal<JSX.Element> {
         const onClick = () => ctx.dispatch(new AreaClickEvent(this))
 
         while (true) {
-            const { number } = yield* game.getPlayerByAreaId(this.id)
-            const selectedAreaId = yield* game.getSelectedAreaId()
-            const selected = selectedAreaId === this.id
+            const { number } = yield* game.yiePlayerByAreaId(this.id)
+            const attackerArea = yield* game.yieAttakerArea()
+            const defenderArea = yield* game.yieDefenderArea()
+            const selected = attackerArea === this || defenderArea === this
             const color = COLORS[number - 1]
 
             yield <_Area shape={this.shape} color={color} selected={selected} onClick={onClick} />

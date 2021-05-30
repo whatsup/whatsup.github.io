@@ -1,5 +1,10 @@
 .army {
     pointer-events: none;
+    transition: opacity 0.3s ease;
+
+    &.hidden {
+        opacity: 0;
+    }
 
     .slot-1 {
         transform: matrix(1, 0, 0, 1, 3.5, 0);
