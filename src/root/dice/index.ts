@@ -1,5 +1,4 @@
 import { render } from '@whatsup/jsx'
-import { COLORS } from './constants'
 import { Game } from './game'
 import { generateGame } from './generators'
 
