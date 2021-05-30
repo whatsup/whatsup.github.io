@@ -1,4 +1,4 @@
-import { Fractal, Context, fractal, conse, Conse } from 'whatsup'
+import { Fractal, Context, fractal, conse, Conse, Event } from 'whatsup'
 import { Army, _Army } from '../army'
 import { COLORS } from '../constants'
 import { Game } from '../game'
@@ -7,10 +7,23 @@ import { calculateAreaCenter, generateAreaShape } from './utils'
 
 function style(path: string) {
     const styles = require(`./${path}.scss`).default
-    return (...classNames: (string | number)[]) => classNames.map((name) => styles[name]).join(' ')
+    return (...classNames: (string | number | boolean)[]) =>
+        classNames
+            .filter((name) => typeof name === 'string' || typeof name === 'number')
+            .map((name) => styles[name as string | number])
+            .join(' ')
 }
 
 const _ = style('area')
+
+export class AreaClickEvent extends Event {
+    readonly area: Area
+
+    constructor(area: Area) {
+        super()
+        this.area = area
+    }
+}
 
 export class Area extends Fractal<JSX.Element> {
     readonly id: number
@@ -30,12 +43,15 @@ export class Area extends Fractal<JSX.Element> {
 
     *whatsUp(ctx: Context) {
         const game = ctx.get(Game)
+        const onClick = () => ctx.dispatch(new AreaClickEvent(this))
 
         while (true) {
             const { number } = yield* game.getPlayerByAreaId(this.id)
+            const selectedAreaId = yield* game.getSelectedAreaId()
+            const selected = selectedAreaId === this.id
             const color = COLORS[number - 1]
 
-            yield <_Area shape={this.shape} color={color} />
+            yield <_Area shape={this.shape} color={color} selected={selected} onClick={onClick} />
         }
     }
 }
@@ -43,8 +59,12 @@ export class Area extends Fractal<JSX.Element> {
 interface _AreaProps extends JSX.IntrinsicAttributes {
     shape: string
     color: string
+    selected: boolean
+    onClick: () => void
 }
 
-function _Area({ shape, color }: _AreaProps) {
-    return <path d={shape} className={_('area', color)}></path>
+function _Area({ shape, color, selected, onClick }: _AreaProps) {
+    const className = _('area', color, selected && 'selected')
+
+    return <path className={className} d={shape} onClick={onClick}></path>
 }

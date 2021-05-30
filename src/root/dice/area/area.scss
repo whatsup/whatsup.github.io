@@ -5,24 +5,49 @@
     shape-rendering: geometricprecision;
     pointer-events: visiblefill;
     cursor: pointer;
+    transition: fill 0.2s ease;
 
     &.red {
         fill: #f06292;
+
+        &.selected {
+            fill: #e91e63;
+        }
     }
     &.green {
         fill: #81c784;
+
+        &.selected {
+            fill: #4caf50;
+        }
     }
     &.blue {
         fill: #64b5f6;
+
+        &.selected {
+            fill: #2196f3;
+        }
     }
     &.yellow {
         fill: #dce775;
+
+        &.selected {
+            fill: #afb42b;
+        }
     }
     &.brown {
         fill: #a1887f;
+
+        &.selected {
+            fill: #795548;
+        }
     }
     &.violet {
         fill: #ba68c8;
+
+        &.selected {
+            fill: #9c27b0;
+        }
     }
 }
 // '#f06292',

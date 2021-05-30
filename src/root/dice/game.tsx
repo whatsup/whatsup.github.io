@@ -1,6 +1,5 @@
 import { Cause, conse, Conse, Context } from 'whatsup'
-import { Army } from './army'
-import { COLORS } from './constants'
+import { AreaClickEvent } from './area'
 import { AreaArmiesData, AreaOwnersData, GameData } from './generators'
 import { GameMap } from './map'
 import { Player } from './player'
@@ -10,6 +9,7 @@ export class Game extends Cause<JSX.Element> {
     readonly map: GameMap
     readonly areaOwners: Conse<AreaOwnersData>
     readonly areaArmies: Conse<AreaArmiesData>
+    readonly selectedAreaId: Conse<number>
 
     constructor({ players, owners, armies, map }: GameData) {
         super()
@@ -18,6 +18,7 @@ export class Game extends Cause<JSX.Element> {
         this.map = new GameMap(map)
         this.areaOwners = conse(owners)
         this.areaArmies = conse(armies)
+        this.selectedAreaId = conse(NaN)
     }
 
     *getArmySizeByAreaId(areaId: number) {
@@ -36,11 +37,24 @@ export class Game extends Cause<JSX.Element> {
         throw 'Can`t find player'
     }
 
+    *getSelectedAreaId() {
+        return yield* this.selectedAreaId
+    }
+
+    handleAreaClickEvent(e: AreaClickEvent) {
+        this.selectedAreaId.set(e.area.id)
+    }
+
     *whatsUp(ctx: Context) {
         ctx.share(this)
+        ctx.on(AreaClickEvent, (e) => this.handleAreaClickEvent(e))
 
         while (true) {
             yield yield* this.map
         }
     }
 }
+
+// function _Game (){
+//     return <div className={}>
+// }
