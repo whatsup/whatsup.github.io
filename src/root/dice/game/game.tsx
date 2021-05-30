@@ -1,9 +1,20 @@
 import { Cause, conse, Conse, Context } from 'whatsup'
 import { action } from 'whatsup'
-import { Area, AreaClickEvent } from './area'
-import { AreaArmiesData, AreaOwnersData, GameData } from './generators'
-import { GameMap } from './map'
-import { Player } from './player'
+import { Area, AreaClickEvent } from '../area'
+import { AreaArmiesData, AreaOwnersData, GameData } from '../generators'
+import { GameMap } from '../map'
+import { Player } from '../player'
+
+function style(path: string) {
+    const styles = require(`./${path}.scss`).default
+    return (...classNames: (string | number | boolean)[]) =>
+        classNames
+            .filter((name) => typeof name === 'string' || typeof name === 'number')
+            .map((name) => styles[name as string | number])
+            .join(' ')
+}
+
+const _ = style('game')
 
 export class Game extends Cause<JSX.Element> {
     readonly playerId: number
@@ -95,11 +106,13 @@ export class Game extends Cause<JSX.Element> {
         ctx.on(AreaClickEvent, (e) => this.handleAreaClickEvent(e))
 
         while (true) {
-            yield yield* this.map
+            yield <_Game>{yield* this.map}</_Game>
         }
     }
 }
 
-// function _Game (){
-//     return <div className={}>
-// }
+interface _GameProps extends JSX.IntrinsicAttributes {}
+
+function _Game({ children }: _GameProps) {
+    return <div className={_('game')}>{children}</div>
+}
