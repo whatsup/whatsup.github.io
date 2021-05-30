@@ -32,7 +32,7 @@ export function generateGame(playersCount: number, maxAreasCount: number) {
     const players = [] as PlayerData[]
     const areasIds = map.areas.map((area) => area.id)
     const playerAreasCount = areasCount / playersCount
-    const playerDicesCount = playerAreasCount * 3
+    const playerDicesCount = Math.floor(playerAreasCount * 1.5)
     const owners = {} as AreaOwnersData
     const armies = {} as AreaArmiesData
 
@@ -45,6 +45,7 @@ export function generateGame(playersCount: number, maxAreasCount: number) {
             const areaId = areasIds[index]
 
             owners[areaId] = id
+            armies[areaId] = 1
             areas.push(areaId)
             areasIds.splice(index, 1)
         }
@@ -52,11 +53,7 @@ export function generateGame(playersCount: number, maxAreasCount: number) {
         for (let n = 0; n < playerDicesCount; n++) {
             const areaId = getRandomItemFromArray(areas)
 
-            if (areaId in armies) {
-                armies[areaId]++
-            } else {
-                armies[areaId] = 1
-            }
+            armies[areaId]++
         }
 
         const player = { id, areas } as PlayerData

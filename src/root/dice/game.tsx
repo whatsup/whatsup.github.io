@@ -10,6 +10,7 @@ export class Game extends Cause<JSX.Element> {
     readonly areaOwners: Conse<AreaOwnersData>
     readonly areaArmies: Conse<AreaArmiesData>
     readonly selectedAreaId: Conse<number>
+    readonly activePlayerId: Conse<number>
 
     constructor({ players, owners, armies, map }: GameData) {
         super()
@@ -19,6 +20,7 @@ export class Game extends Cause<JSX.Element> {
         this.areaOwners = conse(owners)
         this.areaArmies = conse(armies)
         this.selectedAreaId = conse(NaN)
+        this.activePlayerId = conse(1)
     }
 
     *getArmySizeByAreaId(areaId: number) {
