@@ -14,8 +14,6 @@ function style(path: string) {
             .join(' ')
 }
 
-console.log(__dirname)
-
 const _ = style('area')
 
 export class AreaClickEvent extends Event {
