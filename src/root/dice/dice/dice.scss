@@ -1,5 +1,12 @@
 .dice {
     //transform: matrix(1, 0, 0, 1, 50, 50);
+    //animation: spin 4s linear infinite;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .red {

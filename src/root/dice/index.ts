@@ -14,7 +14,7 @@ import { generateGame } from './generators'
 
 // console.log(data)
 
-const gameData = generateGame(6, 60)
+const gameData = generateGame(2, 4)
 const game = new Game(gameData)
 
 console.log(gameData)

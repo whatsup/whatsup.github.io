@@ -1,5 +1,5 @@
 .army {
-    pointer-events: none;
+    pointer-events: all;
     transition: opacity 0.3s ease;
 
     &.hidden {
@@ -29,6 +29,36 @@
     }
     .slot-8 {
         transform: matrix(1, 0, 0, 1, -2.3, -18.7);
+    }
+
+    &.attack {
+        .slot-1 {
+            animation: spin 0.5s linear forwards;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: matrix(1, 0, 0, 1, 3.5, 0) rotate(0deg);
+            }
+            10% {
+                transform: matrix(1, 0, 0, 1, 3.5, -5) rotate(120deg);
+            }
+            20% {
+                transform: matrix(1, 0, 0, 1, 3.5, 0) rotate(240deg);
+            }
+            40% {
+                transform: matrix(1, 0, 0, 1, 6, -3) rotate(360deg);
+            }
+            60% {
+                transform: matrix(1, 0, 0, 1, 8, 0) rotate(480deg);
+            }
+            80% {
+                transform: matrix(1, 0, 0, 1, 10, -2) rotate(600deg);
+            }
+            100% {
+                transform: matrix(1, 0, 0, 1, 12, 0) rotate(720deg);
+            }
+        }
     }
 }
 

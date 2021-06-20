@@ -1,4 +1,4 @@
-import { conse, Conse, Context, Fractal } from 'whatsup'
+import { conse, Context, Fractal } from 'whatsup'
 import { Area } from '../area/area'
 import { COLORS } from '../constants'
 import { _Dice } from '../dice'
@@ -26,6 +26,7 @@ export class Army extends Fractal<JSX.Element> {
 
     *whatsUp(ctx: Context) {
         const game = ctx.get(Game)
+        const attack = conse(false)
 
         while (true) {
             const { number } = yield* game.yiePlayerByAreaId(this.area.id)
@@ -35,8 +36,19 @@ export class Army extends Fractal<JSX.Element> {
                 (attackerArea && defenderArea && attackerArea !== this.area && defenderArea !== this.area) || false
             const size = yield* game.getArmySizeByAreaId(this.area.id)
             const color = COLORS[number - 1]
+            const onClick = () => attack.set(!attack.get())
 
-            yield <_Army position={this.area.center} color={color} size={size} number={number} hidden={hidden} />
+            yield (
+                <_Army
+                    position={this.area.center}
+                    color={color}
+                    size={size}
+                    number={number}
+                    hidden={hidden}
+                    onClick={onClick}
+                    attack={yield* attack}
+                />
+            )
         }
     }
 }
@@ -46,14 +58,16 @@ interface _ArmyProps extends JSX.IntrinsicAttributes {
     color: string
     size: number
     hidden: boolean
+    attack: boolean
+    onClick: () => void
     position: [number, number]
 }
 
-export function _Army({ number, color, size, position, hidden }: _ArmyProps) {
+export function _Army({ number, color, size, position, hidden, attack, onClick }: _ArmyProps) {
     const dices = [] as JSX.Element[]
     const [x, y] = position
     const shadowLength = (size >= 4 ? 4 : size) as 1 | 2 | 3 | 4
-    const className = _('army', hidden && 'hidden')
+    const className = _('army', hidden && 'hidden', attack && 'attack')
     const style = {
         transform: `matrix(1, 0, 0, 1, ${x}, ${y})`,
     }
@@ -61,7 +75,7 @@ export function _Army({ number, color, size, position, hidden }: _ArmyProps) {
     for (const i of [5, 6, 7, 8, 1, 2, 3, 4]) {
         if (i <= size) {
             dices.push(
-                <g className={_(`slot-${i}`)}>
+                <g className={_('slot', `slot-${i}`)}>
                     <_Dice number={number} color={color} />
                 </g>
             )
@@ -69,7 +83,7 @@ export function _Army({ number, color, size, position, hidden }: _ArmyProps) {
     }
 
     return (
-        <g className={className} style={style}>
+        <g className={className} style={style} onClick={onClick}>
             <path d={shadow[shadowLength]} className={_('shadow')} />
             {dices}
         </g>
