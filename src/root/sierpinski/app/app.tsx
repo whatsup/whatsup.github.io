@@ -1,114 +1,91 @@
 import styles from './app.scss'
-import { Fractal, Context, Cause, conse } from 'whatsup'
+import { Context, observable, Computed } from 'whatsup'
 
-function layer(depth: number) {
-    return depth === 0 ? new Dot() : new Triangle(--depth)
-}
-
-export class Timer extends Cause<number> {
-    private delay: number
-
+export class Timer extends Computed<number> {
     constructor(delay: number = 1000) {
-        super()
-        this.delay = delay
-    }
+        super(function* (ctx: Context) {
+            let timeoutId: number
+            let value = -1
 
-    *whatsUp(ctx: Context) {
-        let timeoutId: number
-        let value = -1
-
-        try {
-            while (true) {
-                timeoutId = window.setTimeout(() => ctx.update(), this.delay)
-                yield value === 9 ? (value = 0) : ++value
+            try {
+                while (true) {
+                    timeoutId = window.setTimeout(() => ctx.update(), delay)
+                    yield value === 9 ? (value = 0) : ++value
+                }
+            } finally {
+                clearTimeout(timeoutId!)
             }
-        } finally {
-            clearTimeout(timeoutId!)
-        }
+        })
     }
 }
 
-class Scaler extends Cause<number> {
-    *whatsUp(ctx: Context) {
-        let elapsed = 0
-        let rafId: number
+export class Scaler extends Computed<number> {
+    constructor() {
+        super(function* (ctx: Context) {
+            let elapsed = 0
+            let rafId: number
 
-        try {
-            while (true) {
-                rafId = requestAnimationFrame((e) => ((elapsed = e), ctx.update()))
-                const e = (elapsed / 1000) % 10
-                yield 1 + (e > 5 ? 10 - e : e) / 10
+            try {
+                while (true) {
+                    rafId = requestAnimationFrame((e) => ((elapsed = e), ctx.update()))
+                    const e = (elapsed / 1000) % 10
+                    yield 1 + (e > 5 ? 10 - e : e) / 10
+                }
+            } finally {
+                cancelAnimationFrame(rafId!)
             }
-        } finally {
-            cancelAnimationFrame(rafId!)
-        }
+        })
     }
 }
 
-class Dot extends Fractal<JSX.Element> {
-    *whatsUp(ctx: Context) {
-        const timer = ctx.get(Timer)
-        const Hovered = conse(false)
+function* Dot(ctx: Context) {
+    const timer = ctx.get(Timer)
+    const hovered = observable(false)
 
-        const onMouseOver = () => Hovered.set(true)
-        const onMouseOut = () => Hovered.set(false)
+    const onMouseOver = () => hovered.set(true)
+    const onMouseOut = () => hovered.set(false)
 
-        while (true) {
-            const hovered = yield* Hovered
-            const time = yield* timer
-            const text = hovered ? `*${time}*` : time
-            const className = styles.dot + (hovered ? ' ' + styles.hovered : '')
+    while (true) {
+        const isHovered = hovered.get()
+        const time = timer.get()
+        const text = isHovered ? `*${time}*` : time
+        const className = styles.dot + (isHovered ? ' ' + styles.hovered : '')
 
-            yield (
-                <div className={className} onMouseOver={onMouseOver} onMouseOut={onMouseOut}>
-                    {text}
-                </div>
-            )
-        }
+        yield (
+            <div className={className} onMouseOver={onMouseOver} onMouseOut={onMouseOut}>
+                {text}
+            </div>
+        )
     }
 }
 
-class Triangle extends Fractal<JSX.Element> {
-    private one: Dot | Triangle
-    private two: Dot | Triangle
-    private thr: Dot | Triangle
-
-    constructor(depth: number) {
-        super()
-        this.one = layer(depth)
-        this.two = layer(depth)
-        this.thr = layer(depth)
-    }
-
-    *whatsUp() {
-        while (true) {
-            yield (
-                <div className={styles.triangle}>
-                    {yield* this.one}
-                    {yield* this.two}
-                    {yield* this.thr}
-                </div>
-            )
-        }
-    }
+function Triangle({ depth }: { depth: number }) {
+    return (
+        <div className={styles.triangle}>
+            <Layer depth={depth} />
+            <Layer depth={depth} />
+            <Layer depth={depth} />
+        </div>
+    )
 }
 
-export class App extends Fractal<JSX.Element> {
-    readonly timer = new Timer()
-    readonly scaler = new Scaler()
-    readonly triangle = new Triangle(5);
+function Layer({ depth }: { depth: number }) {
+    return depth === 0 ? <Dot /> : <Triangle depth={depth - 1} />
+}
 
-    *whatsUp(ctx: Context) {
-        ctx.share(this.timer)
+export function* App(ctx: Context) {
+    const timer = new Timer()
+    const scaler = new Scaler()
 
-        while (true) {
-            const transform = `scaleX(${yield* this.scaler})`
+    ctx.share(timer)
 
-            yield (
-                <section className={styles.container} style={{ transform }}>
-                    {yield* this.triangle}
-                </section>
-            )
-        }
+    while (true) {
+        const transform = '' // `scaleX(${scaler.get()})`
+
+        yield (
+            <section className={styles.container} style={{ transform }}>
+                <Layer depth={5} />
+            </section>
+        )
     }
 }
